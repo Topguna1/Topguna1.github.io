@@ -403,7 +403,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, setLogLevel, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 setLogLevel('debug');
@@ -438,7 +438,10 @@ let sites = [];
 let db, auth, userId;
 let currentUnsubscribe = null;
 
-const appId = 1:866143773244:web:113d983d40868898b71939
+// ===================================================================================
+// 중요: 이 부분을 자신의 Firebase 프로젝트 설정으로 교체해주세요.
+// Firebase 콘솔 -> 프로젝트 설정 (⚙️) -> 내 앱 -> SDK 설정 및 구성에서 찾을 수 있습니다.
+// ===================================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyCwLLD_WChnOUIq6xxgWe9VJMpYkmCDNDk",
   authDomain: "test123-127d7.firebaseapp.com",
@@ -448,11 +451,29 @@ const firebaseConfig = {
   appId: "1:866143773244:web:113d983d40868898b71939",
   measurementId: "G-KQEKG6ELM6"
 };
+// ===================================================================================
+
+// ✨ 중요 ✨: 아래 apiKey가 "YOUR_API_KEY"인 경우, 앱이 작동하지 않습니다.
+// 본인의 Firebase 프로젝트에서 실제 설정 값을 복사하여 붙여넣어 주세요.
+if (firebaseConfig.apiKey === "1:866143773244:web:113d983d40868898b71939" || !firebaseConfig.apiKey) {
+    alert("Firebase 설정이 필요합니다! 코드의 firebaseConfig 부분을 실제 프로젝트의 API 키와 정보로 교체해주세요.");
+    // 앱의 나머지 부분 실행을 중단하여 추가 오류를 방지합니다.
+    throw new Error("Firebase 설정이 완료되지 않았습니다.");
+}
+
+const appId = firebaseConfig.projectId || 'default-app-id';
 
 // Firebase 초기화 및 인증
-const app = initializeApp(firebaseConfig);
-auth = getAuth(app);
-db = getFirestore(app);
+let app;
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+} catch (e) {
+  console.error("Firebase 초기화 실패:", e);
+  alert("Firebase 설정이 올바르지 않습니다. 코드를 확인해주세요.");
+}
+
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -460,17 +481,26 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('userIdDisplay').textContent = userId;
     await fetchSitesFromFirestore();
   } else {
-    // __initial_auth_token이 없으면 익명으로 로그인
-    if (typeof __initial_auth_token !== 'undefined') {
-      await signInWithCustomToken(auth, __initial_auth_token);
-    } else {
-      await signInAnonymously(auth);
+    // 익명으로 로그인 시도
+    try {
+        await signInAnonymously(auth);
+    } catch (error) {
+        console.error("익명 로그인 실패:", error);
+        // 사용자에게 더 구체적인 오류 메시지 표시
+        if (error.code === 'auth/invalid-api-key') {
+             alert("Firebase API 키가 유효하지 않습니다. 코드의 firebaseConfig 부분을 확인해주세요.");
+        } else {
+             alert("인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.");
+        }
     }
   }
 });
 
 // Firestore에서 사이트 데이터 불러오기 및 실시간 감지
 async function fetchSitesFromFirestore() {
+  // userId가 없으면 함수를 실행하지 않음
+  if (!userId) return;
+  
   const collectionPath = `/artifacts/${appId}/users/${userId}/sites`;
   const sitesCollectionRef = collection(db, collectionPath);
   
@@ -500,15 +530,19 @@ async function fetchSitesFromFirestore() {
 
 // 초기 데이터 추가 함수
 async function addInitialData() {
-  if (sites.length === 0) {
+  if (sites.length === 0 && userId) {
     const batch = writeBatch(db);
     const sitesCollectionRef = collection(db, `/artifacts/${appId}/users/${userId}/sites`);
     DEFAULT_SITES.forEach(site => {
       const newDocRef = doc(sitesCollectionRef);
       batch.set(newDocRef, site);
     });
-    await batch.commit();
-    console.log("초기 데이터가 성공적으로 추가되었습니다.");
+    try {
+        await batch.commit();
+        console.log("초기 데이터가 성공적으로 추가되었습니다.");
+    } catch(error) {
+        console.error("초기 데이터 추가 실패:", error);
+    }
   }
 }
 
@@ -528,13 +562,13 @@ function showPopup(message, isError = false) {
 
 // 커스텀 확인 모달
 let confirmCallback = null;
-function openConfirmationModal(title, message, onConfirm) {
+window.openConfirmationModal = function(title, message, onConfirm) {
   document.getElementById('confirmTitle').textContent = title;
   document.getElementById('confirmMessage').textContent = message;
   confirmCallback = onConfirm;
   document.getElementById('confirmation-modal').style.display = 'flex';
 }
-function closeConfirmationModal() {
+window.closeConfirmationModal = function() {
   document.getElementById('confirmation-modal').style.display = 'none';
   confirmCallback = null;
 }
@@ -547,35 +581,20 @@ document.getElementById('confirmActionBtn').addEventListener('click', () => {
 
 // 관리자 토글
 function toggleAdmin() {
-  if (isAdminLoggedIn) {
-    logout();
-  } else {
-    // 실제로는 안전한 인증 로직이 필요하지만, 여기서는 간단한 비밀번호로 대체
-    openConfirmationModal(
-      '관리자 로그인',
-      '관리자 비밀번호를 입력해주세요.',
-      () => {
-        // 이 부분은 사용자 모달에 맞게 수정 필요. 현재는 동작하지 않음.
-        // 이 예시에서는 confirm() 대신 커스텀 모달을 보여주기 위한 용도로만 사용됩니다.
-        // 실제 비밀번호 입력은 별도 UI가 필요합니다.
-        checkAdminAuth();
-      }
-    );
-  }
+    if (isAdminLoggedIn) {
+        logout();
+    } else {
+        const password = prompt("관리자 비밀번호를 입력하세요:");
+        if (password === "admin123") {
+            isAdminLoggedIn = true;
+            showPopup("관리자 모드가 활성화되었습니다!");
+            updateAdminUI();
+        } else if (password !== null) {
+            showPopup("잘못된 비밀번호입니다.", true);
+        }
+    }
 }
 
-function checkAdminAuth() {
-  const password = window.prompt("관리자 비밀번호를 입력하세요:");
-  if (password === "admin123") {
-    isAdminLoggedIn = true;
-    showPopup("관리자 모드가 활성화되었습니다!");
-    updateAdminUI();
-    return true;
-  } else if (password !== null) {
-    showPopup("잘못된 비밀번호입니다.", true);
-  }
-  return false;
-}
 
 function logout() {
   isAdminLoggedIn = false;
@@ -614,7 +633,7 @@ function getFilteredSites() {
 }
 
 // 사이트 카드 생성
-function createSiteCard(site, index) {
+function createSiteCard(site) {
   const card = document.createElement("div");
   card.className = "link-card";
   
@@ -656,7 +675,7 @@ function renderSites() {
           container.appendChild(createSiteCard(site));
         });
       } else {
-        if (section) section.style.display = (currentCategoryFilter === "all" || currentCategoryFilter === category) ? "block" : "none";
+        if (section) section.style.display = "block";
         container.innerHTML = "<p style='color:#666;text-align:center;padding:20px;'>해당 조건의 사이트가 없습니다.</p>";
       }
     }
@@ -693,7 +712,7 @@ function setupFilters() {
 }
 
 // 필터 초기화
-function resetFilters() {
+window.resetFilters = function() {
   currentAgeFilter = "all";
   currentCategoryFilter = "all";
   currentSubjectFilter = "all";
@@ -706,9 +725,7 @@ function resetFilters() {
 let editingDocId = null;
 
 function openAddModal() {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+  if (!isAdminLoggedIn) return;
   editingDocId = null;
   document.getElementById("modalTitle").textContent = "새 사이트 추가";
   document.getElementById("siteForm").reset();
@@ -716,10 +733,8 @@ function openAddModal() {
   document.getElementById("modal").style.display = "flex";
 }
 
-function openEditModal(docId) {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+window.openEditModal = function(docId) {
+  if (!isAdminLoggedIn) return;
   editingDocId = docId;
   const site = sites.find(s => s.id === docId);
   if (!site) {
@@ -747,7 +762,7 @@ function openEditModal(docId) {
   document.getElementById("modal").style.display = "flex";
 }
 
-function closeModal() {
+window.closeModal = function() {
   document.getElementById("modal").style.display = "none";
   document.getElementById("siteForm").reset();
   clearFormCheckboxes();
@@ -758,7 +773,7 @@ function clearFormCheckboxes() {
   document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
 }
 
-async function saveSite(event) {
+window.saveSite = async function(event) {
   event.preventDefault();
   
   const name = document.getElementById("siteName").value.trim();
@@ -800,10 +815,8 @@ async function saveSite(event) {
   }
 }
 
-function openDeleteModal(docId, siteName) {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+window.openDeleteModal = function(docId, siteName) {
+  if (!isAdminLoggedIn) return;
   openConfirmationModal(
     '사이트 삭제',
     `'${siteName}' 사이트를 삭제하시겠습니까?`,
@@ -822,10 +835,8 @@ async function deleteSite(docId) {
   }
 }
 
-async function exportData() {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+window.exportData = async function() {
+  if (!isAdminLoggedIn) return;
   try {
     const collectionRef = collection(db, `/artifacts/${appId}/users/${userId}/sites`);
     const querySnapshot = await getDocs(collectionRef);
@@ -849,10 +860,8 @@ async function exportData() {
   }
 }
 
-async function importData(event) {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+window.importData = async function(event) {
+  if (!isAdminLoggedIn) return;
   const file = event.target.files[0];
   if (!file) return;
   
@@ -894,10 +903,8 @@ async function importData(event) {
   event.target.value = "";
 }
 
-function openResetModal() {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+window.openResetModal = function() {
+  if (!isAdminLoggedIn) return;
   openConfirmationModal(
     '데이터 초기화',
     "정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
@@ -922,7 +929,7 @@ async function resetAllData() {
   }
 }
 
-function toggleDarkMode() {
+window.toggleDarkMode = function() {
   document.body.classList.toggle("dark");
   const isDark = document.body.classList.contains("dark");
   showPopup(isDark ? "다크 모드가 활성화되었습니다." : "라이트 모드가 활성화되었습니다.");
@@ -938,11 +945,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 </html>
 
-
-// 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', init);
-</script>
-</body>
-</html>
 
 

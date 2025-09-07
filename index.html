@@ -2,187 +2,542 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>실험용</title>
+<title>실험용 - 완전 관리 버전</title>
 <style>
-body{font-family:Arial,sans-serif;margin:20px;background:#fff;color:#000;transition:background 0.3s,color 0.3s;}
-body.dark{background:#121212;color:#fff;}
-h1{color:#2c3e50;}body.dark h1{color:#f1c40f;}
-.filters{background:#f8f9fa;padding:15px;border-radius:8px;margin-bottom:20px;display:flex;gap:15px;flex-wrap:wrap;align-items:center;}
-body.dark .filters{background:#2d2d2d;}
-.filter-group{display:flex;flex-direction:column;gap:5px;}
-.filter-group label{font-weight:bold;font-size:14px;}
-select,.filter-buttons{padding:8px;border:1px solid #ccc;border-radius:4px;background:white;}
-body.dark select{background:#333;color:#fff;border-color:#555;}
-.filter-buttons{display:flex;gap:5px;flex-wrap:wrap;}
-.filter-btn{padding:5px 12px;border:1px solid #ddd;background:white;border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap;}
-.filter-btn.active{background:#007bff;color:white;border-color:#007bff;}
-body.dark .filter-btn{background:#444;color:#fff;border-color:#666;}
-body.dark .filter-btn.active{background:#0056b3;border-color:#0056b3;}
-.category-section{margin:30px 0;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;}
-body.dark .category-section{border-color:#444;}
-.category-header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:15px 20px;font-size:20px;font-weight:bold;display:flex;align-items:center;gap:10px;}
-.category-content{padding:20px;background:#fafafa;}
-body.dark .category-content{background:#1a1a1a;}
-.link-card{border:1px solid #ddd;border-radius:8px;padding:15px;margin:10px 0;background:white;position:relative;transition:all 0.2s;}
-.link-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15);}
-body.dark .link-card{background:#2d2d2d;border-color:#555;}
-body.dark .link-card:hover{box-shadow:0 4px 12px rgba(255,255,255,0.1);}
-.link-card a{text-decoration:none;color:#2980b9;font-weight:bold;font-size:18px;}
-body.dark .link-card a{color:#4aa3ff;}
-.link-meta{display:flex;gap:10px;margin:8px 0;font-size:12px;color:#666;flex-wrap:wrap;}
-body.dark .link-meta{color:#aaa;}
-.tag{background:#e9ecef;padding:3px 8px;border-radius:12px;font-size:11px;white-space:nowrap;}
-body.dark .tag{background:#495057;color:#fff;}
-.age-tag{background:#d4edda;color:#155724;}
-.category-tag{background:#fff3cd;color:#856404;}
-body.dark .age-tag{background:#28a745;color:white;}
-body.dark .category-tag{background:#ffc107;color:#212529;}
-.card-buttons{position:absolute;top:8px;right:8px;display:flex;gap:5px;}
-.card-btn{border:none;border-radius:50%;width:25px;height:25px;cursor:pointer;font-size:14px;color:white;display:flex;align-items:center;justify-content:center;}
-.edit-btn{background:#3498db;}
-.delete-btn{background:#e74c3c;}
-button{padding:8px 16px;margin:5px;border:none;border-radius:6px;cursor:pointer;font-weight:bold;}
-.dark-toggle{background:#333;color:#fff;}
-.add-btn{background:#27ae60;color:white;}
-#addForm{background:#f8f9fa;padding:20px;border-radius:8px;margin-top:20px;}
-body.dark #addForm{background:#2d2d2d;}
-.form-section{background:#f8f9fa;padding:20px;border-radius:8px;margin-top:20px;}
-body.dark .form-section{background:#2d2d2d;}
-.form-section input,.form-section textarea,.form-section select{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;}
-body.dark .form-section input,body.dark .form-section textarea,body.dark .form-section select{background:#333;color:#fff;border-color:#555;}
-.checkbox-group{display:flex;flex-wrap:wrap;gap:15px;margin:10px 0;}
-.checkbox-item{display:flex;align-items:center;gap:5px;}
-#popup-container{position:fixed;top:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:10px;}
-.popup{padding:15px 20px;border-radius:8px;color:white;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.2);opacity:0.95;transform:translateX(120%);transition:transform 0.4s ease-in-out;}
-.popup.show{transform:translateX(0);}
-.popup.success{background:#2ecc71;}
-.popup.error{background:#e74c3c;}
-.no-results{text-align:center;color:#666;font-style:italic;padding:40px;background:#f8f9fa;border-radius:8px;margin:20px 0;}
-body.dark .no-results{color:#aaa;background:#2d2d2d;}
-.stats{display:flex;justify-content:space-between;margin:10px 0;font-size:12px;color:#666;}
-body.dark .stats{color:#aaa;}
-.more-btn-container{text-align:center;margin-top:20px;}
-.more-btn{background:#f1f3f5;color:#495057;border:1px solid #dee2e6;}
-body.dark .more-btn{background:#343a40;color:#f8f9fa;border-color:#495057;}
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;justify-content:center;align-items:center;z-index:999;}
-.modal-content{width:90%;max-width:600px;max-height:90vh;overflow-y:auto;}
-/* 카테고리 전체를 감싸는 그리드 */
-.categories-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #fff;
+  color: #000;
+  transition: background 0.3s, color 0.3s;
+}
+body.dark { background: #121212; color: #fff; }
+h1 { color: #2c3e50; }
+body.dark h1 { color: #f1c40f; }
+
+/* ===== 상단 컨트롤 ===== */
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-/* 기존 섹션 margin 제거 (중복 공간 방지) */
-.category-section {
-  margin: 0;
+/* ===== 필터 영역 ===== */
+.filters {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
 }
+body.dark .filters { background: #2d2d2d; }
+.filter-group { display: flex; flex-direction: column; gap: 5px; }
+.filter-group label { font-weight: bold; font-size: 14px; }
+select, .filter-buttons {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+}
+body.dark select { background: #333; color: #fff; border-color: #555; }
+.filter-buttons { display: flex; gap: 5px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 5px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.filter-btn.active { background: #007bff; color: white; border-color: #007bff; }
+body.dark .filter-btn { background: #444; color: #fff; border-color: #666; }
+body.dark .filter-btn.active { background: #0056b3; border-color: #0056b3; }
+
+/* ===== 카테고리/카드 ===== */
+.categories-container {
+  max-width: 1100px;
+  margin: 20px auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  box-sizing: border-box;
+}
+.category-section { margin: 0; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; }
+body.dark .category-section { border-color: #444; }
+.category-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px 20px;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.category-content { padding: 20px; background: #fafafa; }
+body.dark .category-content { background: #1a1a1a; }
+
+.link-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px 0;
+  background: white;
+  position: relative;
+  transition: all 0.2s;
+}
+.link-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+body.dark .link-card { background: #2d2d2d; border-color: #555; }
+body.dark .link-card:hover { box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
+.link-card a { text-decoration: none; color: #2980b9; font-weight: bold; font-size: 18px; }
+body.dark .link-card a { color: #4aa3ff; }
+
+.link-meta { display: flex; gap: 10px; margin: 8px 0; font-size: 12px; color: #666; flex-wrap: wrap; }
+body.dark .link-meta { color: #aaa; }
+.tag { background: #e9ecef; padding: 3px 8px; border-radius: 12px; font-size: 11px; white-space: nowrap; }
+body.dark .tag { background: #495057; color: #fff; }
+.age-tag { background: #d4edda; color: #155724; }
+.category-tag { background: #fff3cd; color: #856404; }
+body.dark .age-tag { background: #28a745; color: white; }
+body.dark .category-tag { background: #ffc107; color: #212529; }
+
+.card-buttons { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; }
+.card-btn {
+  border: none; border-radius: 50%; width: 25px; height: 25px;
+  cursor: pointer; font-size: 14px; color: white;
+  display: flex; align-items: center; justify-content: center;
+}
+.edit-btn { background: #3498db; }
+.delete-btn { background: #e74c3c; }
+
+/* ===== 버튼/폼 ===== */
+button { padding: 8px 16px; margin: 5px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.dark-toggle { background: #333; color: #fff; }
+.add-btn { background: #27ae60; color: white; font-size: 16px; }
+
+/* ===== 팝업/결과/통계 ===== */
+#popup-container { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+.popup {
+  padding: 15px 20px; border-radius: 8px; color: white; font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  opacity: 0.95; transform: translateX(120%);
+  transition: transform 0.4s ease-in-out;
+}
+.popup.show { transform: translateX(0); }
+.popup.success { background: #2ecc71; }
+.popup.error { background: #e74c3c; }
+
+.no-results {
+  text-align: center; color: #666; font-style: italic;
+  padding: 40px; background: #f8f9fa; border-radius: 8px; margin: 20px 0;
+}
+body.dark .no-results { color: #aaa; background: #2d2d2d; }
+
+.stats {
+  display: flex; justify-content: space-between; margin: 10px 0;
+  font-size: 12px; color: #666;
+  max-width: 1100px; margin-left: auto; margin-right: auto;
+  box-sizing: border-box;
+}
+body.dark .stats { color: #aaa; }
+
+/* ===== 모달 ===== */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6); display: none;
+  justify-content: center; align-items: center; z-index: 999;
+}
+.modal-content {
+  background: white; padding: 30px; border-radius: 12px;
+  width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;
+  position: relative;
+}
+body.dark .modal-content { background: #2d2d2d; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-header h3 { margin: 0; color: #2c3e50; }
+body.dark .modal-header h3 { color: #f1c40f; }
+.close-btn { background: #e74c3c; color: white; border-radius: 50%; width: 30px; height: 30px; border: none; cursor: pointer; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;
+  box-sizing: border-box; font-family: inherit;
+}
+body.dark .form-group input, body.dark .form-group textarea, body.dark .form-group select {
+  background: #333; color: #fff; border-color: #555;
+}
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+.checkbox-item { display: flex; align-items: center; gap: 5px; }
+.checkbox-item input { width: auto; margin: 0; }
+.save-btn { background: #27ae60; color: white; padding: 12px 24px; }
+.cancel-btn { background: #6c757d; color: white; padding: 12px 24px; }
+
+/* ===== 데이터 관리 섹션 ===== */
+.data-management {
+  max-width: 1100px; margin: 20px auto; padding: 20px;
+  background: #f8f9fa; border-radius: 8px;
+}
+body.dark .data-management { background: #2d2d2d; }
+.data-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+.export-btn { background: #17a2b8; color: white; }
+.import-btn { background: #fd7e14; color: white; }
+.reset-btn { background: #dc3545; color: white; }
+#importFile { display: none; }
 </style>
 </head>
 <body>
-<h1>📚 실험중인 사이트</h1>
-<button class="dark-toggle" onclick="toggleDarkMode()">🌙 다크 모드 전환</button>
-<button class="add-btn" onclick="showAddForm()">➕ 사이트 추가</button>
+<div class="top-controls">
+  <h1>📚 실험중인 사이트 - 완전 관리 버전</h1>
+  <div>
+    <button class="add-btn" onclick="openAddModal()">➕ 새 사이트 추가</button>
+    <button class="dark-toggle" onclick="toggleDarkMode()">🌙 다크 모드 전환</button>
+  </div>
+</div>
+
 <div id="popup-container"></div>
 
 <div class="filters">
-<div class="filter-group"><label>연령대:</label><div class="filter-buttons" id="ageFilter">
-<button class="filter-btn active" data-age="all">전체</button>
-<button class="filter-btn" data-age="elem">초등</button>
-<button class="filter-btn" data-age="mid">중등</button>
-<button class="filter-btn" data-age="high">고등</button>
-<button class="filter-btn" data-age="adult">성인</button>
-</div></div>
-<div class="filter-group"><label>카테고리:</label><div class="filter-buttons" id="categoryFilter">
-<button class="filter-btn active" data-category="all">전체</button>
-<button class="filter-btn" data-category="learning">학습</button>
-<button class="filter-btn" data-category="info">정보</button>
-<button class="filter-btn" data-category="news">뉴스</button>
-<button class="filter-btn" data-category="search">검색엔진</button>
-</div></div>
-<div class="filter-group"><label>과목:</label>
-<select id="subjectFilter">
-<option value="all">전체 과목</option>
-<option value="korean">국어</option>
-<option value="math">수학</option>
-<option value="english">영어</option>
-<option value="science">과학</option>
-<option value="social">사회</option>
-<option value="history">역사</option>
-<option value="art">예술</option>
-<option value="music">음악</option>
-<option value="pe">체육</option>
-<option value="tech">기술</option>
-<option value="coding">코딩</option>
-<option value="language">외국어</option>
-<option value="general">종합</option>
-<option value="exam">시험대비</option>
-<option value="career">진로</option>
-</select>
-</div>
-<div class="filter-group"><button onclick="resetFilters()" style="background:#6c757d;color:white;border:none;padding:8px 12px;border-radius:4px;">필터 초기화</button></div>
+  <div class="filter-group"><label>연령대:</label><div class="filter-buttons" id="ageFilter">
+    <button class="filter-btn active" data-age="all">전체</button>
+    <button class="filter-btn" data-age="elem">초등</button>
+    <button class="filter-btn" data-age="mid">중등</button>
+    <button class="filter-btn" data-age="high">고등</button>
+    <button class="filter-btn" data-age="adult">성인</button>
+  </div></div>
+  <div class="filter-group"><label>카테고리:</label><div class="filter-buttons" id="categoryFilter">
+    <button class="filter-btn active" data-category="all">전체</button>
+    <button class="filter-btn" data-category="learning">학습</button>
+    <button class="filter-btn" data-category="info">정보</button>
+    <button class="filter-btn" data-category="news">뉴스</button>
+    <button class="filter-btn" data-category="search">검색엔진</button>
+  </div></div>
+  <div class="filter-group"><label>과목:</label>
+    <select id="subjectFilter">
+      <option value="all">전체 과목</option>
+      <option value="korean">국어</option>
+      <option value="math">수학</option>
+      <option value="english">영어</option>
+      <option value="science">과학</option>
+      <option value="social">사회</option>
+      <option value="history">역사</option>
+      <option value="art">예술</option>
+      <option value="music">음악</option>
+      <option value="pe">체육</option>
+      <option value="tech">기술</option>
+      <option value="coding">코딩</option>
+      <option value="language">외국어</option>
+      <option value="general">종합</option>
+      <option value="exam">시험대비</option>
+      <option value="career">진로</option>
+    </select>
+  </div>
+  <div class="filter-group"><button onclick="resetFilters()" style="background:#6c757d;color:white;border:none;padding:8px 12px;border-radius:4px;">필터 초기화</button></div>
 </div>
 
-<div class="stats"><span>총 <span id="totalCount">0</span>개 사이트</span><span>필터링된 결과: <span id="filteredCount">0</span>개</span></div>
+<div class="stats">
+  <span>총 <span id="totalCount">0</span>개 사이트</span>
+  <span>필터링된 결과: <span id="filteredCount">0</span>개</span>
+</div>
 
 <div class="categories-container">
-  <div class="category-section" id="learning-section"><div class="category-header">📖 학습 사이트</div><div class="category-content" id="learning-content"></div></div>
-  <div class="category-section" id="info-section"><div class="category-header">📋 정보 사이트</div><div class="category-content" id="info-content"></div></div>
-  <div class="category-section" id="news-section"><div class="category-header">📰 뉴스 사이트</div><div class="category-content" id="news-content"></div></div>
-  <div class="category-section" id="search-section"><div class="category-header">🔍 검색 엔진</div><div class="category-content" id="search-content"></div></div>
+  <div class="category-section" id="learning-section">
+    <div class="category-header">📖 학습 사이트</div>
+    <div class="category-content" id="learning-content"></div>
+  </div>
+  <div class="category-section" id="info-section">
+    <div class="category-header">📋 정보 사이트</div>
+    <div class="category-content" id="info-content"></div>
+  </div>
+  <div class="category-section" id="news-section">
+    <div class="category-header">📰 뉴스 사이트</div>
+    <div class="category-content" id="news-content"></div>
+  </div>
+  <div class="category-section" id="search-section">
+    <div class="category-header">🔍 검색 엔진</div>
+    <div class="category-content" id="search-content"></div>
+  </div>
 </div>
+
 <div id="noResults" class="no-results" style="display:none;">조건에 맞는 사이트가 없습니다.</div>
 
+<!-- 데이터 관리 섹션 -->
+<div class="data-management">
+  <h3>📊 데이터 관리</h3>
+  <div class="data-controls">
+    <button class="export-btn" onclick="exportData()">📥 데이터 내보내기 (JSON)</button>
+    <button class="import-btn" onclick="document.getElementById('importFile').click()">📤 데이터 가져오기</button>
+    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+    <button class="reset-btn" onclick="resetAllData()">🗑️ 모든 데이터 초기화</button>
+  </div>
+  <p style="font-size: 12px; color: #666; margin: 0;">
+    * 데이터는 브라우저에 자동 저장됩니다. 내보내기/가져오기로 백업 및 복원이 가능합니다.
+  </p>
+</div>
+
+<!-- 모달 -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">새 사이트 추가</h3>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <form id="siteForm">
+      <div class="form-group">
+        <label for="siteName">사이트 이름 *</label>
+        <input type="text" id="siteName" required>
+      </div>
+      <div class="form-group">
+        <label for="siteUrl">URL *</label>
+        <input type="url" id="siteUrl" required placeholder="https://example.com">
+      </div>
+      <div class="form-group">
+        <label for="siteDesc">설명</label>
+        <textarea id="siteDesc" rows="3" placeholder="사이트에 대한 간단한 설명"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="siteCategory">카테고리 *</label>
+        <select id="siteCategory" required>
+          <option value="">카테고리 선택</option>
+          <option value="learning">학습</option>
+          <option value="info">정보</option>
+          <option value="news">뉴스</option>
+          <option value="search">검색엔진</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>연령대 * (복수 선택 가능)</label>
+        <div class="checkbox-group" id="ageCheckboxes">
+          <div class="checkbox-item"><input type="checkbox" id="age-elem" value="elem"><label for="age-elem">초등학생</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="age-mid" value="mid"><label for="age-mid">중학생</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="age-high" value="high"><label for="age-high">고등학생</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="age-adult" value="adult"><label for="age-adult">성인</label></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>과목 (복수 선택 가능)</label>
+        <div class="checkbox-group" id="subjectCheckboxes">
+          <div class="checkbox-item"><input type="checkbox" id="subj-korean" value="korean"><label for="subj-korean">국어</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-math" value="math"><label for="subj-math">수학</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-english" value="english"><label for="subj-english">영어</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-science" value="science"><label for="subj-science">과학</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-social" value="social"><label for="subj-social">사회</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-history" value="history"><label for="subj-history">역사</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-art" value="art"><label for="subj-art">예술</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-music" value="music"><label for="subj-music">음악</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-pe" value="pe"><label for="subj-pe">체육</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-tech" value="tech"><label for="subj-tech">기술</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-coding" value="coding"><label for="subj-coding">코딩</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-language" value="language"><label for="subj-language">외국어</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-general" value="general"><label for="subj-general">종합</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-exam" value="exam"><label for="subj-exam">시험대비</label></div>
+          <div class="checkbox-item"><input type="checkbox" id="subj-career" value="career"><label for="subj-career">진로</label></div>
+        </div>
+      </div>
+      <div style="text-align: right; margin-top: 20px;">
+        <button type="button" class="cancel-btn" onclick="closeModal()">취소</button>
+        <button type="submit" class="save-btn">저장</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
-// ==== JS 완전 동작 버전 ====
-const ADMIN_PASSWORD="sldjfrnf!@";
-const ageNames={elem:"초등학생",mid:"중학생",high:"고등학생",adult:"성인"};
-const categoryNames={learning:"학습",info:"정보",news:"뉴스",search:"검색엔진"};
-const subjectNames={korean:"국어",math:"수학",english:"영어",science:"과학",social:"사회",history:"역사",art:"예술",music:"음악",pe:"체육",tech:"기술",coding:"코딩",language:"외국어",general:"종합",exam:"시험대비",career:"진로"};
-let currentAgeFilter="all",currentCategoryFilter="all",currentSubjectFilter="all",expandedCategories={};
-let sites=[
-// 20개 예시 사이트
-{name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
-{name:"EBS 중학",url:"https://www.ebs.co.kr/course/home?courseType=MDSC",desc:"중학교 전과목 무료 강의",category:"learning",ages:["mid"],subjects:["korean","math","english","science","social"]},
-{name:"EBSi",url:"https://www.ebsi.co.kr",desc:"수능 대비 종합 학습 플랫폼",category:"learning",ages:["high"],subjects:["exam","korean","math","english","science","social"]},
-{name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 온라인 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
-{name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
-{name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
-{name:"Coursera",url:"https://www.coursera.org/",desc:"전문 온라인 강의 플랫폼",category:"learning",ages:["adult"],subjects:["general","tech","career"]},
-{name:"TED-Ed",url:"https://ed.ted.com",desc:"다양한 과목 교육 영상 제공",category:"learning",ages:["mid","high","adult"],subjects:["general","science","art"]},
-{name:"NASA Kids",url:"https://www.nasa.gov/kidsclub/index.html",desc:"우주 과학 교육 사이트",category:"info",ages:["elem","mid"],subjects:["science"]},
-{name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-{name:"나무위키",url:"https://namu.wiki/",desc:"한국어 위키 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-{name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
-{name:"한국사 연표",url:"https://contents.history.go.kr/",desc:"한국사 학습 자료 및 연표",category:"info",ages:["mid","high"],subjects:["history"]},
-{name:"국가통계포털",url:"https://kosis.kr/",desc:"대한민국 공식 통계 정보",category:"info",ages:["high","adult"],subjects:["social","math"]},
-{name:"연합뉴스",url:"https://www.yna.co.kr/",desc:"대한민국 대표 뉴스통신사",category:"news",ages:["mid","high","adult"],subjects:["social","general"]},
-{name:"BBC News",url:"https://www.bbc.com/korean",desc:"BBC 한국어 뉴스",category:"news",ages:["high","adult"],subjects:["english","social"]},
-{name:"어린이동아",url:"https://kids.donga.com/",desc:"어린이를 위한 뉴스",category:"news",ages:["elem","mid"],subjects:["social","general"]},
-{name:"중앙일보",url:"https://www.joongang.co.kr/",desc:"종합 일간지",category:"news",ages:["high","adult"],subjects:["social","general"]},
-{name:"네이버",url:"https://www.naver.com/",desc:"대한민국 대표 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-{name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-{name:"다음",url:"https://www.daum.net/",desc:"국내 주요 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-{name:"Bing",url:"https://www.bing.com/",desc:"마이크로소프트 검색엔진",category:"search",ages:["mid","high","adult"],subjects:["general"]}
+const ageNames = {elem:"초등학생",mid:"중학생",high:"고등학생",adult:"성인"};
+const categoryNames = {learning:"학습",info:"정보",news:"뉴스",search:"검색엔진"};
+const subjectNames = {korean:"국어",math:"수학",english:"영어",science:"과학",social:"사회",history:"역사",art:"예술",music:"음악",pe:"체육",tech:"기술",coding:"코딩",language:"외국어",general:"종합",exam:"시험대비",career:"진로"};
+
+let currentAgeFilter = "all";
+let currentCategoryFilter = "all";
+let currentSubjectFilter = "all";
+let expandedCategories = {};
+let editingIndex = -1;
+
+// 초기 데이터
+let sites = [
+  {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
+  {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
+  {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
+  {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
+  {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
+  {name:"연합뉴스",url:"https://www.yna.co.kr/",desc:"대한민국 대표 뉴스통신사",category:"news",ages:["mid","high","adult"],subjects:["social","general"]},
+  {name:"BBC News",url:"https://www.bbc.com/korean",desc:"BBC 한국어 뉴스",category:"news",ages:["high","adult"],subjects:["english","social"]},
+  {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 대표 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
+  {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]}
 ];
 
-// ==== JS 렌더링, 필터, 다크모드, 추가/삭제/팝업 모두 포함 ====
-function showPopup(message,isError=false){const container=document.getElementById("popup-container");const popup=document.createElement("div");popup.className=`popup ${isError?'error':'success'}`;popup.textContent=message;container.appendChild(popup);setTimeout(()=>popup.classList.add("show"),10);setTimeout(()=>{popup.classList.remove("show");popup.addEventListener('transitionend',()=>popup.remove());},3000);}
-function updateStats(){document.getElementById("totalCount").textContent=sites.length;document.getElementById("filteredCount").textContent=getFilteredSites().length;}
-function getFilteredSites(){return sites.filter(s=>(currentAgeFilter==="all"||s.ages.includes(currentAgeFilter))&&(currentCategoryFilter==="all"||s.category===currentCategoryFilter)&&(currentSubjectFilter==="all"||s.subjects.includes(currentSubjectFilter)));}
-function createSiteCard(site,index){const card=document.createElement("div");card.className="link-card";const ageTags=site.ages.map(a=>`<span class="tag age-tag">${ageNames[a]}</span>`).join(" ");const categoryTag=`<span class="tag category-tag">${categoryNames[site.category]}</span>`;card.innerHTML=`<div class="card-buttons"><button class="card-btn edit-btn" onclick="openEditModal(${index})" title="수정">✏️</button><button class="card-btn delete-btn" onclick="deleteSite(${index})" title="삭제">×</button></div><a href="${site.url}" target="_blank">${site.name}</a><div class="link-meta">${categoryTag} ${ageTags}</div><p>${site.desc}</p>`;return card;}
-function renderSites(){const categories=Object.keys(categoryNames);const allFilteredSites=getFilteredSites();let hasResults=allFilteredSites.length>0;categories.forEach(category=>{const container=document.getElementById(`${category}-content`);const section=document.getElementById(`${category}-section`);const sitesInCategory=allFilteredSites.filter(s=>s.category===category);container.innerHTML="";if(sitesInCategory.length>0){section.style.display="block";const isExpanded=expandedCategories[category]||sitesInCategory.length<=3;const sitesToDisplay=isExpanded?sitesInCategory:sitesInCategory.slice(0,3);sitesToDisplay.forEach(site=>{const idx=sites.indexOf(site);container.appendChild(createSiteCard(site,idx));});if(sitesInCategory.length>3){container.innerHTML+=`<div class="more-btn-container"><button class="more-btn" onclick="${isExpanded?`collapseCategory('${category}')`:`expandCategory('${category}')`}">${isExpanded?'접기':'더보기'}</button></div>`;}}else{section.style.display=(currentCategoryFilter==="all"||currentCategoryFilter===category)?"block":"none";container.innerHTML="<p style='color:#666;text-align:center;padding:20px;'>해당 조건의 사이트가 없습니다.</p>";}});document.getElementById("noResults").style.display=hasResults?"none":"block";updateStats();}
-window.expandCategory=c=>{expandedCategories[c]=true;renderSites();}
-window.collapseCategory=c=>{expandedCategories[c]=false;renderSites();}
-function setupFilters(){document.querySelectorAll("#ageFilter .filter-btn").forEach(btn=>btn.addEventListener("click",e=>{document.querySelector("#ageFilter .active").classList.remove("active");e.target.classList.add("active");currentAgeFilter=e.target.dataset.age;renderSites();}));document.querySelectorAll("#categoryFilter .filter-btn").forEach(btn=>btn.addEventListener("click",e=>{document.querySelector("#categoryFilter .active").classList.remove("active");e.target.classList.add("active");currentCategoryFilter=e.target.dataset.category;expandedCategories={};renderSites();}));document.getElementById("subjectFilter").addEventListener("change",e=>{currentSubjectFilter=e.target.value;renderSites();});}
-function resetFilters(){currentAgeFilter="all";currentCategoryFilter="all";currentSubjectFilter="all";document.querySelector("#ageFilter .filter-btn[data-age='all']").click();document.querySelector("#categoryFilter .filter-btn[data-category='all']").click();document.getElementById("subjectFilter").value="all";expandedCategories={};renderSites();}
-function toggleDarkMode(){document.body.classList.toggle("dark");localStorage.setItem("darkMode",document.body.classList.contains("dark"));}
-function init(){setupFilters();renderSites();if(localStorage.getItem("darkMode")==="true")document.body.classList.add("dark");}
-init();
-</script>
-</body>
-</html>
+// 데이터 저장/로드
+function saveData() {
+  try {
+    const data = JSON.stringify(sites);
+    window.savedSitesData = data; // 메모리에 저장
+    return true;
+  } catch (error) {
+    console.error('데이터 저장 실패:', error);
+    return false;
+  }
+}
+
+function loadData() {
+  try {
+    if (window.savedSitesData) {
+      const data = JSON.parse(window.savedSitesData);
+      if (Array.isArray(data)) {
+        sites = data;
+        return true;
+      }
+    }
+    return false;
+  } catch (error) {
+    console.error('데이터 로드 실패:', error);
+    return false;
+  }
+}
+
+// 팝업 알림
+function showPopup(message, isError = false) {
+  const container = document.getElementById("popup-container");
+  const popup = document.createElement("div");
+  popup.className = `popup ${isError ? 'error' : 'success'}`;
+  popup.textContent = message;
+  container.appendChild(popup);
+  setTimeout(() => popup.classList.add("show"), 10);
+  setTimeout(() => {
+    popup.classList.remove("show");
+    popup.addEventListener('transitionend', () => popup.remove());
+  }, 3000);
+}
+
+// 통계 업데이트
+function updateStats() {
+  document.getElementById("totalCount").textContent = sites.length;
+  document.getElementById("filteredCount").textContent = getFilteredSites().length;
+}
+
+// 필터링된 사이트 가져오기
+function getFilteredSites() {
+  return sites.filter(s =>
+    (currentAgeFilter === "all" || s.ages.includes(currentAgeFilter)) &&
+    (currentCategoryFilter === "all" || s.category === currentCategoryFilter) &&
+    (currentSubjectFilter === "all" || s.subjects.includes(currentSubjectFilter))
+  );
+}
+
+// 사이트 카드 생성
+function createSiteCard(site, index) {
+  const card = document.createElement("div");
+  card.className = "link-card";
+  
+  const ageTags = site.ages.map(a => `<span class="tag age-tag">${ageNames[a]}</span>`).join(" ");
+  const categoryTag = `<span class="tag category-tag">${categoryNames[site.category]}</span>`;
+  
+  card.innerHTML = `
+    <div class="card-buttons">
+      <button class="card-btn edit-btn" onclick="openEditModal(${index})" title="수정">✏️</button>
+      <button class="card-btn delete-btn" onclick="deleteSite(${index})" title="삭제">🗑️</button>
+    </div>
+    <a href="${site.url}" target="_blank">${site.name}</a>
+    <div class="link-meta">${categoryTag} ${ageTags}</div>
+    <p>${site.desc || '설명이 없습니다.'}</p>
+  `;
+  return card;
+}
+
+// 사이트 렌더링
+function renderSites() {
+  const categories = Object.keys(categoryNames);
+  const allFilteredSites = getFilteredSites();
+  let hasResults = allFilteredSites.length > 0;
+
+  categories.forEach(category => {
+    const container = document.getElementById(`${category}-content`);
+    const section = document.getElementById(`${category}-section`);
+    const sitesInCategory = allFilteredSites.filter(s => s.category === category);
+
+    container.innerHTML = "";
+    
+    if (sitesInCategory.length > 0) {
+      section.style.display = "block";
+      sitesInCategory.forEach(site => {
+        const idx = sites.indexOf(site);
+        container.appendChild(createSiteCard(site, idx));
+      });
+    } else {
+      section.style.display = (currentCategoryFilter === "all" || currentCategoryFilter === category) ? "block" : "none";
+      container.innerHTML = "<p style='color:#666;text-align:center;padding:20px;'>해당 조건의 사이트가 없습니다.</p>";
+    }
+  });
+
+  document.getElementById("noResults").style.display = hasResults ? "none" : "block";
+  updateStats();
+}
+
+// 필터 설정
+function setupFilters() {
+  document.querySelectorAll("#ageFilter .filter-btn").forEach(btn =>
+    btn.addEventListener("click", e => {
+      document.querySelector("#ageFilter .active").classList.remove("active");
+      e.target.classList.add("active");
+      currentAgeFilter = e.target.dataset.age;
+      renderSites();
+    })
+  );
+
+  document.querySelectorAll("#categoryFilter .filter-btn").forEach(btn =>
+    btn.addEventListener("click", e => {
+      document.querySelector("#categoryFilter .active").classList.remove("active");
+      e.target.classList.add("active");
+      currentCategoryFilter = e.target.dataset.category;
+      expandedCategories = {};
+      renderSites();
+    })
+  );
+
+  document.getElementById("subjectFilter").addEventListener("change", e => {
+    currentSubjectFilter = e.target.value;
+    renderSites();
+  });
+}
+
+// 필터 초기화
+function resetFilters() {
+  currentAgeFilter = "all";
+  currentCategoryFilter = "all";
+  currentSubjectFilter = "all";
+  document.querySelector("#ageFilter .filter-btn[data-age='all']").click();
+  document.querySelector("#categoryFilter .filter-btn[data-category='all']").click();
+  document.getElementById("subjectFilter").value = "all";
+  expandedCategories = {};
+  renderSites();
+}
+
+// 모달 관련
+function openAddModal() {
+  editingIndex = -1;
+  document.getElementById("modalTitle").textContent = "새 사이트 추가";
+  document.getElementById("siteForm").reset();
+  document.getElementById("modal").style.display = "flex";
+}
+
+function openEditModal(index) {
+  editingIndex = index;
+  const site = sites[index];
+  document.getElementById("modalTitle").textContent = "사이트 수정";
+  
+  // 폼 채우기
+  document.getElementById("siteName").value = site.name;
+  document.getElementById("siteUrl").value = site.url;
 
 
 

@@ -66,6 +66,18 @@ body.dark .stats{color:#aaa;}
 body.dark .more-btn{background:#343a40;color:#f8f9fa;border-color:#495057;}
 .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;justify-content:center;align-items:center;z-index:999;}
 .modal-content{width:90%;max-width:600px;max-height:90vh;overflow-y:auto;}
+/* 카테고리 전체를 감싸는 그리드 */
+.categories-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* 기존 섹션 margin 제거 (중복 공간 방지) */
+.category-section {
+  margin: 0;
+}
 </style>
 </head>
 <body>
@@ -114,11 +126,12 @@ body.dark .more-btn{background:#343a40;color:#f8f9fa;border-color:#495057;}
 
 <div class="stats"><span>총 <span id="totalCount">0</span>개 사이트</span><span>필터링된 결과: <span id="filteredCount">0</span>개</span></div>
 
-<div class="category-section" id="learning-section"><div class="category-header">📖 학습 사이트</div><div class="category-content" id="learning-content"></div></div>
-<div class="category-section" id="info-section"><div class="category-header">📋 정보 사이트</div><div class="category-content" id="info-content"></div></div>
-<div class="category-section" id="news-section"><div class="category-header">📰 뉴스 사이트</div><div class="category-content" id="news-content"></div></div>
-<div class="category-section" id="search-section"><div class="category-header">🔍 검색 엔진</div><div class="category-content" id="search-content"></div></div>
-
+<div class="categories-container">
+  <div class="category-section" id="learning-section"><div class="category-header">📖 학습 사이트</div><div class="category-content" id="learning-content"></div></div>
+  <div class="category-section" id="info-section"><div class="category-header">📋 정보 사이트</div><div class="category-content" id="info-content"></div></div>
+  <div class="category-section" id="news-section"><div class="category-header">📰 뉴스 사이트</div><div class="category-content" id="news-content"></div></div>
+  <div class="category-section" id="search-section"><div class="category-header">🔍 검색 엔진</div><div class="category-content" id="search-content"></div></div>
+</div>
 <div id="noResults" class="no-results" style="display:none;">조건에 맞는 사이트가 없습니다.</div>
 
 <script>
@@ -170,6 +183,7 @@ init();
 </script>
 </body>
 </html>
+
 
 
 

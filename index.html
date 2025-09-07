@@ -827,13 +827,11 @@ body.dark .data-management {
 <body>
 
 <div class="container">
-  <!-- 헤더 -->
   <div class="header">
     <h1>🌟 딱필모</h1>
     <p>딱 필요한 사이트만 모음</p>
   </div>
 
-  <!-- 상단 컨트롤 -->
   <div class="top-controls">
     <div class="stats-item">
       <span>📊</span>
@@ -847,13 +845,11 @@ body.dark .data-management {
     </div>
   </div>
 
-  <!-- 카테고리 관리 -->
   <div id="categoryManagement" class="category-management" style="display:none;">
     <h3>📁 사용자 정의 카테고리</h3>
     <div class="custom-categories" id="customCategories"></div>
   </div>
 
-  <!-- 필터 영역 -->
   <div class="filters">
     <div class="filter-group">
       <label>🎯 연령대:</label>
@@ -873,7 +869,7 @@ body.dark .data-management {
         <button class="filter-btn" data-category="info">정보</button>
         <button class="filter-btn" data-category="government">정부기관</button>
         <button class="filter-btn" data-category="search">검색엔진</button>
-      </div>
+        </div>
     </div>
     <div class="filter-group">
       <label>📚 과목:</label>
@@ -901,7 +897,6 @@ body.dark .data-management {
     </div>
   </div>
 
-  <!-- 통계 -->
   <div class="stats">
     <div class="stats-item">
       <span>🎯</span>
@@ -917,17 +912,14 @@ body.dark .data-management {
     </div>
   </div>
 
-  <!-- 카테고리 컨테이너 -->
   <div class="categories-container" id="categoriesContainer">
-    <!-- 기본 카테고리들은 JavaScript에서 동적 생성 -->
-  </div>
+    </div>
 
   <div id="noResults" class="no-results" style="display:none;">
     <h3>🔍 조건에 맞는 사이트가 없습니다</h3>
     <p>다른 필터 조건을 시도해보세요.</p>
   </div>
 
-  <!-- 데이터 관리 섹션 -->
   <div id="dataManagement" class="data-management" style="display:none;">
     <h3>📊 데이터 관리</h3>
     <div class="data-controls">
@@ -944,7 +936,6 @@ body.dark .data-management {
 
 <div id="popup-container"></div>
 
-<!-- 사이트 추가/수정 모달 -->
 <div class="modal-overlay" id="siteModal">
   <div class="modal-content">
     <div class="modal-header">
@@ -972,7 +963,7 @@ body.dark .data-management {
           <option value="info">정보</option>
           <option value="government">정부기관</option>
           <option value="search">검색엔진</option>
-        </select>
+          </select>
       </div>
       <div class="form-group">
         <label>연령대 * (복수 선택 가능)</label>
@@ -1011,7 +1002,6 @@ body.dark .data-management {
   </div>
 </div>
 
-<!-- 카테고리 추가 모달 -->
 <div class="modal-overlay" id="categoryModal">
   <div class="modal-content">
     <div class="modal-header">
@@ -1045,12 +1035,13 @@ body.dark .data-management {
 const ageNames = {elem:"초등학생",mid:"중학생",high:"고등학생",adult:"성인"};
 const subjectNames = {korean:"국어",math:"수학",english:"영어",science:"과학",social:"사회",history:"역사",art:"예술",music:"음악",pe:"체육",tech:"기술",coding:"코딩",language:"외국어",general:"종합",exam:"시험대비",career:"진로"};
 
-// 기본 카테고리 정의
+// ✅ 기본 카테고리 정의 ('gpt' 추가)
 const defaultCategories = {
   learning: {name: "학습 사이트", icon: "📖"},
   info: {name: "정보 사이트", icon: "📋"},
   government: {name: "정부기관", icon: "🏛️"},
-  search: {name: "검색 엔진", icon: "🔍"}
+  search: {name: "검색 엔진", icon: "🔍"},
+  gpt: {name: "GPT 활용", icon: "🤖"} // ✨ 신규 카테고리
 };
 
 // 전역 변수
@@ -1065,19 +1056,36 @@ let currentSubjectFilter = "all";
 let editingIndex = -1;
 let isAdminLoggedIn = false;
 
-// 초기 데이터
+// ✅ 초기 데이터 (신규 사이트 8개 추가)
 const initialSites = [
+  // 학습 사이트
   {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
   {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
   {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
   {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
+  {name:"Coursera",url:"https://www.coursera.org/",desc:"전 세계 대학 및 기업의 온라인 강좌",category:"learning",ages:["high","adult"],subjects:["general","language"]}, // ✨ 추가
+  
+  // 정보 사이트
   {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
   {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
+  {name:"나무위키",url:"https://namu.wiki/",desc:"다양한 주제를 다루는 한국어 위키",category:"info",ages:["mid","high","adult"],subjects:["general"]}, // ✨ 추가
+
+  // 정부기관
   {name:"교육부",url:"https://www.moe.go.kr/",desc:"대한민국 교육부 공식 사이트",category:"government",ages:["adult"],subjects:["general"]},
   {name:"한국교육과정평가원",url:"https://www.kice.re.kr/",desc:"교육과정 및 평가 정보",category:"government",ages:["mid","high","adult"],subjects:["general","exam"]},
   {name:"한국교육학술정보원",url:"https://www.keris.or.kr/",desc:"교육 정보화 및 학술 정보",category:"government",ages:["high","adult"],subjects:["general"]},
+  {name:"국민신문고",url:"https://www.epeople.go.kr/",desc:"정부에 정책 및 민원을 제안하는 온라인 소통 창구",category:"government",ages:["adult"],subjects:["general","social"]}, // ✨ 추가
+
+  // 검색 엔진
   {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 대표 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-  {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]}
+  {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
+  {name:"DuckDuckGo",url:"https://duckduckgo.com/",desc:"개인정보 보호에 중점을 둔 검색 엔진",category:"search",ages:["mid","high","adult"],subjects:["general"]}, // ✨ 추가
+
+  // GPT 활용
+  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"OpenAI에서 개발한 대화형 인공지능 모델", category:"gpt", ages:["mid", "high", "adult"], subjects:["general", "coding"]}, // ✨ 추가
+  {name:"Poe by Quora", url:"https://poe.com/", desc:"다양한 AI 챗봇을 한곳에서 경험할 수 있는 플랫폼", category:"gpt", ages:["high", "adult"], subjects:["general"]}, // ✨ 추가
+  {name:"DeepL", url:"https://www.deepl.com/translator", desc:"AI 기반의 고품질 번역 서비스", category:"gpt", ages:["mid", "high", "adult"], subjects:["language"]}, // ✨ 추가
+  {name:"Gamma", url:"https://gamma.app/", desc:"AI를 활용하여 프레젠테이션, 문서를 빠르게 제작", category:"gpt", ages:["high", "adult"], subjects:["tech", "art"]} // ✨ 추가
 ];
 
 // 유틸리티 함수들
@@ -1407,46 +1415,54 @@ function renderCustomCategories() {
     container.appendChild(categoryDiv);
   });
   
-  updateCategoryFilter();
+  updateCategoryFilter(); // 이 함수가 모든 카테고리를 필터에 반영
 }
 
 // 카테고리 필터 업데이트
 function updateCategoryFilter() {
-  const filterContainer = document.getElementById('categoryFilter');
-  const existingCustomButtons = filterContainer.querySelectorAll('[data-category]:not([data-category="all"]):not([data-category="learning"]):not([data-category="info"]):not([data-category="government"]):not([data-category="search"])');
-  existingCustomButtons.forEach(btn => btn.remove());
-  
-  Object.entries(customCategories).forEach(([key, categoryInfo]) => {
-    const button = document.createElement('button');
-    button.className = 'filter-btn';
-    button.dataset.category = key;
-    button.textContent = categoryInfo.name;
-    button.addEventListener('click', e => {
-      document.querySelector("#categoryFilter .active").classList.remove("active");
-      e.target.classList.add("active");
-      currentCategoryFilter = e.target.dataset.category;
-      renderSites();
+    const filterContainer = document.getElementById('categoryFilter');
+    filterContainer.innerHTML = '<button class="filter-btn active" data-category="all">전체</button>'; // 초기화
+    
+    const allCategories = getAllCategories();
+
+    Object.entries(allCategories).forEach(([key, categoryInfo]) => {
+        const button = document.createElement('button');
+        button.className = 'filter-btn';
+        button.dataset.category = key;
+        button.textContent = categoryInfo.name;
+        filterContainer.appendChild(button);
     });
-    filterContainer.appendChild(button);
-  });
-  
-  updateSiteFormCategories();
+
+    // 이벤트 리스너 재설정
+    filterContainer.querySelectorAll(".filter-btn").forEach(btn =>
+        btn.addEventListener("click", e => {
+            filterContainer.querySelector(".active").classList.remove("active");
+            e.target.classList.add("active");
+            currentCategoryFilter = e.target.dataset.category;
+            expandedCategories = {};
+            renderSites();
+        })
+    );
+    
+    updateSiteFormCategories();
 }
 
 // 사이트 폼 카테고리 선택 업데이트
 function updateSiteFormCategories() {
-  const select = document.getElementById('siteCategory');
-  if (!select) return;
-  
-  const existingCustomOptions = select.querySelectorAll('option:not([value=""]):not([value="learning"]):not([value="info"]):not([value="government"]):not([value="search"])');
-  existingCustomOptions.forEach(option => option.remove());
-  
-  Object.entries(customCategories).forEach(([key, categoryInfo]) => {
-    const option = document.createElement('option');
-    option.value = key;
-    option.textContent = categoryInfo.name;
-    select.appendChild(option);
-  });
+    const select = document.getElementById('siteCategory');
+    if (!select) return;
+    
+    const currentValue = select.value;
+    select.innerHTML = '<option value="">카테고리 선택</option>'; // 초기화
+
+    const allCategories = getAllCategories();
+    Object.entries(allCategories).forEach(([key, categoryInfo]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = categoryInfo.name;
+        select.appendChild(option);
+    });
+    select.value = currentValue;
 }
 
 // 필터 설정
@@ -1460,16 +1476,8 @@ function setupFilters() {
     })
   );
 
-  document.querySelectorAll("#categoryFilter .filter-btn").forEach(btn =>
-    btn.addEventListener("click", e => {
-      document.querySelector("#categoryFilter .active").classList.remove("active");
-      e.target.classList.add("active");
-      currentCategoryFilter = e.target.dataset.category;
-      expandedCategories = {};
-      renderSites();
-    })
-  );
-
+  // 카테고리 필터는 renderCustomCategories에서 동적으로 설정되므로 초기 설정은 여기서 제외
+  
   document.getElementById("subjectFilter").addEventListener("change", e => {
     currentSubjectFilter = e.target.value;
     renderSites();
@@ -1764,8 +1772,7 @@ function init() {
   initializeDisplayLimits();
   renderCategorySections();
   setupFilters();
-  updateAdminUI();
-  renderCustomCategories();
+  updateAdminUI(); // 이 함수가 renderCustomCategories를 호출함
   renderSites();
 }
 
@@ -1795,12 +1802,11 @@ document.addEventListener('keydown', (e) => {
   }
 });
 </script>
-<!-- ✅ Firebase SDK 추가 -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-// ✅ Firebase 설정 (네 Firebase 콘솔에서 발급된 걸로 교체해야 함!)
+// ✅ Firebase 설정 (기존 코드 유지)
 const firebaseConfig = {
   apiKey: "whoareyou",
   authDomain: "whoareyou",
@@ -1811,11 +1817,15 @@ const firebaseConfig = {
   measurementId: "whoareyou"
 };
 // Firebase 초기화
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// firebase.initializeApp(firebaseConfig);
+// const db = firebase.firestore();
 
 // 🔹 Firestore 저장 (서버 저장 버튼 기능 교체)
 async function saveToServer() {
+  showPopup("Firebase 설정이 필요하여 서버 저장은 비활성화되었습니다.", true);
+  updateSaveStatus("서버 저장 불가 ✗");
+  return;
+  /*
   try {
     const data = {
       sites: sites,
@@ -1833,10 +1843,14 @@ async function saveToServer() {
     showPopup("Firebase 저장에 실패했습니다.", true);
     return false;
   }
+  */
 }
 
 // 🔹 Firestore 불러오기
 async function loadFromServer() {
+  // Firebase 기능은 실제 설정이 필요하므로, 로컬 데이터 로드를 우선하도록 변경
+  return false;
+  /*
   try {
     const doc = await db.collection("siteCollections").doc("myData").get();
     if (doc.exists) {
@@ -1856,6 +1870,7 @@ async function loadFromServer() {
     showPopup("Firebase 불러오기 실패", true);
     return false;
   }
+  */
 }
 
 // 🔹 기존 init() 수정 → Firebase 먼저 불러오기
@@ -1874,10 +1889,8 @@ async function init() {
   renderSites();
 }
 
-document.addEventListener('DOMContentLoaded', init);
+// document.removeEventListener('DOMContentLoaded', init); // 기존 init 제거
+document.addEventListener('DOMContentLoaded', init); // 수정된 init 연결
 </script>
 </body>
 </html>
-
-
-

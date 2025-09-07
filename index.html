@@ -2,227 +2,219 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>실험용 - 완전 관리 버전 (Firestore)</title>
+<title>실험용 - 완전 관리 버전</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-  :root {
-    --bg-light: #f8f9fa;
-    --bg-dark: #1a1a1a;
-    --text-light: #000;
-    --text-dark: #fff;
-    --card-light: #ffffff;
-    --card-dark: #2d2d2d;
-    --border-light: #e0e0e0;
-    --border-dark: #444;
-    --primary: #27ae60;
-    --secondary: #6c757d;
-  }
-  body {
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: var(--bg-light);
-    color: var(--text-light);
-    transition: background 0.3s, color 0.3s;
-  }
-  body.dark {
-    background: var(--bg-dark);
-    color: var(--text-dark);
-  }
-  h1 { color: #2c3e50; margin: 0; }
-  body.dark h1 { color: #f1c40f; }
-  .top-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 10px;
-    border: 2px solid var(--border-light);
-    border-radius: 8px;
-  }
-  body.dark .top-controls { border-color: var(--border-dark); }
-  .top-buttons {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-  .filters {
-    background: var(--bg-light);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    align-items: center;
-    max-width: 1100px;
-    margin-left: auto;
-    margin-right: auto;
-    box-sizing: border-box;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  }
-  body.dark .filters { background: #2d2d2d; }
-  .filter-group { display: flex; flex-direction: column; gap: 5px; }
-  .filter-group label { font-weight: bold; font-size: 14px; }
-  select, .filter-buttons {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background: white;
-  }
-  body.dark select { background: #333; color: var(--text-dark); border-color: #555; }
-  .filter-buttons { display: flex; gap: 5px; flex-wrap: wrap; }
-  .filter-btn {
-    padding: 5px 12px;
-    border: 1px solid #ddd;
-    background: white;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    white-space: nowrap;
-    transition: all 0.2s;
-  }
-  .filter-btn.active { background: #007bff; color: white; border-color: #007bff; }
-  body.dark .filter-btn { background: #444; color: var(--text-dark); border-color: #666; }
-  body.dark .filter-btn.active { background: #0056b3; border-color: #0056b3; }
-  .categories-container {
-    max-width: 1100px;
-    margin: 20px auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 20px;
-    box-sizing: border-box;
-  }
-  .category-section { margin: 0; border: 1px solid var(--border-light); border-radius: 10px; overflow: hidden; }
-  body.dark .category-section { border-color: var(--border-dark); }
-  .category-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 15px 20px;
-    font-size: 20px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .category-content { padding: 20px; background: var(--bg-light); }
-  body.dark .category-content { background: var(--bg-dark); }
-  .link-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin: 10px 0;
-    background: var(--card-light);
-    position: relative;
-    transition: all 0.2s;
-  }
-  .link-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-  body.dark .link-card { background: var(--card-dark); border-color: #555; }
-  body.dark .link-card:hover { box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
-  .link-card a { text-decoration: none; color: #2980b9; font-weight: bold; font-size: 18px; }
-  body.dark .link-card a { color: #4aa3ff; }
-  .link-meta { display: flex; gap: 10px; margin: 8px 0; font-size: 12px; color: #666; flex-wrap: wrap; }
-  body.dark .link-meta { color: #aaa; }
-  .tag { background: #e9ecef; padding: 3px 8px; border-radius: 12px; font-size: 11px; white-space: nowrap; }
-  body.dark .tag { background: #495057; color: var(--text-dark); }
-  .age-tag { background: #d4edda; color: #155724; }
-  .category-tag { background: #fff3cd; color: #856404; }
-  body.dark .age-tag { background: #28a745; color: white; }
-  body.dark .category-tag { background: #ffc107; color: #212529; }
-  .card-buttons { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; }
-  .card-btn {
-    border: none; border-radius: 50%; width: 25px; height: 25px;
-    cursor: pointer; font-size: 12px; color: white;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .edit-btn { background: #3498db; }
-  .delete-btn { background: #e74c3c; }
-  button {
-    padding: 8px 16px; margin: 5px; border: none; border-radius: 6px;
-    cursor: pointer; font-weight: bold; transition: all 0.2s;
-  }
-  button:hover { transform: translateY(-1px); }
-  .admin-btn { background: #6c757d; color: white; }
-  .admin-btn.active { background: #28a745; }
-  .dark-toggle { background: #333; color: var(--text-dark); }
-  .add-btn { background: var(--primary); color: white; font-size: 16px; }
-  #popup-container { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-  .popup {
-    padding: 15px 20px; border-radius: 8px; color: white; font-weight: bold;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    opacity: 0.95; transform: translateX(120%);
-    transition: transform 0.4s ease-in-out;
-  }
-  .popup.show { transform: translateX(0); }
-  .popup.success { background: #2ecc71; }
-  .popup.error { background: #e74c3c; }
-  .no-results {
-    text-align: center; color: #666; font-style: italic;
-    padding: 40px; background: var(--bg-light); border-radius: 8px; margin: 20px 0;
-  }
-  body.dark .no-results { color: #aaa; background: var(--bg-dark); }
-  .stats {
-    display: flex; justify-content: space-between; margin: 10px 0;
-    font-size: 12px; color: #666;
-    max-width: 1100px; margin-left: auto; margin-right: auto;
-    box-sizing: border-box;
-  }
-  body.dark .stats { color: #aaa; }
-  .more-btn-container { text-align: center; margin-top: 20px; }
-  .more-btn { background: #f1f3f5; color: #495057; border: 1px solid #dee2e6; }
-  body.dark .more-btn { background: #343a40; color: #f8f9fa; border-color: #495057; }
-  .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6); display: none;
-    justify-content: center; align-items: center; z-index: 999;
-  }
-  .modal-content {
-    background: var(--card-light); padding: 30px; border-radius: 12px;
-    width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;
-    position: relative;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-  }
-  body.dark .modal-content { background: var(--card-dark); }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .modal-header h3 { margin: 0; color: #2c3e50; }
-  body.dark .modal-header h3 { color: #f1c40f; }
-  .close-btn { background: #e74c3c; color: white; border-radius: 50%; width: 30px; height: 30px; border: none; cursor: pointer; }
-  .form-group { margin-bottom: 15px; }
-  .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-  .form-group input, .form-group textarea, .form-group select {
-    width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;
-    box-sizing: border-box; font-family: inherit;
-  }
-  body.dark .form-group input, body.dark .form-group textarea, body.dark .form-group select {
-    background: #333; color: var(--text-dark); border-color: #555;
-  }
-  .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
-  .checkbox-item { display: flex; align-items: center; gap: 5px; }
-  .checkbox-item input { width: auto; margin: 0; }
-  .save-btn { background: var(--primary); color: white; padding: 12px 24px; }
-  .cancel-btn { background: var(--secondary); color: white; padding: 12px 24px; }
-  .data-management {
-    max-width: 1100px; margin: 20px auto; padding: 20px;
-    background: var(--bg-light); border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  }
-  body.dark .data-management { background: var(--card-dark); }
-  .data-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
-  .export-btn { background: #17a2b8; color: white; }
-  .import-btn { background: #fd7e14; color: white; }
-  .reset-btn { background: #dc3545; color: white; }
-  #importFile { display: none; }
-  .user-id-display {
-    text-align: center;
-    font-size: 14px;
-    color: #888;
-    margin-top: 20px;
-    word-break: break-all;
-  }
-  body.dark .user-id-display { color: #aaa; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #fff;
+  color: #000;
+  transition: background 0.3s, color 0.3s;
+}
+body.dark { background: #121212; color: #fff; }
+h1 { color: #2c3e50; margin: 0; }
+body.dark h1 { color: #f1c40f; }
+
+/* ===== 상단 컨트롤 ===== */
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+}
+body.dark .top-controls { border-color: #555; }
+
+.top-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ===== 필터 영역 ===== */
+.filters {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+body.dark .filters { background: #2d2d2d; }
+.filter-group { display: flex; flex-direction: column; gap: 5px; }
+.filter-group label { font-weight: bold; font-size: 14px; }
+select, .filter-buttons {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+}
+body.dark select { background: #333; color: #fff; border-color: #555; }
+.filter-buttons { display: flex; gap: 5px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 5px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.filter-btn.active { background: #007bff; color: white; border-color: #007bff; }
+body.dark .filter-btn { background: #444; color: #fff; border-color: #666; }
+body.dark .filter-btn.active { background: #0056b3; border-color: #0056b3; }
+
+/* ===== 카테고리/카드 ===== */
+.categories-container {
+  max-width: 1100px;
+  margin: 20px auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  box-sizing: border-box;
+}
+.category-section { margin: 0; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; }
+body.dark .category-section { border-color: #444; }
+.category-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px 20px;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.category-content { padding: 20px; background: #fafafa; }
+body.dark .category-content { background: #1a1a1a; }
+
+.link-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px 0;
+  background: white;
+  position: relative;
+  transition: all 0.2s;
+}
+.link-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+body.dark .link-card { background: #2d2d2d; border-color: #555; }
+body.dark .link-card:hover { box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
+.link-card a { text-decoration: none; color: #2980b9; font-weight: bold; font-size: 18px; }
+body.dark .link-card a { color: #4aa3ff; }
+
+.link-meta { display: flex; gap: 10px; margin: 8px 0; font-size: 12px; color: #666; flex-wrap: wrap; }
+body.dark .link-meta { color: #aaa; }
+.tag { background: #e9ecef; padding: 3px 8px; border-radius: 12px; font-size: 11px; white-space: nowrap; }
+body.dark .tag { background: #495057; color: #fff; }
+.age-tag { background: #d4edda; color: #155724; }
+.category-tag { background: #fff3cd; color: #856404; }
+body.dark .age-tag { background: #28a745; color: white; }
+body.dark .category-tag { background: #ffc107; color: #212529; }
+
+.card-buttons { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; }
+.card-btn {
+  border: none; border-radius: 50%; width: 25px; height: 25px;
+  cursor: pointer; font-size: 12px; color: white;
+  display: flex; align-items: center; justify-content: center;
+}
+.edit-btn { background: #3498db; }
+.delete-btn { background: #e74c3c; }
+
+/* ===== 버튼/폼 ===== */
+button { 
+  padding: 8px 16px; margin: 5px; border: none; border-radius: 6px; 
+  cursor: pointer; font-weight: bold; transition: all 0.2s;
+}
+button:hover { transform: translateY(-1px); }
+
+.admin-btn { background: #6c757d; color: white; }
+.admin-btn.active { background: #28a745; }
+.dark-toggle { background: #333; color: #fff; }
+.add-btn { background: #27ae60; color: white; font-size: 16px; }
+
+/* ===== 팝업/결과/통계 ===== */
+#popup-container { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+.popup {
+  padding: 15px 20px; border-radius: 8px; color: white; font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  opacity: 0.95; transform: translateX(120%);
+  transition: transform 0.4s ease-in-out;
+}
+.popup.show { transform: translateX(0); }
+.popup.success { background: #2ecc71; }
+.popup.error { background: #e74c3c; }
+
+.no-results {
+  text-align: center; color: #666; font-style: italic;
+  padding: 40px; background: #f8f9fa; border-radius: 8px; margin: 20px 0;
+}
+body.dark .no-results { color: #aaa; background: #2d2d2d; }
+
+.stats {
+  display: flex; justify-content: space-between; margin: 10px 0;
+  font-size: 12px; color: #666;
+  max-width: 1100px; margin-left: auto; margin-right: auto;
+  box-sizing: border-box;
+}
+body.dark .stats { color: #aaa; }
+
+.more-btn-container { text-align: center; margin-top: 20px; }
+.more-btn { background: #f1f3f5; color: #495057; border: 1px solid #dee2e6; }
+body.dark .more-btn { background: #343a40; color: #f8f9fa; border-color: #495057; }
+
+/* ===== 모달 ===== */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6); display: none;
+  justify-content: center; align-items: center; z-index: 999;
+}
+.modal-content {
+  background: white; padding: 30px; border-radius: 12px;
+  width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;
+  position: relative;
+}
+body.dark .modal-content { background: #2d2d2d; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-header h3 { margin: 0; color: #2c3e50; }
+body.dark .modal-header h3 { color: #f1c40f; }
+.close-btn { background: #e74c3c; color: white; border-radius: 50%; width: 30px; height: 30px; border: none; cursor: pointer; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;
+  box-sizing: border-box; font-family: inherit;
+}
+body.dark .form-group input, body.dark .form-group textarea, body.dark .form-group select {
+  background: #333; color: #fff; border-color: #555;
+}
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+.checkbox-item { display: flex; align-items: center; gap: 5px; }
+.checkbox-item input { width: auto; margin: 0; }
+.save-btn { background: #27ae60; color: white; padding: 12px 24px; }
+.cancel-btn { background: #6c757d; color: white; padding: 12px 24px; }
+
+/* ===== 데이터 관리 섹션 ===== */
+.data-management {
+  max-width: 1100px; margin: 20px auto; padding: 20px;
+  background: #f8f9fa; border-radius: 8px;
+}
+body.dark .data-management { background: #2d2d2d; }
+.data-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+.export-btn { background: #17a2b8; color: white; }
+.import-btn { background: #fd7e14; color: white; }
+.reset-btn { background: #dc3545; color: white; }
+#importFile { display: none; }
 </style>
 </head>
 <body>
@@ -230,26 +222,13 @@
 <div class="top-controls">
   <h1>📚 실험중인 사이트 - 완전 관리 버전</h1>
   <div class="top-buttons">
-    <button id="adminToggle" class="admin-btn">🔒 관리자 로그인</button>
-    <button id="addSiteBtn" class="add-btn" style="display:none;">➕ 새 사이트 추가</button>
+    <button id="adminToggle" class="admin-btn" onclick="toggleAdmin()">🔒 관리자 로그인</button>
+    <button id="addSiteBtn" class="add-btn" onclick="openAddModal()" style="display:none;">➕ 새 사이트 추가</button>
     <button class="dark-toggle" onclick="toggleDarkMode()">🌙 다크 모드</button>
   </div>
 </div>
 
 <div id="popup-container"></div>
-<div id="confirmation-modal" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="confirmTitle">확인</h3>
-      <button class="close-btn" onclick="closeConfirmationModal()">✕</button>
-    </div>
-    <p id="confirmMessage"></p>
-    <div style="text-align: right; margin-top: 20px;">
-      <button class="cancel-btn" onclick="closeConfirmationModal()">취소</button>
-      <button class="save-btn" id="confirmActionBtn">확인</button>
-    </div>
-  </div>
-</div>
 
 <div class="filters">
   <div class="filter-group"><label>연령대:</label><div class="filter-buttons" id="ageFilter">
@@ -265,7 +244,6 @@
     <button class="filter-btn" data-category="info">정보</button>
     <button class="filter-btn" data-category="news">뉴스</button>
     <button class="filter-btn" data-category="search">검색엔진</button>
-    <button class="filter-btn" data-category="gpt">GPT</button>
   </div></div>
   <div class="filter-group"><label>과목:</label>
     <select id="subjectFilter">
@@ -312,10 +290,6 @@
     <div class="category-header">🔍 검색 엔진</div>
     <div class="category-content" id="search-content"></div>
   </div>
-  <div class="category-section" id="gpt-section">
-    <div class="category-header">🤖 GPT 사이트</div>
-    <div class="category-content" id="gpt-content"></div>
-  </div>
 </div>
 
 <div id="noResults" class="no-results" style="display:none;">조건에 맞는 사이트가 없습니다.</div>
@@ -327,11 +301,12 @@
     <button class="export-btn" onclick="exportData()">📥 데이터 내보내기 (JSON)</button>
     <button class="import-btn" onclick="document.getElementById('importFile').click()">📤 데이터 가져오기</button>
     <input type="file" id="importFile" accept=".json" onchange="importData(event)">
-    <button class="reset-btn" onclick="openResetModal()">🗑️ 모든 데이터 초기화</button>
+    <button class="reset-btn" onclick="resetAllData()">🗑️ 모든 데이터 초기화</button>
   </div>
+  <p style="font-size: 12px; color: #666; margin: 0;">
+    * 데이터는 브라우저 로컬스토리지에 자동 저장됩니다. 관리자 로그인 후 이용 가능합니다.
+  </p>
 </div>
-
-<p class="user-id-display">사용자 ID: <span id="userIdDisplay"></span></p>
 
 <!-- 사이트 추가/수정 모달 -->
 <div class="modal-overlay" id="modal">
@@ -361,7 +336,6 @@
           <option value="info">정보</option>
           <option value="news">뉴스</option>
           <option value="search">검색엔진</option>
-          <option value="gpt">GPT</option>
         </select>
       </div>
       <div class="form-group">
@@ -401,152 +375,70 @@
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, setLogLevel, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-setLogLevel('debug');
-
-const ageNames = {elem:"초등학생", mid:"중학생", high:"고등학생", adult:"성인"};
-const categoryNames = {learning:"학습", info:"정보", news:"뉴스", search:"검색엔진", gpt:"GPT 사이트"};
-const subjectNames = {korean:"국어", math:"수학", english:"영어", science:"과학", social:"사회", history:"역사", art:"예술", music:"음악", pe:"체육", tech:"기술", coding:"코딩", language:"외국어", general:"종합", exam:"시험대비", career:"진로"};
-
-const DEFAULT_SITES = [
-  {name:"EBS 초등", url:"https://www.ebs.co.kr/course/home?courseType=ELMT", desc:"초등 전 과목 온라인 강의", category:"learning", ages:["elem"], subjects:["korean","math","science","social"]},
-  {name:"Khan Academy", url:"https://ko.khanacademy.org/", desc:"수학, 과학 무료 강의", category:"learning", ages:["elem","mid","high","adult"], subjects:["math","science"]},
-  {name:"Duolingo", url:"https://www.duolingo.com/", desc:"외국어 학습 게임형 플랫폼", category:"learning", ages:["elem","mid","high","adult"], subjects:["language","english"]},
-  {name:"코딩의 정석", url:"https://www.codingjs.com/", desc:"초보자를 위한 코딩 기본기 강의", category:"learning", ages:["mid","high"], subjects:["coding", "tech"]},
-  {name:"위키백과", url:"https://ko.wikipedia.org/", desc:"자유 백과사전", category:"info", ages:["mid","high","adult"], subjects:["general"]},
-  {name:"국립중앙과학관", url:"https://www.science.go.kr/", desc:"과학 체험 및 교육 정보", category:"info", ages:["elem","mid","high"], subjects:["science"]},
-  {name:"네이버 지식백과", url:"https://terms.naver.com/", desc:"다양한 분야의 지식백과", category:"info", ages:["elem","mid","high","adult"], subjects:["general"]},
-  {name:"연합뉴스", url:"https://www.yna.co.kr/", desc:"대한민국 대표 뉴스통신사", category:"news", ages:["mid","high","adult"], subjects:["social","general"]},
-  {name:"BBC News 코리아", url:"https://www.bbc.com/korean", desc:"BBC 한국어 뉴스", category:"news", ages:["high","adult"], subjects:["english","social"]},
-  {name:"네이버", url:"https://www.naver.com/", desc:"대한민국 대표 포털사이트", category:"search", ages:["elem","mid","high","adult"], subjects:["general"]},
-  {name:"구글", url:"https://www.google.com/", desc:"세계 최대 검색엔진", category:"search", ages:["elem","mid","high","adult"], subjects:["general"]},
-  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"OpenAI의 대화형 AI 챗봇", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
-  {name:"Gemini", url:"https://gemini.google.com/", desc:"Google의 대화형 AI 모델", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
-  {name:"Perplexity AI", url:"https://www.perplexity.ai/", desc:"질문 답변에 특화된 AI 검색 엔진", category:"gpt", ages:["high","adult"], subjects:["general","search"]},
-  {name:"Claude AI", url:"https://claude.ai/", desc:"Anthropic의 대화형 AI 모델", category:"gpt", ages:["high","adult"], subjects:["general"]}
-];
+<script>
+const ageNames = {elem:"초등학생",mid:"중학생",high:"고등학생",adult:"성인"};
+const categoryNames = {learning:"학습",info:"정보",news:"뉴스",search:"검색엔진"};
+const subjectNames = {korean:"국어",math:"수학",english:"영어",science:"과학",social:"사회",history:"역사",art:"예술",music:"음악",pe:"체육",tech:"기술",coding:"코딩",language:"외국어",general:"종합",exam:"시험대비",career:"진로"};
 
 let currentAgeFilter = "all";
 let currentCategoryFilter = "all";
 let currentSubjectFilter = "all";
+let expandedCategories = {};
+let editingIndex = -1;
+
+// 관리자 인증 상태
 let isAdminLoggedIn = false;
-let sites = [];
-let db, auth, userId;
-let currentUnsubscribe = null;
-
-// ===================================================================================
-// 중요: 이 부분을 자신의 Firebase 프로젝트 설정으로 교체해주세요.
-// Firebase 콘솔 -> 프로젝트 설정 (⚙️) -> 내 앱 -> SDK 설정 및 구성에서 찾을 수 있습니다.
-// ===================================================================================
-const firebaseConfig = {
-  apiKey: "AIzaSyCwLLD_WChnOUIq6xxgWe9VJMpYkmCDNDk",
-  authDomain: "test123-127d7.firebaseapp.com",
-  projectId: "test123-127d7",
-  storageBucket: "test123-127d7.firebasestorage.app",
-  messagingSenderId: "866143773244",
-  appId: "1:866143773244:web:113d983d40868898b71939",
-  measurementId: "G-KQEKG6ELM6"
+let categoryDisplayLimits = {
+  learning: 3,
+  info: 3,
+  news: 3,
+  search: 3
 };
-// ===================================================================================
 
-// ✨ 중요 ✨: 아래 apiKey가 "YOUR_API_KEY"인 경우, 앱이 작동하지 않습니다.
-// 본인의 Firebase 프로젝트에서 실제 설정 값을 복사하여 붙여넣어 주세요.
-if (firebaseConfig.apiKey === "1:866143773244:web:113d983d40868898b71939" || !firebaseConfig.apiKey) {
-    alert("Firebase 설정이 필요합니다! 코드의 firebaseConfig 부분을 실제 프로젝트의 API 키와 정보로 교체해주세요.");
-    // 앱의 나머지 부분 실행을 중단하여 추가 오류를 방지합니다.
-    throw new Error("Firebase 설정이 완료되지 않았습니다.");
-}
+// 초기 데이터
+let sites = [
+  {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
+  {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
+  {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
+  {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
+  {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
+  {name:"연합뉴스",url:"https://www.yna.co.kr/",desc:"대한민국 대표 뉴스통신사",category:"news",ages:["mid","high","adult"],subjects:["social","general"]},
+  {name:"BBC News",url:"https://www.bbc.com/korean",desc:"BBC 한국어 뉴스",category:"news",ages:["high","adult"],subjects:["english","social"]},
+  {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 대표 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
+  {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]}
+];
 
-const appId = firebaseConfig.projectId || 'default-app-id';
-
-// Firebase 초기화 및 인증
-let app;
-try {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = getFirestore(app);
-} catch (e) {
-  console.error("Firebase 초기화 실패:", e);
-  alert("Firebase 설정이 올바르지 않습니다. 코드를 확인해주세요.");
-}
-
-
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    userId = user.uid;
-    document.getElementById('userIdDisplay').textContent = userId;
-    await fetchSitesFromFirestore();
-  } else {
-    // 익명으로 로그인 시도
-    try {
-        await signInAnonymously(auth);
-    } catch (error) {
-        console.error("익명 로그인 실패:", error);
-        // 사용자에게 더 구체적인 오류 메시지 표시
-        if (error.code === 'auth/invalid-api-key') {
-             alert("Firebase API 키가 유효하지 않습니다. 코드의 firebaseConfig 부분을 확인해주세요.");
-        } else {
-             alert("인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.");
-        }
-    }
-  }
-});
-
-// Firestore에서 사이트 데이터 불러오기 및 실시간 감지
-async function fetchSitesFromFirestore() {
-  // userId가 없으면 함수를 실행하지 않음
-  if (!userId) return;
-  
-  const collectionPath = `/artifacts/${appId}/users/${userId}/sites`;
-  const sitesCollectionRef = collection(db, collectionPath);
-  
-  // 기존 실시간 리스너 해제
-  if (currentUnsubscribe) {
-    currentUnsubscribe();
-  }
-  
-  // 실시간 리스너 설정
-  currentUnsubscribe = onSnapshot(sitesCollectionRef, (querySnapshot) => {
-    const fetchedSites = [];
-    querySnapshot.forEach((doc) => {
-      const siteData = doc.data();
-      fetchedSites.push({ ...siteData, id: doc.id });
-    });
-    sites = fetchedSites;
-    // 초기 데이터가 없으면 기본 데이터 추가
-    if (sites.length === 0) {
-      addInitialData();
-    }
-    renderSites();
-  }, (error) => {
-    console.error("Firestore 데이터 로드 중 오류 발생:", error);
-    showPopup("데이터를 불러오는 데 실패했습니다.", true);
-  });
-}
-
-// 초기 데이터 추가 함수
-async function addInitialData() {
-  if (sites.length === 0 && userId) {
-    const batch = writeBatch(db);
-    const sitesCollectionRef = collection(db, `/artifacts/${appId}/users/${userId}/sites`);
-    DEFAULT_SITES.forEach(site => {
-      const newDocRef = doc(sitesCollectionRef);
-      batch.set(newDocRef, site);
-    });
-    try {
-        await batch.commit();
-        console.log("초기 데이터가 성공적으로 추가되었습니다.");
-    } catch(error) {
-        console.error("초기 데이터 추가 실패:", error);
-    }
+// 데이터 저장/로드 (로컬스토리지 사용)
+function saveData() {
+  try {
+    const data = JSON.stringify(sites);
+    // 메모리에 저장 (실제 환경에서는 localStorage 사용)
+    window.savedSitesData = data;
+    return true;
+  } catch (error) {
+    console.error('데이터 저장 실패:', error);
+    return false;
   }
 }
 
-// 팝업 알림 (alert 대체)
+function loadData() {
+  try {
+    if (window.savedSitesData) {
+      const data = JSON.parse(window.savedSitesData);
+      if (Array.isArray(data)) {
+        sites = data;
+        return true;
+      }
+    }
+    return false;
+  } catch (error) {
+    console.error('데이터 로드 실패:', error);
+    return false;
+  }
+}
+
+// 팝업 알림
 function showPopup(message, isError = false) {
   const container = document.getElementById("popup-container");
   const popup = document.createElement("div");
@@ -560,41 +452,28 @@ function showPopup(message, isError = false) {
   }, 3000);
 }
 
-// 커스텀 확인 모달
-let confirmCallback = null;
-window.openConfirmationModal = function(title, message, onConfirm) {
-  document.getElementById('confirmTitle').textContent = title;
-  document.getElementById('confirmMessage').textContent = message;
-  confirmCallback = onConfirm;
-  document.getElementById('confirmation-modal').style.display = 'flex';
-}
-window.closeConfirmationModal = function() {
-  document.getElementById('confirmation-modal').style.display = 'none';
-  confirmCallback = null;
-}
-document.getElementById('confirmActionBtn').addEventListener('click', () => {
-  if (confirmCallback) {
-    confirmCallback();
-  }
-  closeConfirmationModal();
-});
-
-// 관리자 토글
+// 관리자 토글 함수
 function toggleAdmin() {
-    if (isAdminLoggedIn) {
-        logout();
-    } else {
-        const password = prompt("관리자 비밀번호를 입력하세요:");
-        if (password === "admin123") {
-            isAdminLoggedIn = true;
-            showPopup("관리자 모드가 활성화되었습니다!");
-            updateAdminUI();
-        } else if (password !== null) {
-            showPopup("잘못된 비밀번호입니다.", true);
-        }
-    }
+  if (isAdminLoggedIn) {
+    logout();
+  } else {
+    checkAdminAuth();
+  }
 }
 
+// 관리자 인증
+function checkAdminAuth() {
+  const password = prompt("관리자 비밀번호를 입력하세요:");
+  if (password === "admin123") {
+    isAdminLoggedIn = true;
+    showPopup("관리자 모드가 활성화되었습니다!");
+    updateAdminUI();
+    return true;
+  } else if (password !== null) {
+    showPopup("잘못된 비밀번호입니다.", true);
+  }
+  return false;
+}
 
 function logout() {
   isAdminLoggedIn = false;
@@ -603,16 +482,28 @@ function logout() {
 }
 
 function updateAdminUI() {
+  console.log('UI 업데이트, 관리자 상태:', isAdminLoggedIn); // 디버깅용
   const adminToggle = document.getElementById('adminToggle');
   const addBtn = document.getElementById('addSiteBtn');
   const dataManagement = document.getElementById('dataManagement');
   
-  if (adminToggle) {
-    adminToggle.textContent = isAdminLoggedIn ? '🔓 관리자 모드 (로그아웃)' : '🔒 관리자 로그인';
-    adminToggle.className = isAdminLoggedIn ? 'admin-btn active' : 'admin-btn';
+  console.log('요소들:', { adminToggle, addBtn, dataManagement }); // 디버깅용
+  
+  if (isAdminLoggedIn) {
+    if (adminToggle) {
+      adminToggle.textContent = '🔓 관리자 모드 (로그아웃)';
+      adminToggle.className = 'admin-btn active';
+    }
+    if (addBtn) addBtn.style.display = 'inline-block';
+    if (dataManagement) dataManagement.style.display = 'block';
+  } else {
+    if (adminToggle) {
+      adminToggle.textContent = '🔒 관리자 로그인';
+      adminToggle.className = 'admin-btn';
+    }
+    if (addBtn) addBtn.style.display = 'none';
+    if (dataManagement) dataManagement.style.display = 'none';
   }
-  if (addBtn) addBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
-  if (dataManagement) dataManagement.style.display = isAdminLoggedIn ? 'block' : 'none';
   
   renderSites();
 }
@@ -626,24 +517,25 @@ function updateStats() {
 // 필터링된 사이트 가져오기
 function getFilteredSites() {
   return sites.filter(s =>
-    (currentAgeFilter === "all" || (s.ages && s.ages.includes(currentAgeFilter))) &&
+    (currentAgeFilter === "all" || s.ages.includes(currentAgeFilter)) &&
     (currentCategoryFilter === "all" || s.category === currentCategoryFilter) &&
-    (currentSubjectFilter === "all" || (s.subjects && s.subjects.includes(currentSubjectFilter)))
+    (currentSubjectFilter === "all" || s.subjects.includes(currentSubjectFilter))
   );
 }
 
-// 사이트 카드 생성
-function createSiteCard(site) {
+// 사이트 카드 생성 (더보기 기능 포함)
+function createSiteCard(site, index) {
   const card = document.createElement("div");
   card.className = "link-card";
   
-  const ageTags = (site.ages || []).map(a => `<span class="tag age-tag">${ageNames[a] || a}</span>`).join(" ");
-  const categoryTag = `<span class="tag category-tag">${categoryNames[site.category] || site.category}</span>`;
+  const ageTags = site.ages.map(a => `<span class="tag age-tag">${ageNames[a]}</span>`).join(" ");
+  const categoryTag = `<span class="tag category-tag">${categoryNames[site.category]}</span>`;
   
+  // 관리자 버튼들 (관리자 로그인 시에만 표시)
   const adminButtons = isAdminLoggedIn ? `
     <div class="card-buttons">
-      <button class="card-btn edit-btn" onclick="openEditModal('${site.id}')" title="수정">✏️</button>
-      <button class="card-btn delete-btn" onclick="openDeleteModal('${site.id}', '${site.name}')" title="삭제">🗑️</button>
+      <button class="card-btn edit-btn" onclick="openEditModal(${index})" title="수정">✏️</button>
+      <button class="card-btn delete-btn" onclick="deleteSite(${index})" title="삭제">🗑️</button>
     </div>
   ` : '';
   
@@ -656,28 +548,48 @@ function createSiteCard(site) {
   return card;
 }
 
-// 사이트 렌더링
+// 사이트 렌더링 (더보기 기능 포함)
 function renderSites() {
   const categories = Object.keys(categoryNames);
   const allFilteredSites = getFilteredSites();
   let hasResults = allFilteredSites.length > 0;
-  
+
   categories.forEach(category => {
     const container = document.getElementById(`${category}-content`);
     const section = document.getElementById(`${category}-section`);
     const sitesInCategory = allFilteredSites.filter(s => s.category === category);
+
+    container.innerHTML = "";
     
-    if (container) {
-      container.innerHTML = "";
-      if (sitesInCategory.length > 0) {
-        if (section) section.style.display = "block";
-        sitesInCategory.forEach(site => {
-          container.appendChild(createSiteCard(site));
-        });
-      } else {
-        if (section) section.style.display = "block";
-        container.innerHTML = "<p style='color:#666;text-align:center;padding:20px;'>해당 조건의 사이트가 없습니다.</p>";
+    if (sitesInCategory.length > 0) {
+      section.style.display = "block";
+      
+      // 현재 카테고리의 표시 제한
+      const limit = categoryDisplayLimits[category];
+      const sitesToShow = sitesInCategory.slice(0, limit);
+      const remainingSites = sitesInCategory.length - limit;
+      
+      // 사이트 카드들 추가
+      sitesToShow.forEach(site => {
+        const idx = sites.indexOf(site);
+        container.appendChild(createSiteCard(site, idx));
+      });
+      
+      // 더보기 버튼 (남은 사이트가 있을 때만)
+      if (remainingSites > 0) {
+        const moreBtn = document.createElement("div");
+        moreBtn.className = "more-btn-container";
+        moreBtn.innerHTML = `
+          <button class="more-btn" onclick="showMoreSites('${category}')">
+            더보기 (${remainingSites}개 더 있음) ↓
+          </button>
+        `;
+        container.appendChild(moreBtn);
       }
+      
+    } else {
+      section.style.display = (currentCategoryFilter === "all" || currentCategoryFilter === category) ? "block" : "none";
+      container.innerHTML = "<p style='color:#666;text-align:center;padding:20px;'>해당 조건의 사이트가 없습니다.</p>";
     }
   });
 
@@ -685,11 +597,27 @@ function renderSites() {
   updateStats();
 }
 
+// 더보기 기능
+function showMoreSites(category) {
+  categoryDisplayLimits[category] += 5;
+  renderSites();
+}
+
+// 카테고리별 표시 제한 초기화
+function resetDisplayLimits() {
+  categoryDisplayLimits = {
+    learning: 3,
+    info: 3,
+    news: 3,
+    search: 3
+  };
+}
+
 // 필터 설정
 function setupFilters() {
   document.querySelectorAll("#ageFilter .filter-btn").forEach(btn =>
     btn.addEventListener("click", e => {
-      document.querySelector("#ageFilter .active")?.classList.remove("active");
+      document.querySelector("#ageFilter .active").classList.remove("active");
       e.target.classList.add("active");
       currentAgeFilter = e.target.dataset.age;
       renderSites();
@@ -698,9 +626,10 @@ function setupFilters() {
 
   document.querySelectorAll("#categoryFilter .filter-btn").forEach(btn =>
     btn.addEventListener("click", e => {
-      document.querySelector("#categoryFilter .active")?.classList.remove("active");
+      document.querySelector("#categoryFilter .active").classList.remove("active");
       e.target.classList.add("active");
       currentCategoryFilter = e.target.dataset.category;
+      expandedCategories = {};
       renderSites();
     })
   );
@@ -711,50 +640,56 @@ function setupFilters() {
   });
 }
 
-// 필터 초기화
-window.resetFilters = function() {
+// 필터 초기화 (더보기 제한도 함께 초기화)
+function resetFilters() {
   currentAgeFilter = "all";
   currentCategoryFilter = "all";
   currentSubjectFilter = "all";
-  document.querySelector("#ageFilter .filter-btn[data-age='all']")?.click();
-  document.querySelector("#categoryFilter .filter-btn[data-category='all']")?.click();
+  document.querySelector("#ageFilter .filter-btn[data-age='all']").click();
+  document.querySelector("#categoryFilter .filter-btn[data-category='all']").click();
   document.getElementById("subjectFilter").value = "all";
+  expandedCategories = {};
+  resetDisplayLimits();
   renderSites();
 }
 
-let editingDocId = null;
-
+// 모달 관련 (관리자 인증 추가)
 function openAddModal() {
-  if (!isAdminLoggedIn) return;
-  editingDocId = null;
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
+  editingIndex = -1;
   document.getElementById("modalTitle").textContent = "새 사이트 추가";
   document.getElementById("siteForm").reset();
   clearFormCheckboxes();
   document.getElementById("modal").style.display = "flex";
 }
 
-window.openEditModal = function(docId) {
-  if (!isAdminLoggedIn) return;
-  editingDocId = docId;
-  const site = sites.find(s => s.id === docId);
-  if (!site) {
-    showPopup("사이트를 찾을 수 없습니다.", true);
-    return;
+function openEditModal(index) {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
   }
+  editingIndex = index;
+  const site = sites[index];
   document.getElementById("modalTitle").textContent = "사이트 수정";
   
+  // 폼 채우기
   document.getElementById("siteName").value = site.name;
   document.getElementById("siteUrl").value = site.url;
   document.getElementById("siteDesc").value = site.desc || "";
   document.getElementById("siteCategory").value = site.category;
   
+  // 체크박스 초기화 후 설정
   clearFormCheckboxes();
-  (site.ages || []).forEach(age => {
+  
+  // 연령대 체크박스 설정
+  site.ages.forEach(age => {
     const checkbox = document.getElementById(`age-${age}`);
     if (checkbox) checkbox.checked = true;
   });
   
-  (site.subjects || []).forEach(subject => {
+  // 과목 체크박스 설정
+  site.subjects.forEach(subject => {
     const checkbox = document.getElementById(`subj-${subject}`);
     if (checkbox) checkbox.checked = true;
   });
@@ -762,7 +697,7 @@ window.openEditModal = function(docId) {
   document.getElementById("modal").style.display = "flex";
 }
 
-window.closeModal = function() {
+function closeModal() {
   document.getElementById("modal").style.display = "none";
   document.getElementById("siteForm").reset();
   clearFormCheckboxes();
@@ -773,7 +708,8 @@ function clearFormCheckboxes() {
   document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
 }
 
-window.saveSite = async function(event) {
+// 사이트 저장 (추가/수정)
+function saveSite(event) {
   event.preventDefault();
   
   const name = document.getElementById("siteName").value.trim();
@@ -781,15 +717,31 @@ window.saveSite = async function(event) {
   const desc = document.getElementById("siteDesc").value.trim();
   const category = document.getElementById("siteCategory").value;
   
-  const ages = Array.from(document.querySelectorAll('#ageCheckboxes input[type="checkbox"]:checked')).map(cb => cb.value);
-  const subjects = Array.from(document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]:checked')).map(cb => cb.value);
+  // 연령대 수집
+  const ages = [];
+  document.querySelectorAll('#ageCheckboxes input[type="checkbox"]:checked').forEach(cb => {
+    ages.push(cb.value);
+  });
   
-  if (!name || !url || !category || ages.length === 0) {
+  // 과목 수집
+  const subjects = [];
+  document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]:checked').forEach(cb => {
+    subjects.push(cb.value);
+  });
+  
+  // 유효성 검사
+  if (!name || !url || !category) {
     showPopup("필수 항목을 모두 입력해주세요.", true);
     return;
   }
   
-  const siteData = {
+  if (ages.length === 0) {
+    showPopup("최소 하나의 연령대를 선택해주세요.", true);
+    return;
+  }
+  
+  // 새 사이트 객체
+  const newSite = {
     name: name,
     url: url,
     desc: desc,
@@ -798,54 +750,41 @@ window.saveSite = async function(event) {
     subjects: subjects.length > 0 ? subjects : ["general"]
   };
   
-  const collectionRef = collection(db, `/artifacts/${appId}/users/${userId}/sites`);
-
-  try {
-    if (editingDocId) {
-      await updateDoc(doc(collectionRef, editingDocId), siteData);
-      showPopup("사이트가 수정되었습니다!");
-    } else {
-      await addDoc(collectionRef, siteData);
-      showPopup("새 사이트가 추가되었습니다!");
-    }
-    closeModal();
-  } catch (e) {
-    console.error("데이터 저장 실패:", e);
-    showPopup("데이터 저장에 실패했습니다.", true);
+  if (editingIndex === -1) {
+    sites.push(newSite);
+    showPopup("새 사이트가 추가되었습니다!");
+  } else {
+    sites[editingIndex] = newSite;
+    showPopup("사이트가 수정되었습니다!");
   }
+  
+  saveData();
+  renderSites();
+  closeModal();
 }
 
-window.openDeleteModal = function(docId, siteName) {
-  if (!isAdminLoggedIn) return;
-  openConfirmationModal(
-    '사이트 삭제',
-    `'${siteName}' 사이트를 삭제하시겠습니까?`,
-    () => deleteSite(docId)
-  );
-}
-
-async function deleteSite(docId) {
-  try {
-    const docRef = doc(db, `/artifacts/${appId}/users/${userId}/sites/${docId}`);
-    await deleteDoc(docRef);
+// 사이트 삭제 (관리자 인증 추가)
+function deleteSite(index) {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
+  const site = sites[index];
+  if (confirm(`'${site.name}' 사이트를 삭제하시겠습니까?`)) {
+    sites.splice(index, 1);
+    saveData();
+    resetDisplayLimits();
+    renderSites();
     showPopup("사이트가 삭제되었습니다!");
-  } catch (e) {
-    console.error("데이터 삭제 실패:", e);
-    showPopup("데이터 삭제에 실패했습니다.", true);
   }
 }
 
-window.exportData = async function() {
-  if (!isAdminLoggedIn) return;
+// 데이터 내보내기 (관리자 인증 추가)
+function exportData() {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
   try {
-    const collectionRef = collection(db, `/artifacts/${appId}/users/${userId}/sites`);
-    const querySnapshot = await getDocs(collectionRef);
-    const data = [];
-    querySnapshot.forEach(doc => {
-      data.push(doc.data());
-    });
-    
-    const dataStr = JSON.stringify(data, null, 2);
+    const dataStr = JSON.stringify(sites, null, 2);
     const dataBlob = new Blob([dataStr], {type: 'application/json'});
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
@@ -855,97 +794,83 @@ window.exportData = async function() {
     URL.revokeObjectURL(url);
     showPopup("데이터가 내보내졌습니다!");
   } catch (error) {
-    console.error("데이터 내보내기 실패:", error);
     showPopup("데이터 내보내기에 실패했습니다.", true);
   }
 }
 
-window.importData = async function(event) {
-  if (!isAdminLoggedIn) return;
+// 데이터 가져오기 (관리자 인증 추가)
+function importData(event) {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
   const file = event.target.files[0];
   if (!file) return;
   
   const reader = new FileReader();
-  reader.onload = async function(e) {
+  reader.onload = function(e) {
     try {
-      const importedData = JSON.parse(e.target.result);
-      if (Array.isArray(importedData)) {
-        openConfirmationModal(
-          '데이터 가져오기',
-          "기존 데이터를 모두 교체하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-          async () => {
-            const batch = writeBatch(db);
-            const collectionRef = collection(db, `/artifacts/${appId}/users/${userId}/sites`);
-            
-            // 기존 데이터 삭제
-            const existingDocs = await getDocs(collectionRef);
-            existingDocs.forEach(doc => batch.delete(doc.ref));
-            
-            // 새 데이터 추가
-            importedData.forEach(site => {
-              const newDocRef = doc(collectionRef);
-              batch.set(newDocRef, site);
-            });
-            
-            await batch.commit();
-            showPopup("데이터가 성공적으로 가져와졌습니다!");
-          }
-        );
+      const data = JSON.parse(e.target.result);
+      if (Array.isArray(data)) {
+        if (confirm("기존 데이터를 모두 교체하시겠습니까?")) {
+          sites = data;
+          saveData();
+          resetDisplayLimits();
+          renderSites();
+          showPopup("데이터가 가져와졌습니다!");
+        }
       } else {
         showPopup("올바른 JSON 형식이 아닙니다.", true);
       }
     } catch (error) {
-      console.error("파일 읽기 실패:", error);
-      showPopup("파일을 읽는 데 실패했습니다.", true);
+      showPopup("파일을 읽는데 실패했습니다.", true);
     }
   };
   reader.readAsText(file);
   event.target.value = "";
 }
 
-window.openResetModal = function() {
-  if (!isAdminLoggedIn) return;
-  openConfirmationModal(
-    '데이터 초기화',
-    "정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-    resetAllData
-  );
-}
-
-async function resetAllData() {
-  try {
-    const collectionRef = collection(db, `/artifacts/${appId}/users/${userId}/sites`);
-    const existingDocs = await getDocs(collectionRef);
-    const batch = writeBatch(db);
-    existingDocs.forEach(doc => {
-      batch.delete(doc.ref);
-    });
-    await batch.commit();
+// 모든 데이터 초기화 (관리자 인증 추가)
+function resetAllData() {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
+  if (confirm("정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+    sites = [
+      {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
+      {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
+      {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
+      {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
+      {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+      {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
+      {name:"연합뉴스",url:"https://www.yna.co.kr/",desc:"대한민국 대표 뉴스통신사",category:"news",ages:["mid","high","adult"],subjects:["social","general"]},
+      {name:"BBC News",url:"https://www.bbc.com/korean",desc:"BBC 한국어 뉴스",category:"news",ages:["high","adult"],subjects:["english","social"]},
+      {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 대표 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
+      {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]}
+    ];
+    saveData();
+    resetDisplayLimits();
+    renderSites();
     showPopup("데이터가 초기화되었습니다!");
-    addInitialData(); // 기본 데이터 재추가
-  } catch (e) {
-    console.error("데이터 초기화 실패:", e);
-    showPopup("데이터 초기화에 실패했습니다.", true);
   }
 }
 
-window.toggleDarkMode = function() {
+// 다크 모드 토글
+function toggleDarkMode() {
   document.body.classList.toggle("dark");
   const isDark = document.body.classList.contains("dark");
   showPopup(isDark ? "다크 모드가 활성화되었습니다." : "라이트 모드가 활성화되었습니다.");
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('adminToggle').addEventListener('click', toggleAdmin);
-  document.getElementById('addSiteBtn').addEventListener('click', openAddModal);
+// 초기화 및 관리자 UI 설정
+function init() {
+  loadData();
   setupFilters();
   updateAdminUI();
-});
+  renderSites();
+}
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
-
-
-
-
-

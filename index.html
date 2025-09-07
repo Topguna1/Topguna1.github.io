@@ -438,8 +438,16 @@ let sites = [];
 let db, auth, userId;
 let currentUnsubscribe = null;
 
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+const appId = 1:866143773244:web:113d983d40868898b71939
+const firebaseConfig = {
+  apiKey: "AIzaSyCwLLD_WChnOUIq6xxgWe9VJMpYkmCDNDk",
+  authDomain: "test123-127d7.firebaseapp.com",
+  projectId: "test123-127d7",
+  storageBucket: "test123-127d7.firebasestorage.app",
+  messagingSenderId: "866143773244",
+  appId: "1:866143773244:web:113d983d40868898b71939",
+  measurementId: "G-KQEKG6ELM6"
+};
 
 // Firebase 초기화 및 인증
 const app = initializeApp(firebaseConfig);
@@ -936,4 +944,5 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
+
 

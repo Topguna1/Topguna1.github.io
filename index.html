@@ -2,875 +2,938 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>실험용 - 완전 관리 버전</title>
+<title>교육 사이트 포털 - 완전 관리 버전</title>
 <style>
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background: #fff;
-  color: #000;
-  transition: background 0.3s, color 0.3s;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #333;
+  transition: all 0.3s ease;
 }
-body.dark { background: #121212; color: #fff; }
-h1 { color: #2c3e50; margin: 0; }
-body.dark h1 { color: #f1c40f; }
+
+body.dark { 
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); 
+  color: #fff; 
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+body.dark .container {
+  background: rgba(26, 26, 46, 0.95);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== 헤더 ===== */
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: floating 6s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.header h1 {
+  margin: 0 0 10px 0;
+  font-size: 2.5em;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1em;
+  position: relative;
+  z-index: 1;
+}
 
 /* ===== 상단 컨트롤 ===== */
 .top-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  padding: 25px 30px;
+  background: rgba(248, 249, 250, 0.8);
+  border-bottom: 1px solid #e9ecef;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
+  gap: 15px;
 }
-body.dark .top-controls { border-color: #555; }
+
+body.dark .top-controls {
+  background: rgba(45, 45, 45, 0.8);
+  border-bottom-color: #555;
+}
 
 .top-buttons {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 /* ===== 필터 영역 ===== */
 .filters {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  padding: 25px 30px;
+  background: rgba(248, 249, 250, 0.5);
+  border-bottom: 1px solid #e9ecef;
   display: flex;
-  gap: 15px;
+  gap: 20px;
   flex-wrap: wrap;
   align-items: center;
-  max-width: 1100px;
-  margin-left: auto;
-  margin-right: auto;
-  box-sizing: border-box;
 }
-body.dark .filters { background: #2d2d2d; }
-.filter-group { display: flex; flex-direction: column; gap: 5px; }
-.filter-group label { font-weight: bold; font-size: 14px; }
+
+body.dark .filters {
+  background: rgba(45, 45, 45, 0.5);
+  border-bottom-color: #555;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #495057;
+}
+
+body.dark .filter-group label {
+  color: #adb5bd;
+}
+
 select, .filter-buttons {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
   background: white;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
-body.dark select { background: #333; color: #fff; border-color: #555; }
-.filter-buttons { display: flex; gap: 5px; flex-wrap: wrap; }
+
+select:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+body.dark select {
+  background: #343a40;
+  color: #fff;
+  border-color: #555;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 6px;
+}
+
 .filter-btn {
-  padding: 5px 12px;
-  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border: 2px solid #e9ecef;
   background: white;
-  border-radius: 4px;
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   white-space: nowrap;
+  transition: all 0.2s ease;
 }
-.filter-btn.active { background: #007bff; color: white; border-color: #007bff; }
-body.dark .filter-btn { background: #444; color: #fff; border-color: #666; }
-body.dark .filter-btn.active { background: #0056b3; border-color: #0056b3; }
+
+.filter-btn:hover {
+  border-color: #667eea;
+  transform: translateY(-1px);
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+body.dark .filter-btn {
+  background: #495057;
+  color: #fff;
+  border-color: #666;
+}
+
+/* ===== 버튼 스타일 ===== */
+button {
+  padding: 12px 20px;
+  margin: 4px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.admin-btn {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+}
+
+.admin-btn.active {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.dark-toggle {
+  background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+  color: white;
+}
+
+.add-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.add-category-btn {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+}
+
+/* ===== 카테고리 관리 ===== */
+.category-management {
+  padding: 20px 30px;
+  background: rgba(248, 249, 250, 0.5);
+  border-bottom: 1px solid #e9ecef;
+}
+
+body.dark .category-management {
+  background: rgba(45, 45, 45, 0.5);
+  border-bottom-color: #555;
+}
+
+.custom-categories {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.custom-category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 20px;
+  border: 1px solid #dee2e6;
+}
+
+body.dark .custom-category {
+  background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+  border-color: #666;
+}
+
+.remove-category-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== 통계 ===== */
+.stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  font-size: 14px;
+  color: #6c757d;
+  background: rgba(248, 249, 250, 0.3);
+}
+
+body.dark .stats {
+  color: #adb5bd;
+  background: rgba(45, 45, 45, 0.3);
+}
+
+.stats-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-number {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 16px;
+}
 
 /* ===== 카테고리/카드 ===== */
 .categories-container {
-  max-width: 1100px;
-  margin: 20px auto;
+  padding: 30px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
-  box-sizing: border-box;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
 }
-.category-section { margin: 0; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; }
-body.dark .category-section { border-color: #444; }
+
+.category-section {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.category-section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+body.dark .category-section {
+  background: #2d2d2d;
+  border-color: #555;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
 .category-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 15px 20px;
-  font-size: 20px;
-  font-weight: bold;
+  padding: 20px 25px;
+  font-size: 18px;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 15px;
 }
-.category-content { padding: 20px; background: #fafafa; }
-body.dark .category-content { background: #1a1a1a; }
+
+.category-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.category-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.category-content {
+  padding: 25px;
+}
 
 .link-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  margin: 10px 0;
-  background: white;
+  border: 2px solid #f1f3f5;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 15px 0;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   position: relative;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
-.link-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-body.dark .link-card { background: #2d2d2d; border-color: #555; }
-body.dark .link-card:hover { box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
-.link-card a { text-decoration: none; color: #2980b9; font-weight: bold; font-size: 18px; }
-body.dark .link-card a { color: #4aa3ff; }
 
-.link-meta { display: flex; gap: 10px; margin: 8px 0; font-size: 12px; color: #666; flex-wrap: wrap; }
-body.dark .link-meta { color: #aaa; }
-.tag { background: #e9ecef; padding: 3px 8px; border-radius: 12px; font-size: 11px; white-space: nowrap; }
-body.dark .tag { background: #495057; color: #fff; }
-.age-tag { background: #d4edda; color: #155724; }
-.category-tag { background: #fff3cd; color: #856404; }
-body.dark .age-tag { background: #28a745; color: white; }
-body.dark .category-tag { background: #ffc107; color: #212529; }
+.link-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+  border-color: #667eea;
+}
 
-.card-buttons { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; }
+body.dark .link-card {
+  background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+  border-color: #555;
+}
+
+body.dark .link-card:hover {
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+  border-color: #667eea;
+}
+
+.link-card a {
+  text-decoration: none;
+  color: #2c3e50;
+  font-weight: 700;
+  font-size: 18px;
+  display: inline-block;
+  margin-bottom: 8px;
+  transition: color 0.2s ease;
+}
+
+.link-card a:hover {
+  color: #667eea;
+}
+
+body.dark .link-card a {
+  color: #f8f9fa;
+}
+
+body.dark .link-card a:hover {
+  color: #667eea;
+}
+
+.link-card p {
+  margin: 10px 0 0 0;
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+body.dark .link-card p {
+  color: #adb5bd;
+}
+
+.link-meta {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.age-tag {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+}
+
+.category-tag {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  color: #856404;
+}
+
+body.dark .age-tag {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+body.dark .category-tag {
+  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+  color: #212529;
+}
+
+.card-buttons {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  gap: 6px;
+}
+
 .card-btn {
-  border: none; border-radius: 50%; width: 25px; height: 25px;
-  cursor: pointer; font-size: 12px; color: white;
-  display: flex; align-items: center; justify-content: center;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 14px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  transition: all 0.2s ease;
 }
-.edit-btn { background: #3498db; }
-.delete-btn { background: #e74c3c; }
 
-/* ===== 버튼/폼 ===== */
-button { 
-  padding: 8px 16px; margin: 5px; border: none; border-radius: 6px; 
-  cursor: pointer; font-weight: bold; transition: all 0.2s;
+.card-btn:hover {
+  transform: scale(1.1);
 }
-button:hover { transform: translateY(-1px); }
 
-.admin-btn { background: #6c757d; color: white; }
-.admin-btn.active { background: #28a745; }
-.dark-toggle { background: #333; color: #fff; }
-.add-btn { background: #27ae60; color: white; font-size: 16px; }
-
-/* ===== 팝업/결과/통계 ===== */
-#popup-container { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-.popup {
-  padding: 15px 20px; border-radius: 8px; color: white; font-weight: bold;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  opacity: 0.95; transform: translateX(120%);
-  transition: transform 0.4s ease-in-out;
+.edit-btn {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
 }
-.popup.show { transform: translateX(0); }
-.popup.success { background: #2ecc71; }
-.popup.error { background: #e74c3c; }
 
+.delete-btn {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+/* ===== 더보기/접기 버튼 ===== */
+.more-btn-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.more-btn, .collapse-btn {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #495057;
+  border: 2px solid #dee2e6;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.more-btn:hover, .collapse-btn:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+body.dark .more-btn, body.dark .collapse-btn {
+  background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+  color: #f8f9fa;
+  border-color: #555;
+}
+
+/* ===== 결과 없음 ===== */
 .no-results {
-  text-align: center; color: #666; font-style: italic;
-  padding: 40px; background: #f8f9fa; border-radius: 8px; margin: 20px 0;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 60px;
+  background: rgba(248, 249, 250, 0.5);
+  border-radius: 15px;
+  margin: 30px;
 }
-body.dark .no-results { color: #aaa; background: #2d2d2d; }
 
-.stats {
-  display: flex; justify-content: space-between; margin: 10px 0;
-  font-size: 12px; color: #666;
-  max-width: 1100px; margin-left: auto; margin-right: auto;
-  box-sizing: border-box;
+body.dark .no-results {
+  color: #adb5bd;
+  background: rgba(45, 45, 45, 0.5);
 }
-body.dark .stats { color: #aaa; }
 
-.more-btn-container { text-align: center; margin-top: 20px; }
-.more-btn { background: #f1f3f5; color: #495057; border: 1px solid #dee2e6; }
-body.dark .more-btn { background: #343a40; color: #f8f9fa; border-color: #495057; }
+/* ===== 팝업 ===== */
+#popup-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.popup {
+  padding: 15px 25px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateX(120%);
+  transition: all 0.4s ease;
+  backdrop-filter: blur(10px);
+}
+
+.popup.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.popup.success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.popup.error {
+  background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+}
 
 /* ===== 모달 ===== */
 .modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6); display: none;
-  justify-content: center; align-items: center; z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  backdrop-filter: blur(5px);
 }
-.modal-content {
-  background: white; padding: 30px; border-radius: 12px;
-  width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;
-  position: relative;
-}
-body.dark .modal-content { background: #2d2d2d; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.modal-header h3 { margin: 0; color: #2c3e50; }
-body.dark .modal-header h3 { color: #f1c40f; }
-.close-btn { background: #e74c3c; color: white; border-radius: 50%; width: 30px; height: 30px; border: none; cursor: pointer; }
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-.form-group input, .form-group textarea, .form-group select {
-  width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;
-  box-sizing: border-box; font-family: inherit;
-}
-body.dark .form-group input, body.dark .form-group textarea, body.dark .form-group select {
-  background: #333; color: #fff; border-color: #555;
-}
-.checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
-.checkbox-item { display: flex; align-items: center; gap: 5px; }
-.checkbox-item input { width: auto; margin: 0; }
-.save-btn { background: #27ae60; color: white; padding: 12px 24px; }
-.cancel-btn { background: #6c757d; color: white; padding: 12px 24px; }
 
-/* ===== 데이터 관리 섹션 ===== */
-.data-management {
-  max-width: 1100px; margin: 20px auto; padding: 20px;
-  background: #f8f9fa; border-radius: 8px;
+.modal-content {
+  background: white;
+  padding: 35px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
 }
-body.dark .data-management { background: #2d2d2d; }
-.data-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
-.export-btn { background: #17a2b8; color: white; }
-.import-btn { background: #fd7e14; color: white; }
-.reset-btn { background: #dc3545; color: white; }
-#importFile { display: none; }
+
+body.dark .modal-content {
+  background: #2d2d2d;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+body.dark .modal-header {
+  border-bottom-color: #555;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+body.dark .modal-header h3 {
+  color: #f8f9fa;
+}
+
+.close-btn {
+  background: linear-gradient(135deg, #dc3545 0%, #c0392b 100%);
+  color: white;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  margin: 0;
+  padding: 0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #495057;
+}
+
+body.dark .form-group label {
+  color: #adb5bd;
+}
+
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+body.dark .form-group input, body.dark .form-group textarea, body.dark .form-group select {
+  background: #343a40;
+  color: #fff;
+  border-color: #555;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.checkbox-item:hover {
+  background: #e9ecef;
+}
+
+body.dark .checkbox-item {
+  background: #495057;
+  border-color: #666;
+  color: #fff;
+}
+
+.checkbox-item input {
+  width: auto;
+  margin: 0;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 15px 30px;
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+  padding: 15px 30px;
+}
+
+/* ===== 데이터 관리 ===== */
+.data-management {
+  padding: 25px 30px;
+  background: rgba(248, 249, 250, 0.5);
+  border-top: 1px solid #e9ecef;
+}
+
+body.dark .data-management {
+  background: rgba(45, 45, 45, 0.5);
+  border-top-color: #555;
+}
+
+.data-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.export-btn {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+}
+
+.import-btn {
+  background: linear-gradient(135deg, #fd7e14 0%, #e55a4e 100%);
+  color: white;
+}
+
+.reset-btn {
+  background: linear-gradient(135deg, #dc3545 0%, #c0392b 100%);
+  color: white;
+}
+
+#importFile {
+  display: none;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 768px) {
+  .container {
+    margin: 10px;
+    border-radius: 15px;
+  }
+  
+  .header h1 {
+    font-size: 2em;
+  }
+  
+  .categories-container {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+  
+  .top-controls, .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    min-width: auto;
+  }
+}
+
+/* ===== 애니메이션 ===== */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-section {
+  animation: slideInUp 0.6s ease forwards;
+}
+
+.category-section:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.category-section:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.category-section:nth-child(4) {
+  animation-delay: 0.3s;
+}
 </style>
 </head>
 <body>
 
-<div class="top-controls">
-  <h1>📚 실험중인 사이트 - 완전 관리 버전</h1>
-  <div class="top-buttons">
-    <button id="adminToggle" class="admin-btn" onclick="toggleAdmin()">🔒 관리자 로그인</button>
-    <button id="addSiteBtn" class="add-btn" onclick="openAddModal()" style="display:none;">➕ 새 사이트 추가</button>
-    <button class="dark-toggle" onclick="toggleDarkMode()">🌙 다크 모드</button>
+<div class="container">
+  <!-- 헤더 -->
+  <div class="header">
+    <h1>🌟 교육 사이트 포털</h1>
+    <p>학습과 성장을 위한 최고의 교육 리소스를 한 곳에서</p>
   </div>
-</div>
 
-<div id="popup-container"></div>
-
-<div class="filters">
-  <div class="filter-group"><label>연령대:</label><div class="filter-buttons" id="ageFilter">
-    <button class="filter-btn active" data-age="all">전체</button>
-    <button class="filter-btn" data-age="elem">초등</button>
-    <button class="filter-btn" data-age="mid">중등</button>
-    <button class="filter-btn" data-age="high">고등</button>
-    <button class="filter-btn" data-age="adult">성인</button>
-  </div></div>
-  <div class="filter-group"><label>카테고리:</label><div class="filter-buttons" id="categoryFilter">
-    <button class="filter-btn active" data-category="all">전체</button>
-    <button class="filter-btn" data-category="learning">학습</button>
-    <button class="filter-btn" data-category="info">정보</button>
-    <button class="filter-btn" data-category="news">뉴스</button>
-    <button class="filter-btn" data-category="search">검색엔진</button>
-  </div></div>
-  <div class="filter-group"><label>과목:</label>
-    <select id="subjectFilter">
-      <option value="all">전체 과목</option>
-      <option value="korean">국어</option>
-      <option value="math">수학</option>
-      <option value="english">영어</option>
-      <option value="science">과학</option>
-      <option value="social">사회</option>
-      <option value="history">역사</option>
-      <option value="art">예술</option>
-      <option value="music">음악</option>
-      <option value="pe">체육</option>
-      <option value="tech">기술</option>
-      <option value="coding">코딩</option>
-      <option value="language">외국어</option>
-      <option value="general">종합</option>
-      <option value="exam">시험대비</option>
-      <option value="career">진로</option>
-    </select>
-  </div>
-  <div class="filter-group"><button onclick="resetFilters()" style="background:#6c757d;color:white;border:none;padding:8px 12px;border-radius:4px;">필터 초기화</button></div>
-</div>
-
-<div class="stats">
-  <span>총 <span id="totalCount">0</span>개 사이트</span>
-  <span>필터링된 결과: <span id="filteredCount">0</span>개</span>
-</div>
-
-<div class="categories-container">
-  <div class="category-section" id="learning-section">
-    <div class="category-header">📖 학습 사이트</div>
-    <div class="category-content" id="learning-content"></div>
-  </div>
-  <div class="category-section" id="info-section">
-    <div class="category-header">📋 정보 사이트</div>
-    <div class="category-content" id="info-content"></div>
-  </div>
-  <div class="category-section" id="news-section">
-    <div class="category-header">📰 뉴스 사이트</div>
-    <div class="category-content" id="news-content"></div>
-  </div>
-  <div class="category-section" id="search-section">
-    <div class="category-header">🔍 검색 엔진</div>
-    <div class="category-content" id="search-content"></div>
-  </div>
-</div>
-
-<div id="noResults" class="no-results" style="display:none;">조건에 맞는 사이트가 없습니다.</div>
-
-<!-- 데이터 관리 섹션 -->
-<div id="dataManagement" class="data-management" style="display:none;">
-  <h3>📊 데이터 관리</h3>
-  <div class="data-controls">
-    <button class="export-btn" onclick="exportData()">📥 데이터 내보내기 (JSON)</button>
-    <button class="import-btn" onclick="document.getElementById('importFile').click()">📤 데이터 가져오기</button>
-    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
-    <button class="reset-btn" onclick="resetAllData()">🗑️ 모든 데이터 초기화</button>
-  </div>
-  <p style="font-size: 12px; color: #666; margin: 0;">
-    * 데이터는 브라우저 로컬스토리지에 자동 저장됩니다. 관리자 로그인 후 이용 가능합니다.
-  </p>
-</div>
-
-<!-- 사이트 추가/수정 모달 -->
-<div class="modal-overlay" id="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 id="modalTitle">새 사이트 추가</h3>
-      <button class="close-btn" onclick="closeModal()">✕</button>
+  <!-- 상단 컨트롤 -->
+  <div class="top-controls">
+    <div class="stats-item">
+      <span>📊</span>
+      <span>총 <span class="stats-number" id="totalCount">0</span>개 사이트</span>
     </div>
-    <form id="siteForm" onsubmit="saveSite(event)">
-      <div class="form-group">
-        <label for="siteName">사이트 이름 *</label>
-        <input type="text" id="siteName" required>
-      </div>
-      <div class="form-group">
-        <label for="siteUrl">URL *</label>
-        <input type="url" id="siteUrl" required placeholder="https://example.com">
-      </div>
-      <div class="form-group">
-        <label for="siteDesc">설명</label>
-        <textarea id="siteDesc" rows="3" placeholder="사이트에 대한 간단한 설명"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="siteCategory">카테고리 *</label>
-        <select id="siteCategory" required>
-          <option value="">카테고리 선택</option>
-          <option value="learning">학습</option>
-          <option value="info">정보</option>
-          <option value="news">뉴스</option>
-          <option value="search">검색엔진</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>연령대 * (복수 선택 가능)</label>
-        <div class="checkbox-group" id="ageCheckboxes">
-          <div class="checkbox-item"><input type="checkbox" id="age-elem" value="elem"><label for="age-elem">초등학생</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="age-mid" value="mid"><label for="age-mid">중학생</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="age-high" value="high"><label for="age-high">고등학생</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="age-adult" value="adult"><label for="age-adult">성인</label></div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>과목 (복수 선택 가능)</label>
-        <div class="checkbox-group" id="subjectCheckboxes">
-          <div class="checkbox-item"><input type="checkbox" id="subj-korean" value="korean"><label for="subj-korean">국어</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-math" value="math"><label for="subj-math">수학</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-english" value="english"><label for="subj-english">영어</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-science" value="science"><label for="subj-science">과학</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-social" value="social"><label for="subj-social">사회</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-history" value="history"><label for="subj-history">역사</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-art" value="art"><label for="subj-art">예술</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-music" value="music"><label for="subj-music">음악</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-pe" value="pe"><label for="subj-pe">체육</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-tech" value="tech"><label for="subj-tech">기술</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-coding" value="coding"><label for="subj-coding">코딩</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-language" value="language"><label for="subj-language">외국어</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-general" value="general"><label for="subj-general">종합</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-exam" value="exam"><label for="subj-exam">시험대비</label></div>
-          <div class="checkbox-item"><input type="checkbox" id="subj-career" value="career"><label for="subj-career">진로</label></div>
-        </div>
-      </div>
-      <div style="text-align: right; margin-top: 20px;">
-        <button type="button" class="cancel-btn" onclick="closeModal()">취소</button>
-        <button type="submit" class="save-btn">저장</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-const ageNames = {elem:"초등학생",mid:"중학생",high:"고등학생",adult:"성인"};
-const categoryNames = {learning:"학습",info:"정보",news:"뉴스",search:"검색엔진"};
-const subjectNames = {korean:"국어",math:"수학",english:"영어",science:"과학",social:"사회",history:"역사",art:"예술",music:"음악",pe:"체육",tech:"기술",coding:"코딩",language:"외국어",general:"종합",exam:"시험대비",career:"진로"};
-
-let currentAgeFilter = "all";
-let currentCategoryFilter = "all";
-let currentSubjectFilter = "all";
-let expandedCategories = {};
-let editingIndex = -1;
-
-// 관리자 인증 상태
-let isAdminLoggedIn = false;
-let categoryDisplayLimits = {
-  learning: 3,
-  info: 3,
-  news: 3,
-  search: 3
-};
-
-// 초기 데이터
-let sites = [
-  {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
-  {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
-  {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
-  {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
-  {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
-  {name:"연합뉴스",url:"https://www.yna.co.kr/",desc:"대한민국 대표 뉴스통신사",category:"news",ages:["mid","high","adult"],subjects:["social","general"]},
-  {name:"BBC News",url:"https://www.bbc.com/korean",desc:"BBC 한국어 뉴스",category:"news",ages:["high","adult"],subjects:["english","social"]},
-  {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 대표 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-  {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]}
-];
-
-// 데이터 저장/로드 (로컬스토리지 사용)
-function saveData() {
-  try {
-    const data = JSON.stringify(sites);
-    // 메모리에 저장 (실제 환경에서는 localStorage 사용)
-    window.savedSitesData = data;
-    return true;
-  } catch (error) {
-    console.error('데이터 저장 실패:', error);
-    return false;
-  }
-}
-
-function loadData() {
-  try {
-    if (window.savedSitesData) {
-      const data = JSON.parse(window.savedSitesData);
-      if (Array.isArray(data)) {
-        sites = data;
-        return true;
-      }
-    }
-    return false;
-  } catch (error) {
-    console.error('데이터 로드 실패:', error);
-    return false;
-  }
-}
-
-// 팝업 알림
-function showPopup(message, isError = false) {
-  const container = document.getElementById("popup-container");
-  const popup = document.createElement("div");
-  popup.className = `popup ${isError ? 'error' : 'success'}`;
-  popup.textContent = message;
-  container.appendChild(popup);
-  setTimeout(() => popup.classList.add("show"), 10);
-  setTimeout(() => {
-    popup.classList.remove("show");
-    popup.addEventListener('transitionend', () => popup.remove());
-  }, 3000);
-}
-
-// 관리자 토글 함수
-function toggleAdmin() {
-  if (isAdminLoggedIn) {
-    logout();
-  } else {
-    checkAdminAuth();
-  }
-}
-
-// 관리자 인증
-function checkAdminAuth() {
-  const password = prompt("관리자 비밀번호를 입력하세요:");
-  if (password === "admin123") {
-    isAdminLoggedIn = true;
-    showPopup("관리자 모드가 활성화되었습니다!");
-    updateAdminUI();
-    return true;
-  } else if (password !== null) {
-    showPopup("잘못된 비밀번호입니다.", true);
-  }
-  return false;
-}
-
-function logout() {
-  isAdminLoggedIn = false;
-  showPopup("관리자 모드가 비활성화되었습니다.");
-  updateAdminUI();
-}
-
-function updateAdminUI() {
-  console.log('UI 업데이트, 관리자 상태:', isAdminLoggedIn); // 디버깅용
-  const adminToggle = document.getElementById('adminToggle');
-  const addBtn = document.getElementById('addSiteBtn');
-  const dataManagement = document.getElementById('dataManagement');
-  
-  console.log('요소들:', { adminToggle, addBtn, dataManagement }); // 디버깅용
-  
-  if (isAdminLoggedIn) {
-    if (adminToggle) {
-      adminToggle.textContent = '🔓 관리자 모드 (로그아웃)';
-      adminToggle.className = 'admin-btn active';
-    }
-    if (addBtn) addBtn.style.display = 'inline-block';
-    if (dataManagement) dataManagement.style.display = 'block';
-  } else {
-    if (adminToggle) {
-      adminToggle.textContent = '🔒 관리자 로그인';
-      adminToggle.className = 'admin-btn';
-    }
-    if (addBtn) addBtn.style.display = 'none';
-    if (dataManagement) dataManagement.style.display = 'none';
-  }
-  
-  renderSites();
-}
-
-// 통계 업데이트
-function updateStats() {
-  document.getElementById("totalCount").textContent = sites.length;
-  document.getElementById("filteredCount").textContent = getFilteredSites().length;
-}
-
-// 필터링된 사이트 가져오기
-function getFilteredSites() {
-  return sites.filter(s =>
-    (currentAgeFilter === "all" || s.ages.includes(currentAgeFilter)) &&
-    (currentCategoryFilter === "all" || s.category === currentCategoryFilter) &&
-    (currentSubjectFilter === "all" || s.subjects.includes(currentSubjectFilter))
-  );
-}
-
-// 사이트 카드 생성 (더보기 기능 포함)
-function createSiteCard(site, index) {
-  const card = document.createElement("div");
-  card.className = "link-card";
-  
-  const ageTags = site.ages.map(a => `<span class="tag age-tag">${ageNames[a]}</span>`).join(" ");
-  const categoryTag = `<span class="tag category-tag">${categoryNames[site.category]}</span>`;
-  
-  // 관리자 버튼들 (관리자 로그인 시에만 표시)
-  const adminButtons = isAdminLoggedIn ? `
-    <div class="card-buttons">
-      <button class="card-btn edit-btn" onclick="openEditModal(${index})" title="수정">✏️</button>
-      <button class="card-btn delete-btn" onclick="deleteSite(${index})" title="삭제">🗑️</button>
+    <div class="top-buttons">
+      <button id="adminToggle" class="admin-btn" onclick="toggleAdmin()">🔒 관리자 로그인</button>
+      <button id="addSiteBtn" class="add-btn" onclick="openAddModal()" style="display:none;">➕ 새 사이트 추가</button>
+      <button id="addCategoryBtn" class="add-category-btn" onclick="openAddCategoryModal()" style="display:none;">📁 카테고리 추가</button>
+      <button class="dark-toggle" onclick="toggleDarkMode()">🌙 다크 모드</button>
     </div>
-  ` : '';
-  
-  card.innerHTML = `
-    ${adminButtons}
-    <a href="${site.url}" target="_blank">${site.name}</a>
-    <div class="link-meta">${categoryTag} ${ageTags}</div>
-    <p>${site.desc || '설명이 없습니다.'}</p>
-  `;
-  return card;
-}
+  </div>
 
-// 사이트 렌더링 (더보기 기능 포함)
-function renderSites() {
-  const categories = Object.keys(categoryNames);
-  const allFilteredSites = getFilteredSites();
-  let hasResults = allFilteredSites.length > 0;
+  <!-- 카테고리 관리 -->
+  <div id="categoryManagement" class="category-management" style="display:none;">
+    <h3>📁 사용자 정의 카테고리</h3>
+    <div class="custom-categories" id="customCategories"></div>
+  </div>
 
-  categories.forEach(category => {
-    const container = document.getElementById(`${category}-content`);
-    const section = document.getElementById(`${category}-section`);
-    const sitesInCategory = allFilteredSites.filter(s => s.category === category);
+  <!-- 필터 영역 -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>🎯 연령대:</label>
+      <div class="filter-buttons" id="ageFilter">
+        <button class="filter-btn active" data-age="all">전체</button>
+        <button class="filter-btn" data-age="elem">초등</button>
+        <button class="filter-btn" data-age="mid">중등</button>
+        <button class="filter-btn" data-age="high">고등</button>
+        <button class="filter-btn" data-age="adult">성인</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <label>📂 카테고리:</label>
+      <div class="filter-buttons" id="categoryFilter">
+        <button class="filter-btn active" data-category="all">전체</button>
+        <button class="filter-btn" data-category="learning">학습</button>
+        <button class="filter-btn" data-category="info">정보</button>
+        <button class="filter-btn" data-category="government">정부기관</button>
+        <button class="filter-btn" data-category="search">검색엔진</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <label>📚 과목:</label>
+      <select id="subjectFilter">
+        <option value="all">전체 과목</option>
+        <option value="korean">국어</option>
+        <option value="math">수학</option>
+        <option value="english">영어</option>
+        <option value="science">과학</option>
+        <option value="social">사회</option>
+        <option value="history">역사</option>
+        <option value="art">예술</option>
+        <option value="music">음악</option>
+        <option value="pe">체육</option>
+        <option value="tech">기술</option>
+        <option value="coding">코딩</option>
+        <option value="language">외국어</option>
+        <option value="general">종합</option>
+        <option value="exam">시험대비</option>
+        <option value="career">진로</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <button onclick="resetFilters()" style="background:linear-gradient(135deg, #6c757d 0%, #495057 100%);color:white;border:none;padding:12px 16px;border-radius:8px;">🔄 필터 초기화</button>
+    </div>
+  </div>
 
-    container.innerHTML = "";
-    
-    if (sitesInCategory.length > 0) {
-      section.style.display = "block";
-      
-      // 현재 카테고리의 표시 제한
-      const limit = categoryDisplayLimits[category];
-      const sitesToShow = sitesInCategory.slice(0, limit);
-      const remainingSites = sitesInCategory.length - limit;
-      
-      // 사이트 카드들 추가
-      sitesToShow.forEach(site => {
-        const idx = sites.indexOf(site);
-        container.appendChild(createSiteCard(site, idx));
-      });
-      
-      // 더보기 버튼 (남은 사이트가 있을 때만)
-      if (remainingSites > 0) {
-        const moreBtn = document.createElement("div");
-        moreBtn.className = "more-btn-container";
-        moreBtn.innerHTML = `
-          <button class="more-btn" onclick="showMoreSites('${category}')">
-            더보기 (${remainingSites}개 더 있음) ↓
-          </button>
-        `;
-        container.appendChild(moreBtn);
-      }
-      
-    } else {
-      section.style.display = (currentCategoryFilter === "all" || currentCategoryFilter === category) ? "block" : "none";
-      container.innerHTML = "<p style='color:#666;text-align:center;padding:20px;'>해당 조건의 사이트가 없습니다.</p>";
-    }
-  });
+  <!-- 통계 -->
+  <div class="stats">
+    <div class="stats-item">
+      <span>🎯</span>
+      <span>필터링된 결과: <span class="stats-number" id="filteredCount">0</span>개</span>
+    </div>
+    <div class="stats-item">
+      <span>💾</span>
+      <span id="saveStatus">로컬 저장됨</span>
+    </div>
+  </div>
 
-  document.getElementById("noResults").style.display = hasResults ? "none" : "block";
-  updateStats();
-}
-
-// 더보기 기능
-function showMoreSites(category) {
-  categoryDisplayLimits[category] += 5;
-  renderSites();
-}
-
-// 카테고리별 표시 제한 초기화
-function resetDisplayLimits() {
-  categoryDisplayLimits = {
-    learning: 3,
-    info: 3,
-    news: 3,
-    search: 3
-  };
-}
-
-// 필터 설정
-function setupFilters() {
-  document.querySelectorAll("#ageFilter .filter-btn").forEach(btn =>
-    btn.addEventListener("click", e => {
-      document.querySelector("#ageFilter .active").classList.remove("active");
-      e.target.classList.add("active");
-      currentAgeFilter = e.target.dataset.age;
-      renderSites();
-    })
-  );
-
-  document.querySelectorAll("#categoryFilter .filter-btn").forEach(btn =>
-    btn.addEventListener("click", e => {
-      document.querySelector("#categoryFilter .active").classList.remove("active");
-      e.target.classList.add("active");
-      currentCategoryFilter = e.target.dataset.category;
-      expandedCategories = {};
-      renderSites();
-    })
-  );
-
-  document.getElementById("subjectFilter").addEventListener("change", e => {
-    currentSubjectFilter = e.target.value;
-    renderSites();
-  });
-}
-
-// 필터 초기화 (더보기 제한도 함께 초기화)
-function resetFilters() {
-  currentAgeFilter = "all";
-  currentCategoryFilter = "all";
-  currentSubjectFilter = "all";
-  document.querySelector("#ageFilter .filter-btn[data-age='all']").click();
-  document.querySelector("#categoryFilter .filter-btn[data-category='all']").click();
-  document.getElementById("subjectFilter").value = "all";
-  expandedCategories = {};
-  resetDisplayLimits();
-  renderSites();
-}
-
-// 모달 관련 (관리자 인증 추가)
-function openAddModal() {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
-  editingIndex = -1;
-  document.getElementById("modalTitle").textContent = "새 사이트 추가";
-  document.getElementById("siteForm").reset();
-  clearFormCheckboxes();
-  document.getElementById("modal").style.display = "flex";
-}
-
-function openEditModal(index) {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
-  editingIndex = index;
-  const site = sites[index];
-  document.getElementById("modalTitle").textContent = "사이트 수정";
-  
-  // 폼 채우기
-  document.getElementById("siteName").value = site.name;
-  document.getElementById("siteUrl").value = site.url;
-  document.getElementById("siteDesc").value = site.desc || "";
-  document.getElementById("siteCategory").value = site.category;
-  
-  // 체크박스 초기화 후 설정
-  clearFormCheckboxes();
-  
-  // 연령대 체크박스 설정
-  site.ages.forEach(age => {
-    const checkbox = document.getElementById(`age-${age}`);
-    if (checkbox) checkbox.checked = true;
-  });
-  
-  // 과목 체크박스 설정
-  site.subjects.forEach(subject => {
-    const checkbox = document.getElementById(`subj-${subject}`);
-    if (checkbox) checkbox.checked = true;
-  });
-  
-  document.getElementById("modal").style.display = "flex";
-}
-
-function closeModal() {
-  document.getElementById("modal").style.display = "none";
-  document.getElementById("siteForm").reset();
-  clearFormCheckboxes();
-}
-
-function clearFormCheckboxes() {
-  document.querySelectorAll('#ageCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
-  document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
-}
-
-// 사이트 저장 (추가/수정)
-function saveSite(event) {
-  event.preventDefault();
-  
-  const name = document.getElementById("siteName").value.trim();
-  const url = document.getElementById("siteUrl").value.trim();
-  const desc = document.getElementById("siteDesc").value.trim();
-  const category = document.getElementById("siteCategory").value;
-  
-  // 연령대 수집
-  const ages = [];
-  document.querySelectorAll('#ageCheckboxes input[type="checkbox"]:checked').forEach(cb => {
-    ages.push(cb.value);
-  });
-  
-  // 과목 수집
-  const subjects = [];
-  document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]:checked').forEach(cb => {
-    subjects.push(cb.value);
-  });
-  
-  // 유효성 검사
-  if (!name || !url || !category) {
-    showPopup("필수 항목을 모두 입력해주세요.", true);
-    return;
-  }
-  
-  if (ages.length === 0) {
-    showPopup("최소 하나의 연령대를 선택해주세요.", true);
-    return;
-  }
-  
-  // 새 사이트 객체
-  const newSite = {
-    name: name,
-    url: url,
-    desc: desc,
-    category: category,
-    ages: ages,
-    subjects: subjects.length > 0 ? subjects : ["general"]
-  };
-  
-  if (editingIndex === -1) {
-    sites.push(newSite);
-    showPopup("새 사이트가 추가되었습니다!");
-  } else {
-    sites[editingIndex] = newSite;
-    showPopup("사이트가 수정되었습니다!");
-  }
-  
-  saveData();
-  renderSites();
-  closeModal();
-}
-
-// 사이트 삭제 (관리자 인증 추가)
-function deleteSite(index) {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
-  const site = sites[index];
-  if (confirm(`'${site.name}' 사이트를 삭제하시겠습니까?`)) {
-    sites.splice(index, 1);
-    saveData();
-    resetDisplayLimits();
-    renderSites();
-    showPopup("사이트가 삭제되었습니다!");
-  }
-}
-
-// 데이터 내보내기 (관리자 인증 추가)
-function exportData() {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
-  try {
-    const dataStr = JSON.stringify(sites, null, 2);
-    const dataBlob = new Blob([dataStr], {type: 'application/json'});
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `sites_backup_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showPopup("데이터가 내보내졌습니다!");
-  } catch (error) {
-    showPopup("데이터 내보내기에 실패했습니다.", true);
-  }
-}
-
-// 데이터 가져오기 (관리자 인증 추가)
-function importData(event) {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (Array.isArray(data)) {
-        if (confirm("기존 데이터를 모두 교체하시겠습니까?")) {
-          sites = data;
-          saveData();
-          resetDisplayLimits();
-          renderSites();
-          showPopup("데이터가 가져와졌습니다!");
-        }
-      } else {
-        showPopup("올바른 JSON 형식이 아닙니다.", true);
-      }
-    } catch (error) {
-      showPopup("파일을 읽는데 실패했습니다.", true);
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = "";
-}
-
-// 모든 데이터 초기화 (관리자 인증 추가)
-function resetAllData() {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
-  if (confirm("정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
-    sites = [
-      {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
-      {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
-      {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
-      {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
-      {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-      {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
-      {name:"연합뉴스",url:"https://www.yna.co.kr/",desc:"대한민국 대표 뉴스통신사",category:"news",ages:["mid","high","adult"],subjects:["social","general"]},
-      {name:"BBC News",url:"https://www.bbc.com/korean",desc:"BBC 한국어 뉴스",category:"news",ages:["high","adult"],subjects:["english","social"]},
-      {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 대표 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-      {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]}
-    ];
-    saveData();
-    resetDisplayLimits();
-    renderSites();
-    showPopup("데이터가 초기화되었습니다!");
-  }
-}
-
-// 다크 모드 토글
-function toggleDarkMode() {
-  document.body.classList.toggle("dark");
-  const isDark = document.body.classList.contains("dark");
-  showPopup(isDark ? "다크 모드가 활성화되었습니다." : "라이트 모드가 활성화되었습니다.");
-}
-
-// 초기화 및 관리자 UI 설정
-function init() {
-  loadData();
-  setupFilters();
-  updateAdminUI();
-  renderSites();
-}
-
-// 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', init);
-</script>
-</body>
-</html>
+  <!-- 카테고리 컨테이너 -->
+  <div class="categories-container" id="categoriesContainer">
+    <div class="category-section" id="learning-section">
+      <div class="category-header">
+        <div class="category-title">
+          <span>📖</span>
+          <span>학습 사이트</span>
+        </div>
+        <div class="category-count" id="learning-count">0</div>
+      </div>
+      <div class="category-content" id="learning-content"></div>
+    </div>
+    <div class="category-section" id="info-section">
+      <div class="category-header">
+        <div class="category-title">
+          <span>📋</span>
+          <span>정보 사이트</span>
+        </div>
+        <div class="category-count" id="info-count">0</div>
+      </div>
+      <div class="category-content" id="info-content"></div>
+    </div>
+    <div class="category-section" id="government-section">
+      <div class="category-header">

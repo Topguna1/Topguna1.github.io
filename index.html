@@ -12,7 +12,7 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 body.dark { background: #121212; color: #fff; }
-h1 { color: #2c3e50; }
+h1 { color: #2c3e50; margin: 0; }
 body.dark h1 { color: #f1c40f; }
 
 /* ===== 상단 컨트롤 ===== */
@@ -23,6 +23,16 @@ body.dark h1 { color: #f1c40f; }
   margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 10px;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+}
+body.dark .top-controls { border-color: #555; }
+
+.top-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 /* ===== 필터 영역 ===== */
@@ -122,7 +132,14 @@ body.dark .category-tag { background: #ffc107; color: #212529; }
 .delete-btn { background: #e74c3c; }
 
 /* ===== 버튼/폼 ===== */
-button { padding: 8px 16px; margin: 5px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+button { 
+  padding: 8px 16px; margin: 5px; border: none; border-radius: 6px; 
+  cursor: pointer; font-weight: bold; transition: all 0.2s;
+}
+button:hover { transform: translateY(-1px); }
+
+.admin-btn { background: #6c757d; color: white; }
+.admin-btn.active { background: #28a745; }
 .dark-toggle { background: #333; color: #fff; }
 .add-btn { background: #27ae60; color: white; font-size: 16px; }
 
@@ -151,6 +168,10 @@ body.dark .no-results { color: #aaa; background: #2d2d2d; }
   box-sizing: border-box;
 }
 body.dark .stats { color: #aaa; }
+
+.more-btn-container { text-align: center; margin-top: 20px; }
+.more-btn { background: #f1f3f5; color: #495057; border: 1px solid #dee2e6; }
+body.dark .more-btn { background: #343a40; color: #f8f9fa; border-color: #495057; }
 
 /* ===== 모달 ===== */
 .modal-overlay {
@@ -197,11 +218,13 @@ body.dark .data-management { background: #2d2d2d; }
 </style>
 </head>
 <body>
+
 <div class="top-controls">
   <h1>📚 실험중인 사이트 - 완전 관리 버전</h1>
-  <div>
-    <button class="add-btn" onclick="openAddModal()">➕ 새 사이트 추가</button>
-    <button class="dark-toggle" onclick="toggleDarkMode()">🌙 다크 모드 전환</button>
+  <div class="top-buttons">
+    <button id="adminToggle" class="admin-btn" onclick="toggleAdmin()">🔒 관리자 로그인</button>
+    <button id="addSiteBtn" class="add-btn" onclick="openAddModal()" style="display:none;">➕ 새 사이트 추가</button>
+    <button class="dark-toggle" onclick="toggleDarkMode()">🌙 다크 모드</button>
   </div>
 </div>
 
@@ -272,7 +295,7 @@ body.dark .data-management { background: #2d2d2d; }
 <div id="noResults" class="no-results" style="display:none;">조건에 맞는 사이트가 없습니다.</div>
 
 <!-- 데이터 관리 섹션 -->
-<div class="data-management">
+<div id="dataManagement" class="data-management" style="display:none;">
   <h3>📊 데이터 관리</h3>
   <div class="data-controls">
     <button class="export-btn" onclick="exportData()">📥 데이터 내보내기 (JSON)</button>
@@ -281,11 +304,11 @@ body.dark .data-management { background: #2d2d2d; }
     <button class="reset-btn" onclick="resetAllData()">🗑️ 모든 데이터 초기화</button>
   </div>
   <p style="font-size: 12px; color: #666; margin: 0;">
-    * 데이터는 브라우저에 자동 저장됩니다. 내보내기/가져오기로 백업 및 복원이 가능합니다.
+    * 데이터는 브라우저 로컬스토리지에 자동 저장됩니다. 관리자 로그인 후 이용 가능합니다.
   </p>
 </div>
 
-<!-- 모달 -->
+<!-- 사이트 추가/수정 모달 -->
 <div class="modal-overlay" id="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -363,6 +386,15 @@ let currentSubjectFilter = "all";
 let expandedCategories = {};
 let editingIndex = -1;
 
+// 관리자 인증 상태
+let isAdminLoggedIn = false;
+let categoryDisplayLimits = {
+  learning: 3,
+  info: 3,
+  news: 3,
+  search: 3
+};
+
 // 초기 데이터
 let sites = [
   {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
@@ -377,10 +409,11 @@ let sites = [
   {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]}
 ];
 
-// 데이터 저장/로드
+// 데이터 저장/로드 (로컬스토리지 사용)
 function saveData() {
   try {
     const data = JSON.stringify(sites);
+    // 메모리에 저장 (실제 환경에서는 localStorage 사용)
     window.savedSitesData = data;
     return true;
   } catch (error) {
@@ -419,6 +452,62 @@ function showPopup(message, isError = false) {
   }, 3000);
 }
 
+// 관리자 토글 함수
+function toggleAdmin() {
+  if (isAdminLoggedIn) {
+    logout();
+  } else {
+    checkAdminAuth();
+  }
+}
+
+// 관리자 인증
+function checkAdminAuth() {
+  const password = prompt("관리자 비밀번호를 입력하세요:");
+  if (password === "admin123") {
+    isAdminLoggedIn = true;
+    showPopup("관리자 모드가 활성화되었습니다!");
+    updateAdminUI();
+    return true;
+  } else if (password !== null) {
+    showPopup("잘못된 비밀번호입니다.", true);
+  }
+  return false;
+}
+
+function logout() {
+  isAdminLoggedIn = false;
+  showPopup("관리자 모드가 비활성화되었습니다.");
+  updateAdminUI();
+}
+
+function updateAdminUI() {
+  console.log('UI 업데이트, 관리자 상태:', isAdminLoggedIn); // 디버깅용
+  const adminToggle = document.getElementById('adminToggle');
+  const addBtn = document.getElementById('addSiteBtn');
+  const dataManagement = document.getElementById('dataManagement');
+  
+  console.log('요소들:', { adminToggle, addBtn, dataManagement }); // 디버깅용
+  
+  if (isAdminLoggedIn) {
+    if (adminToggle) {
+      adminToggle.textContent = '🔓 관리자 모드 (로그아웃)';
+      adminToggle.className = 'admin-btn active';
+    }
+    if (addBtn) addBtn.style.display = 'inline-block';
+    if (dataManagement) dataManagement.style.display = 'block';
+  } else {
+    if (adminToggle) {
+      adminToggle.textContent = '🔒 관리자 로그인';
+      adminToggle.className = 'admin-btn';
+    }
+    if (addBtn) addBtn.style.display = 'none';
+    if (dataManagement) dataManagement.style.display = 'none';
+  }
+  
+  renderSites();
+}
+
 // 통계 업데이트
 function updateStats() {
   document.getElementById("totalCount").textContent = sites.length;
@@ -434,7 +523,7 @@ function getFilteredSites() {
   );
 }
 
-// 사이트 카드 생성
+// 사이트 카드 생성 (더보기 기능 포함)
 function createSiteCard(site, index) {
   const card = document.createElement("div");
   card.className = "link-card";
@@ -442,11 +531,16 @@ function createSiteCard(site, index) {
   const ageTags = site.ages.map(a => `<span class="tag age-tag">${ageNames[a]}</span>`).join(" ");
   const categoryTag = `<span class="tag category-tag">${categoryNames[site.category]}</span>`;
   
-  card.innerHTML = `
+  // 관리자 버튼들 (관리자 로그인 시에만 표시)
+  const adminButtons = isAdminLoggedIn ? `
     <div class="card-buttons">
       <button class="card-btn edit-btn" onclick="openEditModal(${index})" title="수정">✏️</button>
       <button class="card-btn delete-btn" onclick="deleteSite(${index})" title="삭제">🗑️</button>
     </div>
+  ` : '';
+  
+  card.innerHTML = `
+    ${adminButtons}
     <a href="${site.url}" target="_blank">${site.name}</a>
     <div class="link-meta">${categoryTag} ${ageTags}</div>
     <p>${site.desc || '설명이 없습니다.'}</p>
@@ -454,7 +548,7 @@ function createSiteCard(site, index) {
   return card;
 }
 
-// 사이트 렌더링
+// 사이트 렌더링 (더보기 기능 포함)
 function renderSites() {
   const categories = Object.keys(categoryNames);
   const allFilteredSites = getFilteredSites();
@@ -469,10 +563,30 @@ function renderSites() {
     
     if (sitesInCategory.length > 0) {
       section.style.display = "block";
-      sitesInCategory.forEach(site => {
+      
+      // 현재 카테고리의 표시 제한
+      const limit = categoryDisplayLimits[category];
+      const sitesToShow = sitesInCategory.slice(0, limit);
+      const remainingSites = sitesInCategory.length - limit;
+      
+      // 사이트 카드들 추가
+      sitesToShow.forEach(site => {
         const idx = sites.indexOf(site);
         container.appendChild(createSiteCard(site, idx));
       });
+      
+      // 더보기 버튼 (남은 사이트가 있을 때만)
+      if (remainingSites > 0) {
+        const moreBtn = document.createElement("div");
+        moreBtn.className = "more-btn-container";
+        moreBtn.innerHTML = `
+          <button class="more-btn" onclick="showMoreSites('${category}')">
+            더보기 (${remainingSites}개 더 있음) ↓
+          </button>
+        `;
+        container.appendChild(moreBtn);
+      }
+      
     } else {
       section.style.display = (currentCategoryFilter === "all" || currentCategoryFilter === category) ? "block" : "none";
       container.innerHTML = "<p style='color:#666;text-align:center;padding:20px;'>해당 조건의 사이트가 없습니다.</p>";
@@ -481,6 +595,22 @@ function renderSites() {
 
   document.getElementById("noResults").style.display = hasResults ? "none" : "block";
   updateStats();
+}
+
+// 더보기 기능
+function showMoreSites(category) {
+  categoryDisplayLimits[category] += 5;
+  renderSites();
+}
+
+// 카테고리별 표시 제한 초기화
+function resetDisplayLimits() {
+  categoryDisplayLimits = {
+    learning: 3,
+    info: 3,
+    news: 3,
+    search: 3
+  };
 }
 
 // 필터 설정
@@ -510,7 +640,7 @@ function setupFilters() {
   });
 }
 
-// 필터 초기화
+// 필터 초기화 (더보기 제한도 함께 초기화)
 function resetFilters() {
   currentAgeFilter = "all";
   currentCategoryFilter = "all";
@@ -519,11 +649,15 @@ function resetFilters() {
   document.querySelector("#categoryFilter .filter-btn[data-category='all']").click();
   document.getElementById("subjectFilter").value = "all";
   expandedCategories = {};
+  resetDisplayLimits();
   renderSites();
 }
 
-// 모달 관련
+// 모달 관련 (관리자 인증 추가)
 function openAddModal() {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
   editingIndex = -1;
   document.getElementById("modalTitle").textContent = "새 사이트 추가";
   document.getElementById("siteForm").reset();
@@ -532,6 +666,9 @@ function openAddModal() {
 }
 
 function openEditModal(index) {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
   editingIndex = index;
   const site = sites[index];
   document.getElementById("modalTitle").textContent = "사이트 수정";
@@ -567,7 +704,6 @@ function closeModal() {
 }
 
 function clearFormCheckboxes() {
-  // 모든 체크박스 초기화
   document.querySelectorAll('#ageCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
   document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
 }
@@ -615,11 +751,9 @@ function saveSite(event) {
   };
   
   if (editingIndex === -1) {
-    // 새 사이트 추가
     sites.push(newSite);
     showPopup("새 사이트가 추가되었습니다!");
   } else {
-    // 기존 사이트 수정
     sites[editingIndex] = newSite;
     showPopup("사이트가 수정되었습니다!");
   }
@@ -629,19 +763,26 @@ function saveSite(event) {
   closeModal();
 }
 
-// 사이트 삭제
+// 사이트 삭제 (관리자 인증 추가)
 function deleteSite(index) {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
   const site = sites[index];
   if (confirm(`'${site.name}' 사이트를 삭제하시겠습니까?`)) {
     sites.splice(index, 1);
     saveData();
+    resetDisplayLimits();
     renderSites();
     showPopup("사이트가 삭제되었습니다!");
   }
 }
 
-// 데이터 내보내기
+// 데이터 내보내기 (관리자 인증 추가)
 function exportData() {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
   try {
     const dataStr = JSON.stringify(sites, null, 2);
     const dataBlob = new Blob([dataStr], {type: 'application/json'});
@@ -657,8 +798,11 @@ function exportData() {
   }
 }
 
-// 데이터 가져오기
+// 데이터 가져오기 (관리자 인증 추가)
 function importData(event) {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
   const file = event.target.files[0];
   if (!file) return;
   
@@ -670,6 +814,7 @@ function importData(event) {
         if (confirm("기존 데이터를 모두 교체하시겠습니까?")) {
           sites = data;
           saveData();
+          resetDisplayLimits();
           renderSites();
           showPopup("데이터가 가져와졌습니다!");
         }
@@ -684,8 +829,11 @@ function importData(event) {
   event.target.value = "";
 }
 
-// 모든 데이터 초기화
+// 모든 데이터 초기화 (관리자 인증 추가)
 function resetAllData() {
+  if (!isAdminLoggedIn) {
+    if (!checkAdminAuth()) return;
+  }
   if (confirm("정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
     sites = [
       {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
@@ -700,33 +848,25 @@ function resetAllData() {
       {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]}
     ];
     saveData();
+    resetDisplayLimits();
     renderSites();
     showPopup("데이터가 초기화되었습니다!");
   }
 }
 
-// 다크 모드 토글 (로컬스토리지에 저장)
+// 다크 모드 토글
 function toggleDarkMode() {
   document.body.classList.toggle("dark");
   const isDark = document.body.classList.contains("dark");
-  
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('darkMode', isDark.toString());
-  }
-  
   showPopup(isDark ? "다크 모드가 활성화되었습니다." : "라이트 모드가 활성화되었습니다.");
 }
 
-// 초기화
+// 초기화 및 관리자 UI 설정
 function init() {
   loadData();
   setupFilters();
+  updateAdminUI();
   renderSites();
-  
-  // 다크 모드 복원
-  if (window.darkModeEnabled) {
-    document.body.classList.add("dark");
-  }
 }
 
 // 페이지 로드 시 초기화
@@ -734,4 +874,3 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
-

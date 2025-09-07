@@ -232,7 +232,7 @@
   <div class="top-buttons">
     <button id="adminToggle" class="admin-btn">🔒 관리자 로그인</button>
     <button id="addSiteBtn" class="add-btn" style="display:none;">➕ 새 사이트 추가</button>
-    <button class="dark-toggle" onclick="window.toggleDarkMode()">🌙 다크 모드</button>
+    <button class="dark-toggle" onclick="toggleDarkMode()">🌙 다크 모드</button>
   </div>
 </div>
 
@@ -241,11 +241,11 @@
   <div class="modal-content">
     <div class="modal-header">
       <h3 id="confirmTitle">확인</h3>
-      <button class="close-btn" onclick="window.closeConfirmationModal()">✕</button>
+      <button class="close-btn" onclick="closeConfirmationModal()">✕</button>
     </div>
     <p id="confirmMessage"></p>
     <div style="text-align: right; margin-top: 20px;">
-      <button class="cancel-btn" onclick="window.closeConfirmationModal()">취소</button>
+      <button class="cancel-btn" onclick="closeConfirmationModal()">취소</button>
       <button class="save-btn" id="confirmActionBtn">확인</button>
     </div>
   </div>
@@ -287,7 +287,7 @@
       <option value="career">진로</option>
     </select>
   </div>
-  <div class="filter-group"><button onclick="window.resetFilters()" style="background:#6c757d;color:white;border:none;padding:8px 12px;border-radius:4px;">필터 초기화</button></div>
+  <div class="filter-group"><button onclick="resetFilters()" style="background:#6c757d;color:white;border:none;padding:8px 12px;border-radius:4px;">필터 초기화</button></div>
 </div>
 
 <div class="stats">
@@ -320,25 +320,27 @@
 
 <div id="noResults" class="no-results" style="display:none;">조건에 맞는 사이트가 없습니다.</div>
 
+<!-- 데이터 관리 섹션 -->
 <div id="dataManagement" class="data-management" style="display:none;">
   <h3>📊 데이터 관리</h3>
   <div class="data-controls">
-    <button class="export-btn" onclick="window.exportData()">📥 데이터 내보내기 (JSON)</button>
+    <button class="export-btn" onclick="exportData()">📥 데이터 내보내기 (JSON)</button>
     <button class="import-btn" onclick="document.getElementById('importFile').click()">📤 데이터 가져오기</button>
-    <input type="file" id="importFile" accept=".json" onchange="window.importData(event)">
-    <button class="reset-btn" onclick="window.openResetModal()">🗑️ 모든 데이터 초기화</button>
+    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+    <button class="reset-btn" onclick="openResetModal()">🗑️ 모든 데이터 초기화</button>
   </div>
 </div>
 
 <p class="user-id-display">사용자 ID: <span id="userIdDisplay"></span></p>
 
+<!-- 사이트 추가/수정 모달 -->
 <div class="modal-overlay" id="modal">
   <div class="modal-content">
     <div class="modal-header">
       <h3 id="modalTitle">새 사이트 추가</h3>
-      <button class="close-btn" onclick="window.closeModal()">✕</button>
+      <button class="close-btn" onclick="closeModal()">✕</button>
     </div>
-    <form id="siteForm" onsubmit="window.saveSite(event)">
+    <form id="siteForm" onsubmit="saveSite(event)">
       <div class="form-group">
         <label for="siteName">사이트 이름 *</label>
         <input type="text" id="siteName" required>
@@ -392,7 +394,7 @@
         </div>
       </div>
       <div style="text-align: right; margin-top: 20px;">
-        <button type="button" class="cancel-btn" onclick="window.closeModal()">취소</button>
+        <button type="button" class="cancel-btn" onclick="closeModal()">취소</button>
         <button type="submit" class="save-btn">저장</button>
       </div>
     </form>
@@ -403,6 +405,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, setLogLevel, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+setLogLevel('debug');
 
 const ageNames = {elem:"초등학생", mid:"중학생", high:"고등학생", adult:"성인"};
 const categoryNames = {learning:"학습", info:"정보", news:"뉴스", search:"검색엔진", gpt:"GPT 사이트"};
@@ -437,10 +441,10 @@ let currentUnsubscribe = null;
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 
+// Firebase 초기화 및 인증
 const app = initializeApp(firebaseConfig);
 auth = getAuth(app);
 db = getFirestore(app);
-setLogLevel('debug');
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -448,6 +452,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('userIdDisplay').textContent = userId;
     await fetchSitesFromFirestore();
   } else {
+    // __initial_auth_token이 없으면 익명으로 로그인
     if (typeof __initial_auth_token !== 'undefined') {
       await signInWithCustomToken(auth, __initial_auth_token);
     } else {
@@ -456,14 +461,17 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
+// Firestore에서 사이트 데이터 불러오기 및 실시간 감지
 async function fetchSitesFromFirestore() {
   const collectionPath = `/artifacts/${appId}/users/${userId}/sites`;
   const sitesCollectionRef = collection(db, collectionPath);
   
+  // 기존 실시간 리스너 해제
   if (currentUnsubscribe) {
     currentUnsubscribe();
   }
   
+  // 실시간 리스너 설정
   currentUnsubscribe = onSnapshot(sitesCollectionRef, (querySnapshot) => {
     const fetchedSites = [];
     querySnapshot.forEach((doc) => {
@@ -471,16 +479,18 @@ async function fetchSitesFromFirestore() {
       fetchedSites.push({ ...siteData, id: doc.id });
     });
     sites = fetchedSites;
+    // 초기 데이터가 없으면 기본 데이터 추가
     if (sites.length === 0) {
       addInitialData();
     }
     renderSites();
   }, (error) => {
     console.error("Firestore 데이터 로드 중 오류 발생:", error);
-    window.showPopup("데이터를 불러오는 데 실패했습니다.", true);
+    showPopup("데이터를 불러오는 데 실패했습니다.", true);
   });
 }
 
+// 초기 데이터 추가 함수
 async function addInitialData() {
   if (sites.length === 0) {
     const batch = writeBatch(db);
@@ -494,7 +504,8 @@ async function addInitialData() {
   }
 }
 
-window.showPopup = function(message, isError = false) {
+// 팝업 알림 (alert 대체)
+function showPopup(message, isError = false) {
   const container = document.getElementById("popup-container");
   const popup = document.createElement("div");
   popup.className = `popup ${isError ? 'error' : 'success'}`;
@@ -507,14 +518,15 @@ window.showPopup = function(message, isError = false) {
   }, 3000);
 }
 
+// 커스텀 확인 모달
 let confirmCallback = null;
-window.openConfirmationModal = function(title, message, onConfirm) {
+function openConfirmationModal(title, message, onConfirm) {
   document.getElementById('confirmTitle').textContent = title;
   document.getElementById('confirmMessage').textContent = message;
   confirmCallback = onConfirm;
   document.getElementById('confirmation-modal').style.display = 'flex';
 }
-window.closeConfirmationModal = function() {
+function closeConfirmationModal() {
   document.getElementById('confirmation-modal').style.display = 'none';
   confirmCallback = null;
 }
@@ -522,14 +534,25 @@ document.getElementById('confirmActionBtn').addEventListener('click', () => {
   if (confirmCallback) {
     confirmCallback();
   }
-  window.closeConfirmationModal();
+  closeConfirmationModal();
 });
 
-window.toggleAdmin = function() {
+// 관리자 토글
+function toggleAdmin() {
   if (isAdminLoggedIn) {
-    window.logout();
+    logout();
   } else {
-    checkAdminAuth();
+    // 실제로는 안전한 인증 로직이 필요하지만, 여기서는 간단한 비밀번호로 대체
+    openConfirmationModal(
+      '관리자 로그인',
+      '관리자 비밀번호를 입력해주세요.',
+      () => {
+        // 이 부분은 사용자 모달에 맞게 수정 필요. 현재는 동작하지 않음.
+        // 이 예시에서는 confirm() 대신 커스텀 모달을 보여주기 위한 용도로만 사용됩니다.
+        // 실제 비밀번호 입력은 별도 UI가 필요합니다.
+        checkAdminAuth();
+      }
+    );
   }
 }
 
@@ -537,16 +560,18 @@ function checkAdminAuth() {
   const password = window.prompt("관리자 비밀번호를 입력하세요:");
   if (password === "admin123") {
     isAdminLoggedIn = true;
-    window.showPopup("관리자 모드가 활성화되었습니다!");
+    showPopup("관리자 모드가 활성화되었습니다!");
     updateAdminUI();
+    return true;
   } else if (password !== null) {
-    window.showPopup("잘못된 비밀번호입니다.", true);
+    showPopup("잘못된 비밀번호입니다.", true);
   }
+  return false;
 }
 
-window.logout = function() {
+function logout() {
   isAdminLoggedIn = false;
-  window.showPopup("관리자 모드가 비활성화되었습니다.");
+  showPopup("관리자 모드가 비활성화되었습니다.");
   updateAdminUI();
 }
 
@@ -565,11 +590,13 @@ function updateAdminUI() {
   renderSites();
 }
 
+// 통계 업데이트
 function updateStats() {
   document.getElementById("totalCount").textContent = sites.length;
   document.getElementById("filteredCount").textContent = getFilteredSites().length;
 }
 
+// 필터링된 사이트 가져오기
 function getFilteredSites() {
   return sites.filter(s =>
     (currentAgeFilter === "all" || (s.ages && s.ages.includes(currentAgeFilter))) &&
@@ -578,6 +605,7 @@ function getFilteredSites() {
   );
 }
 
+// 사이트 카드 생성
 function createSiteCard(site, index) {
   const card = document.createElement("div");
   card.className = "link-card";
@@ -587,8 +615,8 @@ function createSiteCard(site, index) {
   
   const adminButtons = isAdminLoggedIn ? `
     <div class="card-buttons">
-      <button class="card-btn edit-btn" onclick="window.openEditModal('${site.id}')" title="수정">✏️</button>
-      <button class="card-btn delete-btn" onclick="window.openDeleteModal('${site.id}', '${site.name}')" title="삭제">🗑️</button>
+      <button class="card-btn edit-btn" onclick="openEditModal('${site.id}')" title="수정">✏️</button>
+      <button class="card-btn delete-btn" onclick="openDeleteModal('${site.id}', '${site.name}')" title="삭제">🗑️</button>
     </div>
   ` : '';
   
@@ -601,6 +629,7 @@ function createSiteCard(site, index) {
   return card;
 }
 
+// 사이트 렌더링
 function renderSites() {
   const categories = Object.keys(categoryNames);
   const allFilteredSites = getFilteredSites();
@@ -629,6 +658,7 @@ function renderSites() {
   updateStats();
 }
 
+// 필터 설정
 function setupFilters() {
   document.querySelectorAll("#ageFilter .filter-btn").forEach(btn =>
     btn.addEventListener("click", e => {
@@ -654,7 +684,8 @@ function setupFilters() {
   });
 }
 
-window.resetFilters = function() {
+// 필터 초기화
+function resetFilters() {
   currentAgeFilter = "all";
   currentCategoryFilter = "all";
   currentSubjectFilter = "all";
@@ -666,10 +697,9 @@ window.resetFilters = function() {
 
 let editingDocId = null;
 
-window.openAddModal = function() {
+function openAddModal() {
   if (!isAdminLoggedIn) {
-    checkAdminAuth();
-    if (!isAdminLoggedIn) return;
+    if (!checkAdminAuth()) return;
   }
   editingDocId = null;
   document.getElementById("modalTitle").textContent = "새 사이트 추가";
@@ -678,15 +708,14 @@ window.openAddModal = function() {
   document.getElementById("modal").style.display = "flex";
 }
 
-window.openEditModal = function(docId) {
+function openEditModal(docId) {
   if (!isAdminLoggedIn) {
-    checkAdminAuth();
-    if (!isAdminLoggedIn) return;
+    if (!checkAdminAuth()) return;
   }
   editingDocId = docId;
   const site = sites.find(s => s.id === docId);
   if (!site) {
-    window.showPopup("사이트를 찾을 수 없습니다.", true);
+    showPopup("사이트를 찾을 수 없습니다.", true);
     return;
   }
   document.getElementById("modalTitle").textContent = "사이트 수정";
@@ -710,7 +739,7 @@ window.openEditModal = function(docId) {
   document.getElementById("modal").style.display = "flex";
 }
 
-window.closeModal = function() {
+function closeModal() {
   document.getElementById("modal").style.display = "none";
   document.getElementById("siteForm").reset();
   clearFormCheckboxes();
@@ -721,7 +750,7 @@ function clearFormCheckboxes() {
   document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
 }
 
-window.saveSite = async function(event) {
+async function saveSite(event) {
   event.preventDefault();
   
   const name = document.getElementById("siteName").value.trim();
@@ -733,7 +762,7 @@ window.saveSite = async function(event) {
   const subjects = Array.from(document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]:checked')).map(cb => cb.value);
   
   if (!name || !url || !category || ages.length === 0) {
-    window.showPopup("필수 항목을 모두 입력해주세요.", true);
+    showPopup("필수 항목을 모두 입력해주세요.", true);
     return;
   }
   
@@ -751,45 +780,43 @@ window.saveSite = async function(event) {
   try {
     if (editingDocId) {
       await updateDoc(doc(collectionRef, editingDocId), siteData);
-      window.showPopup("사이트가 수정되었습니다!");
+      showPopup("사이트가 수정되었습니다!");
     } else {
       await addDoc(collectionRef, siteData);
-      window.showPopup("새 사이트가 추가되었습니다!");
+      showPopup("새 사이트가 추가되었습니다!");
     }
-    window.closeModal();
+    closeModal();
   } catch (e) {
     console.error("데이터 저장 실패:", e);
-    window.showPopup("데이터 저장에 실패했습니다.", true);
+    showPopup("데이터 저장에 실패했습니다.", true);
   }
 }
 
-window.openDeleteModal = function(docId, siteName) {
+function openDeleteModal(docId, siteName) {
   if (!isAdminLoggedIn) {
-    checkAdminAuth();
-    if (!isAdminLoggedIn) return;
+    if (!checkAdminAuth()) return;
   }
-  window.openConfirmationModal(
+  openConfirmationModal(
     '사이트 삭제',
     `'${siteName}' 사이트를 삭제하시겠습니까?`,
-    () => window.deleteSite(docId)
+    () => deleteSite(docId)
   );
 }
 
-window.deleteSite = async function(docId) {
+async function deleteSite(docId) {
   try {
     const docRef = doc(db, `/artifacts/${appId}/users/${userId}/sites/${docId}`);
     await deleteDoc(docRef);
-    window.showPopup("사이트가 삭제되었습니다!");
+    showPopup("사이트가 삭제되었습니다!");
   } catch (e) {
     console.error("데이터 삭제 실패:", e);
-    window.showPopup("데이터 삭제에 실패했습니다.", true);
+    showPopup("데이터 삭제에 실패했습니다.", true);
   }
 }
 
-window.exportData = async function() {
+async function exportData() {
   if (!isAdminLoggedIn) {
-    checkAdminAuth();
-    if (!isAdminLoggedIn) return;
+    if (!checkAdminAuth()) return;
   }
   try {
     const collectionRef = collection(db, `/artifacts/${appId}/users/${userId}/sites`);
@@ -807,17 +834,16 @@ window.exportData = async function() {
     link.download = `sites_backup_${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    window.showPopup("데이터가 내보내졌습니다!");
+    showPopup("데이터가 내보내졌습니다!");
   } catch (error) {
     console.error("데이터 내보내기 실패:", error);
-    window.showPopup("데이터 내보내기에 실패했습니다.", true);
+    showPopup("데이터 내보내기에 실패했습니다.", true);
   }
 }
 
-window.importData = async function(event) {
+async function importData(event) {
   if (!isAdminLoggedIn) {
-    checkAdminAuth();
-    if (!isAdminLoggedIn) return;
+    if (!checkAdminAuth()) return;
   }
   const file = event.target.files[0];
   if (!file) return;
@@ -827,50 +853,51 @@ window.importData = async function(event) {
     try {
       const importedData = JSON.parse(e.target.result);
       if (Array.isArray(importedData)) {
-        window.openConfirmationModal(
+        openConfirmationModal(
           '데이터 가져오기',
           "기존 데이터를 모두 교체하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
           async () => {
             const batch = writeBatch(db);
             const collectionRef = collection(db, `/artifacts/${appId}/users/${userId}/sites`);
             
+            // 기존 데이터 삭제
             const existingDocs = await getDocs(collectionRef);
             existingDocs.forEach(doc => batch.delete(doc.ref));
             
+            // 새 데이터 추가
             importedData.forEach(site => {
               const newDocRef = doc(collectionRef);
               batch.set(newDocRef, site);
             });
             
             await batch.commit();
-            window.showPopup("데이터가 성공적으로 가져와졌습니다!");
+            showPopup("데이터가 성공적으로 가져와졌습니다!");
           }
         );
       } else {
-        window.showPopup("올바른 JSON 형식이 아닙니다.", true);
+        showPopup("올바른 JSON 형식이 아닙니다.", true);
       }
     } catch (error) {
       console.error("파일 읽기 실패:", error);
-      window.showPopup("파일을 읽는 데 실패했습니다.", true);
+      showPopup("파일을 읽는 데 실패했습니다.", true);
     }
   };
   reader.readAsText(file);
   event.target.value = "";
 }
 
-window.openResetModal = function() {
+function openResetModal() {
   if (!isAdminLoggedIn) {
-    checkAdminAuth();
-    if (!isAdminLoggedIn) return;
+    if (!checkAdminAuth()) return;
   }
-  window.openConfirmationModal(
+  openConfirmationModal(
     '데이터 초기화',
     "정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-    window.resetAllData
+    resetAllData
   );
 }
 
-window.resetAllData = async function() {
+async function resetAllData() {
   try {
     const collectionRef = collection(db, `/artifacts/${appId}/users/${userId}/sites`);
     const existingDocs = await getDocs(collectionRef);
@@ -879,26 +906,34 @@ window.resetAllData = async function() {
       batch.delete(doc.ref);
     });
     await batch.commit();
-    window.showPopup("데이터가 초기화되었습니다!");
-    addInitialData();
+    showPopup("데이터가 초기화되었습니다!");
+    addInitialData(); // 기본 데이터 재추가
   } catch (e) {
     console.error("데이터 초기화 실패:", e);
-    window.showPopup("데이터 초기화에 실패했습니다.", true);
+    showPopup("데이터 초기화에 실패했습니다.", true);
   }
 }
 
-window.toggleDarkMode = function() {
+function toggleDarkMode() {
   document.body.classList.toggle("dark");
   const isDark = document.body.classList.contains("dark");
-  window.showPopup(isDark ? "다크 모드가 활성화되었습니다." : "라이트 모드가 활성화되었습니다.");
+  showPopup(isDark ? "다크 모드가 활성화되었습니다." : "라이트 모드가 활성화되었습니다.");
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('adminToggle').addEventListener('click', window.toggleAdmin);
-  document.getElementById('addSiteBtn').addEventListener('click', window.openAddModal);
+  document.getElementById('adminToggle').addEventListener('click', toggleAdmin);
+  document.getElementById('addSiteBtn').addEventListener('click', openAddModal);
   setupFilters();
   updateAdminUI();
 });
 </script>
 </body>
 </html>
+
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
+

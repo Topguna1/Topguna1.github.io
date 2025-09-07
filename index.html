@@ -919,27 +919,7 @@ body.dark .data-management {
 
   <!-- 카테고리 컨테이너 -->
   <div class="categories-container" id="categoriesContainer">
-    <!-- 기본 카테고리들 -->
-    <div class="category-section" id="government-section">
-      <div class="category-header">
-        <div class="category-title">
-          <span>🏛️</span>
-          <span>정부기관</span>
-        </div>
-        <div class="category-count" id="government-count">0</div>
-      </div>
-      <div class="category-content" id="government-content"></div>
-    </div>
-    <div class="category-section" id="search-section">
-      <div class="category-header">
-        <div class="category-title">
-          <span>🔍</span>
-          <span>검색 엔진</span>
-        </div>
-        <div class="category-count" id="search-count">0</div>
-      </div>
-      <div class="category-content" id="search-content"></div>
-    </div>
+    <!-- 기본 카테고리들은 JavaScript에서 동적 생성 -->
   </div>
 
   <div id="noResults" class="no-results" style="display:none;">
@@ -1061,28 +1041,32 @@ body.dark .data-management {
 </div>
 
 <script>
+// 상수 정의
 const ageNames = {elem:"초등학생",mid:"중학생",high:"고등학생",adult:"성인"};
-const categoryNames = {learning:"학습",info:"정보",government:"정부기관",search:"검색엔진"};
 const subjectNames = {korean:"국어",math:"수학",english:"영어",science:"과학",social:"사회",history:"역사",art:"예술",music:"음악",pe:"체육",tech:"기술",coding:"코딩",language:"외국어",general:"종합",exam:"시험대비",career:"진로"};
 
-// 카테고리 아이콘 매핑
-const categoryIcons = {learning:"📖",info:"📋",government:"🏛️",search:"🔍"};
+// 기본 카테고리 정의
+const defaultCategories = {
+  learning: {name: "학습 사이트", icon: "📖"},
+  info: {name: "정보 사이트", icon: "📋"},
+  government: {name: "정부기관", icon: "🏛️"},
+  search: {name: "검색 엔진", icon: "🔍"}
+};
 
-// 사용자 정의 카테고리
+// 전역 변수
+let sites = [];
 let customCategories = {};
+let categoryDisplayLimits = {};
+let expandedCategories = {};
 
 let currentAgeFilter = "all";
 let currentCategoryFilter = "all";
 let currentSubjectFilter = "all";
-let expandedCategories = {};
 let editingIndex = -1;
-
-// 관리자 인증 상태
 let isAdminLoggedIn = false;
-let categoryDisplayLimits = {};
 
 // 초기 데이터
-let sites = [
+const initialSites = [
   {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
   {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
   {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
@@ -1096,10 +1080,25 @@ let sites = [
   {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]}
 ];
 
+// 유틸리티 함수들
+function getAllCategories() {
+  return {...defaultCategories, ...customCategories};
+}
+
+function getCategoryName(key) {
+  const allCategories = getAllCategories();
+  return allCategories[key] ? allCategories[key].name : key;
+}
+
+function getCategoryIcon(key) {
+  const allCategories = getAllCategories();
+  return allCategories[key] ? allCategories[key].icon : "📁";
+}
+
 // 초기 카테고리 표시 제한 설정
 function initializeDisplayLimits() {
-  const allCategories = [...Object.keys(categoryNames), ...Object.keys(customCategories)];
-  allCategories.forEach(category => {
+  const allCategoryKeys = Object.keys(getAllCategories());
+  allCategoryKeys.forEach(category => {
     if (!categoryDisplayLimits[category]) {
       categoryDisplayLimits[category] = 3;
     }
@@ -1112,7 +1111,8 @@ function saveData() {
     const data = {
       sites: sites,
       customCategories: customCategories,
-      categoryDisplayLimits: categoryDisplayLimits
+      categoryDisplayLimits: categoryDisplayLimits,
+      version: "2.0"
     };
     window.savedSitesData = JSON.stringify(data);
     updateSaveStatus('로컬 저장됨');
@@ -1153,9 +1153,8 @@ function saveToServer() {
   
   updateSaveStatus('서버 저장 중...');
   
-  // 실제 서버 저장 시뮬레이션
   setTimeout(() => {
-    if (Math.random() > 0.1) { // 90% 성공률
+    if (Math.random() > 0.1) {
       updateSaveStatus('서버 저장 완료 ✓');
       showPopup('서버에 성공적으로 저장되었습니다!');
     } else {
@@ -1183,7 +1182,7 @@ function showPopup(message, isError = false) {
   }, 3000);
 }
 
-// 관리자 토글 함수
+// 관리자 기능
 function toggleAdmin() {
   if (isAdminLoggedIn) {
     logout();
@@ -1192,7 +1191,6 @@ function toggleAdmin() {
   }
 }
 
-// 관리자 인증
 function checkAdminAuth() {
   const password = prompt("관리자 비밀번호를 입력하세요:");
   if (password === "admin123") {
@@ -1220,23 +1218,19 @@ function updateAdminUI() {
   const dataManagement = document.getElementById('dataManagement');
   
   if (isAdminLoggedIn) {
-    if (adminToggle) {
-      adminToggle.textContent = '🔓 관리자 모드 (로그아웃)';
-      adminToggle.className = 'admin-btn active';
-    }
-    if (addBtn) addBtn.style.display = 'inline-flex';
-    if (addCategoryBtn) addCategoryBtn.style.display = 'inline-flex';
-    if (categoryManagement) categoryManagement.style.display = 'block';
-    if (dataManagement) dataManagement.style.display = 'block';
+    adminToggle.textContent = '🔓 관리자 모드 (로그아웃)';
+    adminToggle.className = 'admin-btn active';
+    addBtn.style.display = 'inline-flex';
+    addCategoryBtn.style.display = 'inline-flex';
+    categoryManagement.style.display = 'block';
+    dataManagement.style.display = 'block';
   } else {
-    if (adminToggle) {
-      adminToggle.textContent = '🔒 관리자 로그인';
-      adminToggle.className = 'admin-btn';
-    }
-    if (addBtn) addBtn.style.display = 'none';
-    if (addCategoryBtn) addCategoryBtn.style.display = 'none';
-    if (categoryManagement) categoryManagement.style.display = 'none';
-    if (dataManagement) dataManagement.style.display = 'none';
+    adminToggle.textContent = '🔒 관리자 로그인';
+    adminToggle.className = 'admin-btn';
+    addBtn.style.display = 'none';
+    addCategoryBtn.style.display = 'none';
+    categoryManagement.style.display = 'none';
+    dataManagement.style.display = 'none';
   }
   
   renderCustomCategories();
@@ -1258,16 +1252,53 @@ function getFilteredSites() {
   );
 }
 
+// 카테고리 섹션 생성
+function createCategorySection(categoryKey) {
+  const allCategories = getAllCategories();
+  const categoryInfo = allCategories[categoryKey];
+  if (!categoryInfo) return null;
+
+  const section = document.createElement('div');
+  section.className = 'category-section';
+  section.id = `${categoryKey}-section`;
+  
+  section.innerHTML = `
+    <div class="category-header">
+      <div class="category-title">
+        <span>${categoryInfo.icon}</span>
+        <span>${categoryInfo.name}</span>
+      </div>
+      <div class="category-count" id="${categoryKey}-count">0</div>
+    </div>
+    <div class="category-content" id="${categoryKey}-content"></div>
+  `;
+  
+  return section;
+}
+
+// 모든 카테고리 섹션 렌더링
+function renderCategorySections() {
+  const container = document.getElementById('categoriesContainer');
+  container.innerHTML = '';
+  
+  const allCategoryKeys = Object.keys(getAllCategories());
+  
+  allCategoryKeys.forEach(categoryKey => {
+    const section = createCategorySection(categoryKey);
+    if (section) {
+      container.appendChild(section);
+    }
+  });
+}
+
 // 사이트 카드 생성
 function createSiteCard(site, index) {
   const card = document.createElement("div");
   card.className = "link-card";
   
   const ageTags = site.ages.map(a => `<span class="tag age-tag">${ageNames[a]}</span>`).join(" ");
-  const allCategoryNames = {...categoryNames, ...customCategories};
-  const categoryTag = `<span class="tag category-tag">${allCategoryNames[site.category] || site.category}</span>`;
+  const categoryTag = `<span class="tag category-tag">${getCategoryName(site.category)}</span>`;
   
-  // 관리자 버튼들 (관리자 로그인 시에만 표시)
   const adminButtons = isAdminLoggedIn ? `
     <div class="card-buttons">
       <button class="card-btn edit-btn" onclick="openEditModal(${index})" title="수정">✏️</button>
@@ -1284,25 +1315,17 @@ function createSiteCard(site, index) {
   return card;
 }
 
-// 사이트 렌더링 (더보기/접기 기능 포함)
+// 사이트 렌더링
 function renderSites() {
-  const allCategories = [...Object.keys(categoryNames), ...Object.keys(customCategories)];
+  const allCategoryKeys = Object.keys(getAllCategories());
   const allFilteredSites = getFilteredSites();
   let hasResults = allFilteredSites.length > 0;
 
-  allCategories.forEach(category => {
-    let container = document.getElementById(`${category}-content`);
-    let section = document.getElementById(`${category}-section`);
-    let countElement = document.getElementById(`${category}-count`);
+  allCategoryKeys.forEach(category => {
+    const container = document.getElementById(`${category}-content`);
+    const section = document.getElementById(`${category}-section`);
+    const countElement = document.getElementById(`${category}-count`);
     
-    // 사용자 정의 카테고리 섹션이 없으면 생성
-    if (!section && customCategories[category]) {
-      createCustomCategorySection(category, customCategories[category], categoryIcons[category] || '📁');
-      container = document.getElementById(`${category}-content`);
-      section = document.getElementById(`${category}-section`);
-      countElement = document.getElementById(`${category}-count`);
-    }
-
     if (!container || !section) return;
 
     const sitesInCategory = allFilteredSites.filter(s => s.category === category);
@@ -1315,19 +1338,16 @@ function renderSites() {
     if (sitesInCategory.length > 0) {
       section.style.display = "block";
       
-      // 현재 카테고리의 표시 제한
       const limit = categoryDisplayLimits[category] || 3;
       const isExpanded = expandedCategories[category];
       const sitesToShow = isExpanded ? sitesInCategory : sitesInCategory.slice(0, limit);
       const remainingSites = sitesInCategory.length - limit;
       
-      // 사이트 카드들 추가
       sitesToShow.forEach(site => {
         const idx = sites.indexOf(site);
         container.appendChild(createSiteCard(site, idx));
       });
       
-      // 더보기/접기 버튼
       if (sitesInCategory.length > limit) {
         const btnContainer = document.createElement("div");
         btnContainer.className = "more-btn-container";
@@ -1371,44 +1391,22 @@ function collapseSites(category) {
   renderSites();
 }
 
-// 사용자 정의 카테고리 섹션 생성
-function createCustomCategorySection(categoryKey, categoryName, icon) {
-  const container = document.getElementById('categoriesContainer');
-  const section = document.createElement('div');
-  section.className = 'category-section';
-  section.id = `${categoryKey}-section`;
-  
-  section.innerHTML = `
-    <div class="category-header">
-      <div class="category-title">
-        <span>${icon}</span>
-        <span>${categoryName}</span>
-      </div>
-      <div class="category-count" id="${categoryKey}-count">0</div>
-    </div>
-    <div class="category-content" id="${categoryKey}-content"></div>
-  `;
-  
-  container.appendChild(section);
-}
-
 // 사용자 정의 카테고리 렌더링
 function renderCustomCategories() {
   const container = document.getElementById('customCategories');
   container.innerHTML = '';
   
-  Object.entries(customCategories).forEach(([key, name]) => {
+  Object.entries(customCategories).forEach(([key, categoryInfo]) => {
     const categoryDiv = document.createElement('div');
     categoryDiv.className = 'custom-category';
     categoryDiv.innerHTML = `
-      <span>${categoryIcons[key] || '📁'}</span>
-      <span>${name}</span>
+      <span>${categoryInfo.icon}</span>
+      <span>${categoryInfo.name}</span>
       ${isAdminLoggedIn ? `<button class="remove-category-btn" onclick="removeCategory('${key}')" title="삭제">✕</button>` : ''}
     `;
     container.appendChild(categoryDiv);
   });
   
-  // 카테고리 필터 업데이트
   updateCategoryFilter();
 }
 
@@ -1418,12 +1416,11 @@ function updateCategoryFilter() {
   const existingCustomButtons = filterContainer.querySelectorAll('[data-category]:not([data-category="all"]):not([data-category="learning"]):not([data-category="info"]):not([data-category="government"]):not([data-category="search"])');
   existingCustomButtons.forEach(btn => btn.remove());
   
-  // 사용자 정의 카테고리 버튼 추가
-  Object.entries(customCategories).forEach(([key, name]) => {
+  Object.entries(customCategories).forEach(([key, categoryInfo]) => {
     const button = document.createElement('button');
     button.className = 'filter-btn';
     button.dataset.category = key;
-    button.textContent = name;
+    button.textContent = categoryInfo.name;
     button.addEventListener('click', e => {
       document.querySelector("#categoryFilter .active").classList.remove("active");
       e.target.classList.add("active");
@@ -1433,7 +1430,6 @@ function updateCategoryFilter() {
     filterContainer.appendChild(button);
   });
   
-  // 사이트 폼의 카테고리 선택 업데이트
   updateSiteFormCategories();
 }
 
@@ -1442,15 +1438,13 @@ function updateSiteFormCategories() {
   const select = document.getElementById('siteCategory');
   if (!select) return;
   
-  // 기존 사용자 정의 옵션 제거
   const existingCustomOptions = select.querySelectorAll('option:not([value=""]):not([value="learning"]):not([value="info"]):not([value="government"]):not([value="search"])');
   existingCustomOptions.forEach(option => option.remove());
   
-  // 사용자 정의 카테고리 옵션 추가
-  Object.entries(customCategories).forEach(([key, name]) => {
+  Object.entries(customCategories).forEach(([key, categoryInfo]) => {
     const option = document.createElement('option');
     option.value = key;
-    option.textContent = name;
+    option.textContent = categoryInfo.name;
     select.appendChild(option);
   });
 }
@@ -1494,11 +1488,9 @@ function resetFilters() {
   renderSites();
 }
 
-// 사이트 모달 관련
+// 모달 관련 함수들
 function openAddModal() {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+  if (!isAdminLoggedIn && !checkAdminAuth()) return;
   editingIndex = -1;
   document.getElementById("siteModalTitle").textContent = "새 사이트 추가";
   document.getElementById("siteForm").reset();
@@ -1507,29 +1499,23 @@ function openAddModal() {
 }
 
 function openEditModal(index) {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+  if (!isAdminLoggedIn && !checkAdminAuth()) return;
   editingIndex = index;
   const site = sites[index];
   document.getElementById("siteModalTitle").textContent = "사이트 수정";
   
-  // 폼 채우기
   document.getElementById("siteName").value = site.name;
   document.getElementById("siteUrl").value = site.url;
   document.getElementById("siteDesc").value = site.desc || "";
   document.getElementById("siteCategory").value = site.category;
   
-  // 체크박스 초기화 후 설정
   clearFormCheckboxes();
   
-  // 연령대 체크박스 설정
   site.ages.forEach(age => {
     const checkbox = document.getElementById(`age-${age}`);
     if (checkbox) checkbox.checked = true;
   });
   
-  // 과목 체크박스 설정
   site.subjects.forEach(subject => {
     const checkbox = document.getElementById(`subj-${subject}`);
     if (checkbox) checkbox.checked = true;
@@ -1549,11 +1535,8 @@ function clearFormCheckboxes() {
   document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
 }
 
-// 카테고리 모달 관련
 function openAddCategoryModal() {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+  if (!isAdminLoggedIn && !checkAdminAuth()) return;
   document.getElementById("categoryForm").reset();
   document.getElementById("categoryModal").style.display = "flex";
 }
@@ -1571,7 +1554,6 @@ function saveCategory(event) {
   const icon = document.getElementById("categoryIcon").value.trim();
   const key = document.getElementById("categoryKey").value.trim().toLowerCase();
   
-  // 유효성 검사
   if (!name || !icon || !key) {
     showPopup("모든 필드를 입력해주세요.", true);
     return;
@@ -1582,19 +1564,17 @@ function saveCategory(event) {
     return;
   }
   
-  if (categoryNames[key] || customCategories[key]) {
+  if (defaultCategories[key] || customCategories[key]) {
     showPopup("이미 존재하는 카테고리 키입니다.", true);
     return;
   }
   
-  // 카테고리 추가
-  customCategories[key] = name;
-  categoryIcons[key] = icon;
+  customCategories[key] = {name: name, icon: icon};
   categoryDisplayLimits[key] = 3;
   
   saveData();
+  renderCategorySections();
   renderCustomCategories();
-  createCustomCategorySection(key, name, icon);
   renderSites();
   closeCategoryModal();
   showPopup(`'${name}' 카테고리가 추가되었습니다!`);
@@ -1602,38 +1582,28 @@ function saveCategory(event) {
 
 // 카테고리 삭제
 function removeCategory(key) {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+  if (!isAdminLoggedIn && !checkAdminAuth()) return;
   
-  const categoryName = customCategories[key];
+  const categoryInfo = customCategories[key];
   const sitesInCategory = sites.filter(s => s.category === key);
   
   if (sitesInCategory.length > 0) {
-    const proceed = confirm(`'${categoryName}' 카테고리에 ${sitesInCategory.length}개의 사이트가 있습니다.\n카테고리를 삭제하면 해당 사이트들은 '정보' 카테고리로 이동됩니다.\n계속하시겠습니까?`);
+    const proceed = confirm(`'${categoryInfo.name}' 카테고리에 ${sitesInCategory.length}개의 사이트가 있습니다.\n카테고리를 삭제하면 해당 사이트들은 '정보' 카테고리로 이동됩니다.\n계속하시겠습니까?`);
     if (!proceed) return;
     
-    // 해당 카테고리의 사이트들을 'info' 카테고리로 이동
     sitesInCategory.forEach(site => {
       site.category = 'info';
     });
   }
   
-  // 카테고리 삭제
   delete customCategories[key];
-  delete categoryIcons[key];
   delete categoryDisplayLimits[key];
   
-  // UI에서 카테고리 섹션 제거
-  const section = document.getElementById(`${key}-section`);
-  if (section) {
-    section.remove();
-  }
-  
   saveData();
+  renderCategorySections();
   renderCustomCategories();
   renderSites();
-  showPopup(`'${categoryName}' 카테고리가 삭제되었습니다.`);
+  showPopup(`'${categoryInfo.name}' 카테고리가 삭제되었습니다.`);
 }
 
 // 사이트 저장 (추가/수정)
@@ -1645,19 +1615,16 @@ function saveSite(event) {
   const desc = document.getElementById("siteDesc").value.trim();
   const category = document.getElementById("siteCategory").value;
   
-  // 연령대 수집
   const ages = [];
   document.querySelectorAll('#ageCheckboxes input[type="checkbox"]:checked').forEach(cb => {
     ages.push(cb.value);
   });
   
-  // 과목 수집
   const subjects = [];
   document.querySelectorAll('#subjectCheckboxes input[type="checkbox"]:checked').forEach(cb => {
     subjects.push(cb.value);
   });
   
-  // 유효성 검사
   if (!name || !url || !category) {
     showPopup("필수 항목을 모두 입력해주세요.", true);
     return;
@@ -1668,7 +1635,6 @@ function saveSite(event) {
     return;
   }
   
-  // 새 사이트 객체
   const newSite = {
     name: name,
     url: url,
@@ -1693,9 +1659,7 @@ function saveSite(event) {
 
 // 사이트 삭제
 function deleteSite(index) {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+  if (!isAdminLoggedIn && !checkAdminAuth()) return;
   const site = sites[index];
   if (confirm(`'${site.name}' 사이트를 삭제하시겠습니까?`)) {
     sites.splice(index, 1);
@@ -1707,14 +1671,11 @@ function deleteSite(index) {
 
 // 데이터 내보내기
 function exportData() {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+  if (!isAdminLoggedIn && !checkAdminAuth()) return;
   try {
     const exportData = {
       sites: sites,
       customCategories: customCategories,
-      categoryIcons: categoryIcons,
       version: "2.0",
       exportDate: new Date().toISOString()
     };
@@ -1734,9 +1695,7 @@ function exportData() {
 
 // 데이터 가져오기
 function importData(event) {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+  if (!isAdminLoggedIn && !checkAdminAuth()) return;
   const file = event.target.files[0];
   if (!file) return;
   
@@ -1746,11 +1705,9 @@ function importData(event) {
       const data = JSON.parse(e.target.result);
       
       if (confirm("기존 데이터를 모두 교체하시겠습니까?")) {
-        // 새 형식 데이터인지 확인
         if (data.sites && Array.isArray(data.sites)) {
           sites = data.sites;
         } else if (Array.isArray(data)) {
-          // 구 형식 호환성
           sites = data;
         }
         
@@ -1758,12 +1715,9 @@ function importData(event) {
           customCategories = data.customCategories;
         }
         
-        if (data.categoryIcons) {
-          Object.assign(categoryIcons, data.categoryIcons);
-        }
-        
         initializeDisplayLimits();
         saveData();
+        renderCategorySections();
         renderCustomCategories();
         renderSites();
         showPopup("데이터가 가져와졌습니다!");
@@ -1778,37 +1732,15 @@ function importData(event) {
 
 // 모든 데이터 초기화
 function resetAllData() {
-  if (!isAdminLoggedIn) {
-    if (!checkAdminAuth()) return;
-  }
+  if (!isAdminLoggedIn && !checkAdminAuth()) return;
   if (confirm("정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
-    sites = [
-      {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
-      {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
-      {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
-      {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
-      {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-      {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
-      {name:"교육부",url:"https://www.moe.go.kr/",desc:"대한민국 교육부 공식 사이트",category:"government",ages:["adult"],subjects:["general"]},
-      {name:"한국교육과정평가원",url:"https://www.kice.re.kr/",desc:"교육과정 및 평가 정보",category:"government",ages:["mid","high","adult"],subjects:["general","exam"]},
-      {name:"한국교육학술정보원",url:"https://www.keris.or.kr/",desc:"교육 정보화 및 학술 정보",category:"government",ages:["high","adult"],subjects:["general"]},
-      {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 대표 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-      {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]}
-    ];
-    
-    // 사용자 정의 카테고리 초기화
+    sites = [...initialSites];
     customCategories = {};
-    
-    // 사용자 정의 카테고리 섹션 제거
-    document.querySelectorAll('.category-section').forEach(section => {
-      const id = section.id;
-      if (id && !['learning-section', 'info-section', 'government-section', 'search-section'].includes(id)) {
-        section.remove();
-      }
-    });
+    expandedCategories = {};
     
     initializeDisplayLimits();
     saveData();
+    renderCategorySections();
     renderCustomCategories();
     renderSites();
     showPopup("데이터가 초기화되었습니다!");
@@ -1824,15 +1756,20 @@ function toggleDarkMode() {
 
 // 초기화
 function init() {
-  loadData();
+  // 데이터 로드 실패 시 기본 데이터 사용
+  if (!loadData()) {
+    sites = [...initialSites];
+  }
+  
   initializeDisplayLimits();
+  renderCategorySections();
   setupFilters();
   updateAdminUI();
   renderCustomCategories();
   renderSites();
 }
 
-// 페이지 로드 시 초기화
+// 이벤트 리스너
 document.addEventListener('DOMContentLoaded', init);
 
 // 모달 외부 클릭 시 닫기
@@ -1859,24 +1796,4 @@ document.addEventListener('keydown', (e) => {
 });
 </script>
 </body>
-</html>d="learning-section">
-      <div class="category-header">
-        <div class="category-title">
-          <span>📖</span>
-          <span>학습 사이트</span>
-        </div>
-        <div class="category-count" id="learning-count">0</div>
-      </div>
-      <div class="category-content" id="learning-content"></div>
-    </div>
-    <div class="category-section" id="info-section">
-      <div class="category-header">
-        <div class="category-title">
-          <span>📋</span>
-          <span>정보 사이트</span>
-        </div>
-        <div class="category-count" id="info-count">0</div>
-      </div>
-      <div class="category-content" id="info-content"></div>
-    </div>
-    <div class="category-section" i
+</html>

@@ -223,39 +223,136 @@ const subjectNames = {korean:"국어", math:"수학", english:"영어", science:
 
 /* 기본 카테고리 (관리자/커스텀 제거) */
 const defaultCategories = {
-  learning: {name:"학습 사이트", icon:"📖"},
-  info: {name:"정보 사이트", icon:"📋"},
+  learning: {name:"온라인강의", icon:"💻"},
+  info: {name:"참고자료", icon:"🔍"},
   government: {name:"정부기관", icon:"🏛️"},
   search: {name:"검색 엔진", icon:"🔍"},
-  gpt: {name:"GPT 활용", icon:"🤖"}
+  gpt: {name:"GPT 활용", icon:"🤖"},
+  exam: {name:"시험/기출", icon:"📝"},
+  assignment: {name:"과제/리포트", icon:"📄"},
+  coding: {name:"코딩/IT", icon:"💻"},
+  news: {name:"뉴스/시사", icon:"📰"},
+  lifestyle: {name:"생활정보", icon:"🏠"},
+  career: {name:"진로/대학", icon:"🎓"},
+  productivity: {name:"생산성/도구", icon:"🛠️"},
+  mental: {name:"심리/정서", icon:"🧠"}
 };
 
-/* 초기 사이트 (읽기 전용) */
+/* 초기 사이트 + 카테고리별 예시 사이트 5개씩 */
 const initialSites = [
+  // 온라인강의
   {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
   {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
   {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
   {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
   {name:"Coursera",url:"https://www.coursera.org/",desc:"전 세계 대학 및 기업의 온라인 강좌",category:"learning",ages:["high","adult"],subjects:["general","language"]},
-
+  {name:"edX",url:"https://www.edx.org/",desc:"무료 및 유료 대학 온라인 강의 제공",category:"learning",ages:["high","adult"],subjects:["general"]},
+  {name:"TED-Ed",url:"https://ed.ted.com/",desc:"짧은 영상 강의로 다양한 지식 학습",category:"learning",ages:["mid","high"],subjects:["general"]},
+  {name:"MIT OpenCourseWare",url:"https://ocw.mit.edu/",desc:"MIT 공개 강의 자료",category:"learning",ages:["high","adult"],subjects:["science","tech"]},
+  {name:"Skillshare",url:"https://www.skillshare.com/",desc:"디자인, 코딩, 영상 등 실무 학습",category:"learning",ages:["high","adult"],subjects:["art","tech"]},
+  
+  // 참고자료
   {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
   {name:"나무위키",url:"https://namu.wiki/",desc:"다양한 주제를 다루는 한국어 위키",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
+  {name:"RISS",url:"http://www.riss.kr/",desc:"학술 자료 및 논문 검색",category:"info",ages:["high","adult"],subjects:["general"]},
+  {name:"네이버 지식백과",url:"https://terms.naver.com/",desc:"한국어 참고자료 제공",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+  
+  // 시험/기출
+  {name:"토익 공식 사이트",url:"https://www.toeic.co.kr/",desc:"토익 시험 자료",category:"exam",ages:["high","adult"],subjects:["exam"]},
+  {name:"컴퓨터 활용능력 기출",url:"https://www.q-net.or.kr",desc:"컴퓨터 활용능력 시험 기출 문제",category:"exam",ages:["high","adult"],subjects:["exam"]},
+  {name:"한국사 능력검정시험",url:"https://www.historyexam.go.kr/",desc:"한국사 시험 대비 자료",category:"exam",ages:["mid","high"],subjects:["exam"]},
+  {name:"수능 모의고사 자료",url:"https://www.kice.re.kr/",desc:"수능 기출 및 모의고사 자료",category:"exam",ages:["high"],subjects:["exam"]},
+  {name:"SAT Practice",url:"https://collegereadiness.collegeboard.org/sat/practice",desc:"SAT 시험 연습 사이트",category:"exam",ages:["high","adult"],subjects:["exam","english"]},
 
-  {name:"교육부",url:"https://www.moe.go.kr/",desc:"대한민국 교육부 공식 사이트",category:"government",ages:["adult"],subjects:["general"]},
-  {name:"한국교육과정평가원",url:"https://www.kice.re.kr/",desc:"교육과정 및 평가 정보",category:"government",ages:["mid","high","adult"],subjects:["general","exam"]},
-  {name:"한국교육학술정보원",url:"https://www.keris.or.kr/",desc:"교육 정보화 및 학술 정보",category:"government",ages:["high","adult"],subjects:["general"]},
-  {name:"국민신문고",url:"https://www.epeople.go.kr/",desc:"정부에 정책 및 민원을 제안하는 온라인 소통 창구",category:"government",ages:["adult"],subjects:["general","social"]},
+  // 코딩/IT
+  {name:"프로그래머스",url:"https://programmers.co.kr/",desc:"코딩 문제와 학습",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
+  {name:"백준 온라인 저지",url:"https://www.acmicpc.net/",desc:"알고리즘 문제 풀이",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
+  {name:"Codecademy",url:"https://www.codecademy.com/",desc:"프로그래밍 언어 학습",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
+  {name:"Codewars",url:"https://www.codewars.com/",desc:"코딩 문제 풀이 및 실력 향상",category:"coding",ages:["high","adult"],subjects:["coding"]},
+  {name:"LeetCode",url:"https://leetcode.com/",desc:"알고리즘 및 코딩 인터뷰 대비",category:"coding",ages:["high","adult"],subjects:["coding"]},
 
-  {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 대표 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-  {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-  {name:"DuckDuckGo",url:"https://duckduckgo.com/",desc:"개인정보 보호에 중점을 둔 검색 엔진",category:"search",ages:["mid","high","adult"],subjects:["general"]},
+  // 뉴스/시사
+  {name:"BBC News",url:"https://www.bbc.com/news",desc:"세계 뉴스 제공",category:"news",ages:["high","adult"],subjects:["general"]},
+  {name:"EBS 뉴스",url:"https://www.ebs.co.kr/news",desc:"한국 뉴스와 시사 프로그램",category:"news",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"TED Talks",url:"https://www.ted.com/talks",desc:"전문가 강연 영상",category:"news",ages:["high","adult"],subjects:["general"]},
+  {name:"NY Times",url:"https://www.nytimes.com/",desc:"미국 뉴스 제공",category:"news",ages:["high","adult"],subjects:["general"]},
+  {name:"The Guardian",url:"https://www.theguardian.com/international",desc:"영국 뉴스 사이트",category:"news",ages:["high","adult"],subjects:["general"]},
 
-  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"OpenAI에서 개발한 대화형 인공지능 모델", category:"gpt", ages:["mid","high","adult"], subjects:["general","coding"]},
-  {name:"Poe by Quora", url:"https://poe.com/", desc:"다양한 AI 챗봇을 한곳에서 경험할 수 있는 플랫폼", category:"gpt", ages:["high","adult"], subjects:["general"]},
-  {name:"DeepL", url:"https://www.deepl.com/translator", desc:"AI 기반의 고품질 번역 서비스", category:"gpt", ages:["mid","high","adult"], subjects:["language"]},
-  {name:"Gamma", url:"https://gamma.app/", desc:"AI를 활용하여 프레젠테이션, 문서를 빠르게 제작", category:"gpt", ages:["high","adult"], subjects:["tech","art"]}
+  // 검색 엔진
+  {name:"네이버",url:"https://www.naver.com/",desc:"포털 검색",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
+  {name:"구글",url:"https://www.google.com/",desc:"검색 엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
+  {name:"DuckDuckGo",url:"https://duckduckgo.com/",desc:"개인정보 보호 검색",category:"search",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"Bing",url:"https://www.bing.com/",desc:"마이크로소프트 검색 엔진",category:"search",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"Daum",url:"https://www.daum.net/",desc:"포털 검색",category:"search",ages:["elem","mid","high"],subjects:["general"]},
+
+  // GPT 활용
+  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"대화형 AI", category:"gpt", ages:["mid","high","adult"], subjects:["general","coding"]},
+  {name:"Poe by Quora", url:"https://poe.com/", desc:"다양한 AI 챗봇 경험", category:"gpt", ages:["high","adult"], subjects:["general"]},
+  {name:"DeepL", url:"https://www.deepl.com/translator", desc:"AI 번역 서비스", category:"gpt", ages:["mid","high","adult"], subjects:["language"]},
+  {name:"Gamma", url:"https://gamma.app/", desc:"AI 문서/프레젠테이션 제작", category:"gpt", ages:["mid","high","adult"], subjects:["tech","art"]},
+  {name:"Gemini", url:"https://gemini.google.com/", desc:"잼미니 lifestyle: {name:"생활정보", icon:"🏠"},
+  career: {name:"진로/대학", icon:"🎓"},
+  productivity: {name:"생산성/도구", icon:"🛠️"},
+  mental: {name:"심리/정서", icon:"🧠"}
+};
+
+/* 초기 사이트 + 카테고리별 예시 사이트 5개씩 */
+const initialSites = [
+  // 온라인강의
+  {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
+  {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
+  {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
+  {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
+  {name:"Coursera",url:"https://www.coursera.org/",desc:"전 세계 대학 및 기업의 온라인 강좌",category:"learning",ages:["high","adult"],subjects:["general","language"]},
+  {name:"edX",url:"https://www.edx.org/",desc:"무료 및 유료 대학 온라인 강의 제공",category:"learning",ages:["high","adult"],subjects:["general"]},
+  {name:"TED-Ed",url:"https://ed.ted.com/",desc:"짧은 영상 강의로 다양한 지식 학습",category:"learning",ages:["mid","high"],subjects:["general"]},
+  {name:"MIT OpenCourseWare",url:"https://ocw.mit.edu/",desc:"MIT 공개 강의 자료",category:"learning",ages:["high","adult"],subjects:["science","tech"]},
+  {name:"Skillshare",url:"https://www.skillshare.com/",desc:"디자인, 코딩, 영상 등 실무 학습",category:"learning",ages:["high","adult"],subjects:["art","tech"]},
+  
+  // 참고자료
+  {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"나무위키",url:"https://namu.wiki/",desc:"다양한 주제를 다루는 한국어 위키",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
+  {name:"RISS",url:"http://www.riss.kr/",desc:"학술 자료 및 논문 검색",category:"info",ages:["high","adult"],subjects:["general"]},
+  {name:"네이버 지식백과",url:"https://terms.naver.com/",desc:"한국어 참고자료 제공",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+  
+  // 시험/기출
+  {name:"토익 공식 사이트",url:"https://www.toeic.co.kr/",desc:"토익 시험 자료",category:"exam",ages:["high","adult"],subjects:["exam"]},
+  {name:"컴퓨터 활용능력 기출",url:"https://www.q-net.or.kr",desc:"컴퓨터 활용능력 시험 기출 문제",category:"exam",ages:["high","adult"],subjects:["exam"]},
+  {name:"한국사 능력검정시험",url:"https://www.historyexam.go.kr/",desc:"한국사 시험 대비 자료",category:"exam",ages:["mid","high"],subjects:["exam"]},
+  {name:"수능 모의고사 자료",url:"https://www.kice.re.kr/",desc:"수능 기출 및 모의고사 자료",category:"exam",ages:["high"],subjects:["exam"]},
+  {name:"SAT Practice",url:"https://collegereadiness.collegeboard.org/sat/practice",desc:"SAT 시험 연습 사이트",category:"exam",ages:["high","adult"],subjects:["exam","english"]},
+
+  // 코딩/IT
+  {name:"프로그래머스",url:"https://programmers.co.kr/",desc:"코딩 문제와 학습",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
+  {name:"백준 온라인 저지",url:"https://www.acmicpc.net/",desc:"알고리즘 문제 풀이",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
+  {name:"Codecademy",url:"https://www.codecademy.com/",desc:"프로그래밍 언어 학습",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
+  {name:"Codewars",url:"https://www.codewars.com/",desc:"코딩 문제 풀이 및 실력 향상",category:"coding",ages:["high","adult"],subjects:["coding"]},
+  {name:"LeetCode",url:"https://leetcode.com/",desc:"알고리즘 및 코딩 인터뷰 대비",category:"coding",ages:["high","adult"],subjects:["coding"]},
+
+  // 뉴스/시사
+  {name:"BBC News",url:"https://www.bbc.com/news",desc:"세계 뉴스 제공",category:"news",ages:["high","adult"],subjects:["general"]},
+  {name:"EBS 뉴스",url:"https://www.ebs.co.kr/news",desc:"한국 뉴스와 시사 프로그램",category:"news",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"TED Talks",url:"https://www.ted.com/talks",desc:"전문가 강연 영상",category:"news",ages:["high","adult"],subjects:["general"]},
+  {name:"NY Times",url:"https://www.nytimes.com/",desc:"미국 뉴스 제공",category:"news",ages:["high","adult"],subjects:["general"]},
+  {name:"The Guardian",url:"https://www.theguardian.com/international",desc:"영국 뉴스 사이트",category:"news",ages:["high","adult"],subjects:["general"]},
+
+  // 검색 엔진
+  {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 버전의 구글",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
+  {name:"구글",url:"https://www.google.com/",desc:"검색 엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
+  {name:"DuckDuckGo",url:"https://duckduckgo.com/",desc:"개인정보 보호 검색",category:"search",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"Bing",url:"https://www.bing.com/",desc:"마이크로소프트 검색 엔진",category:"search",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"Daum",url:"https://www.daum.net/",desc:"포털 검색",category:"search",ages:["elem","mid","high"],subjects:["general"]},
+
+  // GPT 활용
+  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"GPT 1짱", category:"gpt", ages:["mid","high","adult"], subjects:["general","coding"]},
+  {name:"Claude", url:"https://claude.ai/", desc:"GPT 거의1짱이란 평가", category:"gpt", ages:["high","adult"], subjects:["general"]},
+  {name:"Grok", url:"https://grok.com/", desc:"머스크 형이 만든 GPT 지금 성능이 거의 GPT 5 수준", category:"gpt", ages:["mid","high","adult"], subjects:["language"]},
+  {name:"Gamma", url:"https://gamma.app/", desc:"AI 문서/프레젠테이션 제작 PPT만들때 쓰면 꿀", category:"gpt", ages:["mid","high","adult"], subjects:["tech","art"]},
+  {name:"Gemini", url:"https://gemini.google.com/", desc:"잼미니", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
 ];
+
 
 /* ===== 내부 상태 ===== */
 let sites = [...initialSites];
@@ -497,4 +594,5 @@ document.addEventListener("DOMContentLoaded", init);
 </footer>
 </body>
 </html>
+
 

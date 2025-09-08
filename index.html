@@ -89,6 +89,20 @@ body.dark .top-controls { background: rgba(40,40,60,0.6); border-bottom-color:#4
 }
 .tab-btn.active { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#667eea; box-shadow:0 6px 20px rgba(102,126,234,0.18); }
 .dark-toggle { padding:10px 14px; border-radius:12px; background:linear-gradient(135deg,#343a40 0%,#212529 100%); color:white; border:none; cursor:pointer; }
+.view-all-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  margin-left: 12px;
+}
+.view-all-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+}
 
 /* filters area (age & subject simplified) */
 .filters {
@@ -158,9 +172,8 @@ body.dark .category-tag { background:linear-gradient(135deg,#ffc107 0%,#fd7e14 1
     </div>
 
     <div class="filter-tabs" id="filterTabs">
-      <!-- 탭은 JS에서 동적으로 채웁니다 -->
-    </div>
-
+      </div>
+    
     <button class="dark-toggle" id="darkToggle">🌙 다크 모드</button>
   </div>
 
@@ -206,6 +219,7 @@ body.dark .category-tag { background:linear-gradient(135deg,#ffc107 0%,#fd7e14 1
   <div class="stats" id="statsBar">
     <div class="stats-item">📊 총 <strong id="totalCount">0</strong>개 사이트</div>
     <div class="stats-item">🔎 검색 결과: <strong id="filteredCount">0</strong>개</div>
+    <button class="view-all-btn" id="viewAllBtn" style="margin-left: auto;">📖 전체 사이트 보기</button>
   </div>
 
   <div class="categories-container" id="categoriesContainer"></div>
@@ -233,65 +247,6 @@ const defaultCategories = {
   coding: {name:"코딩/IT", icon:"💻"},
   news: {name:"뉴스/시사", icon:"📰"},
   lifestyle: {name:"생활정보", icon:"🏠"},
-  career: {name:"진로/대학", icon:"🎓"},
-  productivity: {name:"생산성/도구", icon:"🛠️"},
-  mental: {name:"심리/정서", icon:"🧠"}
-};
-
-/* 초기 사이트 + 카테고리별 예시 사이트 5개씩 */
-const initialSites = [
-  // 온라인강의
-  {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
-  {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
-  {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
-  {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
-  {name:"Coursera",url:"https://www.coursera.org/",desc:"전 세계 대학 및 기업의 온라인 강좌",category:"learning",ages:["high","adult"],subjects:["general","language"]},
-  {name:"edX",url:"https://www.edx.org/",desc:"무료 및 유료 대학 온라인 강의 제공",category:"learning",ages:["high","adult"],subjects:["general"]},
-  {name:"TED-Ed",url:"https://ed.ted.com/",desc:"짧은 영상 강의로 다양한 지식 학습",category:"learning",ages:["mid","high"],subjects:["general"]},
-  {name:"MIT OpenCourseWare",url:"https://ocw.mit.edu/",desc:"MIT 공개 강의 자료",category:"learning",ages:["high","adult"],subjects:["science","tech"]},
-  {name:"Skillshare",url:"https://www.skillshare.com/",desc:"디자인, 코딩, 영상 등 실무 학습",category:"learning",ages:["high","adult"],subjects:["art","tech"]},
-  
-  // 참고자료
-  {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"나무위키",url:"https://namu.wiki/",desc:"다양한 주제를 다루는 한국어 위키",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
-  {name:"RISS",url:"http://www.riss.kr/",desc:"학술 자료 및 논문 검색",category:"info",ages:["high","adult"],subjects:["general"]},
-  {name:"네이버 지식백과",url:"https://terms.naver.com/",desc:"한국어 참고자료 제공",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-  
-  // 시험/기출
-  {name:"토익 공식 사이트",url:"https://www.toeic.co.kr/",desc:"토익 시험 자료",category:"exam",ages:["high","adult"],subjects:["exam"]},
-  {name:"컴퓨터 활용능력 기출",url:"https://www.q-net.or.kr",desc:"컴퓨터 활용능력 시험 기출 문제",category:"exam",ages:["high","adult"],subjects:["exam"]},
-  {name:"한국사 능력검정시험",url:"https://www.historyexam.go.kr/",desc:"한국사 시험 대비 자료",category:"exam",ages:["mid","high"],subjects:["exam"]},
-  {name:"수능 모의고사 자료",url:"https://www.kice.re.kr/",desc:"수능 기출 및 모의고사 자료",category:"exam",ages:["high"],subjects:["exam"]},
-  {name:"SAT Practice",url:"https://collegereadiness.collegeboard.org/sat/practice",desc:"SAT 시험 연습 사이트",category:"exam",ages:["high","adult"],subjects:["exam","english"]},
-
-  // 코딩/IT
-  {name:"프로그래머스",url:"https://programmers.co.kr/",desc:"코딩 문제와 학습",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
-  {name:"백준 온라인 저지",url:"https://www.acmicpc.net/",desc:"알고리즘 문제 풀이",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
-  {name:"Codecademy",url:"https://www.codecademy.com/",desc:"프로그래밍 언어 학습",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
-  {name:"Codewars",url:"https://www.codewars.com/",desc:"코딩 문제 풀이 및 실력 향상",category:"coding",ages:["high","adult"],subjects:["coding"]},
-  {name:"LeetCode",url:"https://leetcode.com/",desc:"알고리즘 및 코딩 인터뷰 대비",category:"coding",ages:["high","adult"],subjects:["coding"]},
-
-  // 뉴스/시사
-  {name:"BBC News",url:"https://www.bbc.com/news",desc:"세계 뉴스 제공",category:"news",ages:["high","adult"],subjects:["general"]},
-  {name:"EBS 뉴스",url:"https://www.ebs.co.kr/news",desc:"한국 뉴스와 시사 프로그램",category:"news",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"TED Talks",url:"https://www.ted.com/talks",desc:"전문가 강연 영상",category:"news",ages:["high","adult"],subjects:["general"]},
-  {name:"NY Times",url:"https://www.nytimes.com/",desc:"미국 뉴스 제공",category:"news",ages:["high","adult"],subjects:["general"]},
-  {name:"The Guardian",url:"https://www.theguardian.com/international",desc:"영국 뉴스 사이트",category:"news",ages:["high","adult"],subjects:["general"]},
-
-  // 검색 엔진
-  {name:"네이버",url:"https://www.naver.com/",desc:"포털 검색",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-  {name:"구글",url:"https://www.google.com/",desc:"검색 엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-  {name:"DuckDuckGo",url:"https://duckduckgo.com/",desc:"개인정보 보호 검색",category:"search",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"Bing",url:"https://www.bing.com/",desc:"마이크로소프트 검색 엔진",category:"search",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"Daum",url:"https://www.daum.net/",desc:"포털 검색",category:"search",ages:["elem","mid","high"],subjects:["general"]},
-
-  // GPT 활용
-  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"대화형 AI", category:"gpt", ages:["mid","high","adult"], subjects:["general","coding"]},
-  {name:"Poe by Quora", url:"https://poe.com/", desc:"다양한 AI 챗봇 경험", category:"gpt", ages:["high","adult"], subjects:["general"]},
-  {name:"DeepL", url:"https://www.deepl.com/translator", desc:"AI 번역 서비스", category:"gpt", ages:["mid","high","adult"], subjects:["language"]},
-  {name:"Gamma", url:"https://gamma.app/", desc:"AI 문서/프레젠테이션 제작", category:"gpt", ages:["mid","high","adult"], subjects:["tech","art"]},
-  {name:"Gemini", url:"https://gemini.google.com/", desc:"잼미니 lifestyle: {name:"생활정보", icon:"🏠"},
   career: {name:"진로/대학", icon:"🎓"},
   productivity: {name:"생산성/도구", icon:"🛠️"},
   mental: {name:"심리/정서", icon:"🧠"}
@@ -558,6 +513,8 @@ function setupFilters() {
   document.getElementById("darkToggle").addEventListener("click", () => {
     document.body.classList.toggle("dark");
   });
+
+  document.getElementById("viewAllBtn").addEventListener("click", resetFilters);
 }
 
 /* ===== 초기화 & 유틸 ===== */
@@ -575,7 +532,6 @@ function resetFilters() {
   document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));
   document.querySelector("#filterTabs .tab-btn[data-cat='all']").classList.add("active");
   expandedCategories = {};
-  currentCategoryFilter = "all";
   renderSites();
 }
 
@@ -594,5 +550,3 @@ document.addEventListener("DOMContentLoaded", init);
 </footer>
 </body>
 </html>
-
-

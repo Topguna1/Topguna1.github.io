@@ -47,10 +47,7 @@ body.dark .more-btn{background:linear-gradient(135deg,#495057 0%,#343a40 100%);c
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <h1>🌟 딱필모</h1>
-    <p>딱 필요한 사이트만 모음</p>
-  </div>
+  <div class="header"><h1>🌟 딱필모</h1><p>딱 필요한 사이트만 모음</p></div>
   <div class="filters">
     <div class="filter-group">
       <label>🎯 연령대:</label>
@@ -75,16 +72,6 @@ body.dark .more-btn{background:linear-gradient(135deg,#495057 0%,#343a40 100%);c
         <option value="english">영어</option>
         <option value="science">과학</option>
         <option value="social">사회</option>
-        <option value="history">역사</option>
-        <option value="art">예술</option>
-        <option value="music">음악</option>
-        <option value="pe">체육</option>
-        <option value="tech">기술</option>
-        <option value="coding">코딩</option>
-        <option value="language">외국어</option>
-        <option value="general">종합</option>
-        <option value="exam">시험대비</option>
-        <option value="career">진로</option>
       </select>
     </div>
     <div class="filter-group">
@@ -96,29 +83,112 @@ body.dark .more-btn{background:linear-gradient(135deg,#495057 0%,#343a40 100%);c
 </div>
 
 <script>
-/* ================== 데이터 및 전역 변수 ================== */
+// ===== 데이터, 전역 변수 =====
 const ageNames={elem:"초등학생",mid:"중학생",high:"고등학생",adult:"성인"};
-const defaultCategories={learning:{name:"학습 사이트",icon:"📖"},info:{name:"정보 사이트",icon:"📋"},government:{name:"정부기관",icon:"🏛️"},search:{name:"검색 엔진",icon:"🔍"},gpt:{name:"GPT 활용",icon:"🤖"}};
-const customCategories={science_lab:{name:"과학 실험",icon:"🧪"},career_info:{name:"진로 정보",icon:"💼"},psychology:{name:"심리/자기계발",icon:"🧠"},ebooks:{name:"무료 전자책",icon:"📚"}};
+const defaultCategories={learning:{name:"학습 사이트",icon:"📖"},info:{name:"정보 사이트",icon:"📋"}};
+const customCategories={science_lab:{name:"과학 실험",icon:"🧪"}};
 const initialSites=[
-  {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
-  {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
-  {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
-  {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
-  {name:"Coursera",url:"https://www.coursera.org/",desc:"전 세계 대학 및 기업의 온라인 강좌",category:"learning",ages:["high","adult"],subjects:["general","language"]},
-  {name:"Science Kids",url:"https://www.sciencekids.co.nz/",desc:"초등학생을 위한 재미있는 과학 실험과 자료",category:"science_lab",ages:["elem"],subjects:["science"]},
-  {name:"DIY.org",url:"https://www.diy.org/",desc:"창의력과 공예 활동을 배울 수 있는 플랫폼",category:"science_lab",ages:["elem","mid"],subjects:["art","tech"]},
-  {name:"커리어넷",url:"https://www.career.go.kr/",desc:"진로 탐색, 직업 정보 제공",category:"career_info",ages:["mid","high","adult"],subjects:["career"]},
-  {name:"Headspace",url:"https://www.headspace.com/",desc:"명상 및 마음 챙김 프로그램 제공",category:"psychology",ages:["high","adult"],subjects:["general"]},
-  {name:"MindTools",url:"https://www.mindtools.com/",desc:"리더십, 자기계발 자료 제공",category:"psychology",ages:["adult"],subjects:["general"]},
-  {name:"Project Gutenberg",url:"https://www.gutenberg.org/",desc:"무료 전자책 제공 사이트",category:"ebooks",ages:["mid","high","adult"],subjects:["general","language"]},
-  {name:"Open Library",url:"https://openlibrary.org/",desc:"다양한 책을 온라인으로 무료 열람",category:"ebooks",ages:["mid","high","adult"],subjects:["general","language"]}
+{name:"EBS",url:"https://www.ebs.co.kr",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
+{name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
+{name:"Science Kids",url:"https://www.sciencekids.co.nz/",desc:"초등학생 과학 실험",category:"science_lab",ages:["elem"],subjects:["science"]}
 ];
 let sites=[...initialSites];
 let categoryCurrentDisplay={},currentAgeFilter="all",currentCategoryFilter="all",currentSubjectFilter="all";
 
-/* ================== 함수 선언 ================== */
-// ... renderSites, expandSites, createSiteCard, renderCategorySections, setupFilters, resetFilters, toggleDarkMode
+// ===== 함수 정의 =====
+function getAllCategories(){ return {...defaultCategories,...customCategories}; }
+function getCategoryName(key){ const all=getAllCategories(); return all[key]?all[key].name:key; }
+function getCategoryIcon(key){ const all=getAllCategories(); return all[key]?all[key].icon:"📁"; }
+
+function createCategorySection(categoryKey){
+  const cat=getAllCategories()[categoryKey]; if(!cat)return null;
+  const section=document.createElement("div"); section.className="category-section"; section.id=`${categoryKey}-section`;
+  section.innerHTML=`<div class="category-header"><div><span>${cat.icon}</span> ${cat.name}</div><div class="category-count" id="${categoryKey}-count">0</div></div><div class="category-content" id="${categoryKey}-content"></div>`;
+  return section;
+}
+
+function createSiteCard(site){
+  const ageTags=site.ages.map(a=>`<span class="tag age-tag">${ageNames[a]}</span>`).join(" ");
+  const categoryTag=`<span class="tag category-tag">${getCategoryName(site.category)}</span>`;
+  const card=document.createElement("div"); card.className="link-card";
+  card.innerHTML=`<a href="${site.url}" target="_blank">${site.name}</a><div class="link-meta">${categoryTag} ${ageTags}</div><p>${site.desc}</p>`;
+  return card;
+}
+
+function renderCategorySections(){
+  const container=document.getElementById("categoriesContainer"); container.innerHTML="";
+  Object.keys(getAllCategories()).forEach(cat=>{
+    const sec=createCategorySection(cat); if(sec) container.appendChild(sec);
+  });
+}
+
+function getFilteredSites(){
+  return sites.filter(s=>(currentAgeFilter==="all"||s.ages.includes(currentAgeFilter))&&(currentCategoryFilter==="all"||s.category===currentCategoryFilter)&&(currentSubjectFilter==="all"||s.subjects.includes(currentSubjectFilter)));
+}
+
+function renderSites(){
+  const allKeys=Object.keys(getAllCategories());
+  const filtered=getFilteredSites();
+  allKeys.forEach(cat=>{
+    const container=document.getElementById(`${cat}-content`); 
+    const section=document.getElementById(`${cat}-section`);
+    const countEl=document.getElementById(`${cat}-count`);
+    if(!container||!section) return;
+    const sitesInCat=filtered.filter(s=>s.category===cat); container.innerHTML="";
+    if(countEl) countEl.textContent=sitesInCat.length;
+    if(sitesInCat.length>0){
+      section.style.display="block";
+      if(!categoryCurrentDisplay[cat] || categoryCurrentDisplay[cat]>sitesInCat.length) categoryCurrentDisplay[cat]=Math.min(3,sitesInCat.length);
+      const sitesToShow=sitesInCat.slice(0,categoryCurrentDisplay[cat]);
+      sitesToShow.forEach(s=>{
+        const card=createSiteCard(s);
+        container.appendChild(card);
+        setTimeout(()=>{ card.classList.add("show"); },50);
+      });
+      if(categoryCurrentDisplay[cat]<sitesInCat.length){
+        const btnContainer=document.createElement("div"); btnContainer.className="more-btn-container";
+        const remain=sitesInCat.length-categoryCurrentDisplay[cat];
+        const text=remain>5?"5개 더 보기 ↓":"모두 표시 완료 ✅";
+        btnContainer.innerHTML=`<button class="more-btn" onclick="expandSites('${cat}')">${text}</button>`;
+        container.appendChild(btnContainer);
+      }
+    } else section.style.display="none";
+  });
+}
+
+function expandSites(cat){
+  const allFiltered=getFilteredSites().filter(s=>s.category===cat);
+  if(!categoryCurrentDisplay[cat]) categoryCurrentDisplay[cat]=0;
+  categoryCurrentDisplay[cat]+=5;
+  if(categoryCurrentDisplay[cat]>allFiltered.length) categoryCurrentDisplay[cat]=allFiltered.length;
+  renderSites();
+  if(categoryCurrentDisplay[cat]>3){
+    Object.keys(getAllCategories()).forEach(c=>{
+      const sec=document.getElementById(`${c}-section`);
+      if(sec) sec.style.display=(c===cat)?"block":"none";
+    });
+  }
+}
+
+function setupFilters(){
+  document.querySelectorAll("#ageFilter .filter-btn").forEach(btn=>btn.addEventListener("click",e=>{
+    document.querySelector("#ageFilter .active")?.classList.remove("active");
+    e.target.classList.add("active");
+    currentAgeFilter=e.target.dataset.age; categoryCurrentDisplay={}; renderSites();
+  }));
+  const catFilter=document.getElementById("categoryFilter"); catFilter.innerHTML="";
+  Object.entries(getAllCategories()).forEach(([key,val])=>{
+    const btn=document.createElement("button"); btn.className="filter-btn"; btn.dataset.category=key; btn.textContent=val.name;
+    btn.addEventListener("click",e=>{catFilter.querySelector(".active")?.classList.remove("active"); e.target.classList.add("active"); currentCategoryFilter=e.target.dataset.category; categoryCurrentDisplay={}; renderSites();});
+    catFilter.appendChild(btn);
+  });
+  document.getElementById("subjectFilter").addEventListener("change",e=>{currentSubjectFilter=e.target.value; categoryCurrentDisplay={}; renderSites();});
+}
+
+function resetFilters(){ currentAgeFilter="all"; currentCategoryFilter="all"; currentSubjectFilter="all"; document.querySelector("#ageFilter .filter-btn[data-age='all']").click(); document.querySelector("#categoryFilter .filter-btn")?.click(); document.getElementById("subjectFilter").value="all"; categoryCurrentDisplay={}; renderSites();}
+function toggleDarkMode(){document.body.classList.toggle("dark");}
+
+document.addEventListener("DOMContentLoaded",()=>{renderCategorySections(); setupFilters(); renderSites();});
 </script>
 </body>
 </html>

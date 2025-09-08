@@ -228,35 +228,46 @@ const defaultCategories = {
   government: {name:"정부기관", icon:"🏛️"},
   search: {name:"검색 엔진", icon:"🔍"},
   gpt: {name:"GPT 활용", icon:"🤖"}
+  science_lab: { name: "과학 실험", icon: "🧪" },
+  career_info: { name: "진로 정보", icon: "💼" },
+  psychology: { name: "심리/자기계발", icon: "🧠" },
+  ebooks: { name: "무료 전자책", icon: "📚" }
 };
 
 /* 초기 사이트 (읽기 전용) */
 const initialSites = [
+  // 기존 학습 사이트
   {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
   {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
   {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
   {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
   {name:"Coursera",url:"https://www.coursera.org/",desc:"전 세계 대학 및 기업의 온라인 강좌",category:"learning",ages:["high","adult"],subjects:["general","language"]},
 
+  // 기존 정보/정부/검색/GPT 사이트 ...
   {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
   {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
   {name:"나무위키",url:"https://namu.wiki/",desc:"다양한 주제를 다루는 한국어 위키",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-
   {name:"교육부",url:"https://www.moe.go.kr/",desc:"대한민국 교육부 공식 사이트",category:"government",ages:["adult"],subjects:["general"]},
   {name:"한국교육과정평가원",url:"https://www.kice.re.kr/",desc:"교육과정 및 평가 정보",category:"government",ages:["mid","high","adult"],subjects:["general","exam"]},
   {name:"한국교육학술정보원",url:"https://www.keris.or.kr/",desc:"교육 정보화 및 학술 정보",category:"government",ages:["high","adult"],subjects:["general"]},
   {name:"국민신문고",url:"https://www.epeople.go.kr/",desc:"정부에 정책 및 민원을 제안하는 온라인 소통 창구",category:"government",ages:["adult"],subjects:["general","social"]},
-
   {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 대표 포털사이트",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
   {name:"구글",url:"https://www.google.com/",desc:"세계 최대 검색엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
   {name:"DuckDuckGo",url:"https://duckduckgo.com/",desc:"개인정보 보호에 중점을 둔 검색 엔진",category:"search",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"OpenAI에서 개발한 대화형 인공지능 모델", category:"gpt", ages:["mid", "high", "adult"], subjects:["general", "coding"]},
+  {name:"Poe by Quora", url:"https://poe.com/", desc:"다양한 AI 챗봇을 한곳에서 경험할 수 있는 플랫폼", category:"gpt", ages:["high", "adult"], subjects:["general"]},
+  {name:"DeepL", url:"https://www.deepl.com/translator", desc:"AI 기반의 고품질 번역 서비스", category:"gpt", ages:["mid", "high", "adult"], subjects:["language"]},
+  {name:"Gamma", url:"https://gamma.app/", desc:"AI를 활용하여 프레젠테이션, 문서를 빠르게 제작", category:"gpt", ages:["high", "adult"], subjects:["tech", "art"]},
 
-  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"OpenAI에서 개발한 대화형 인공지능 모델", category:"gpt", ages:["mid","high","adult"], subjects:["general","coding"]},
-  {name:"Poe by Quora", url:"https://poe.com/", desc:"다양한 AI 챗봇을 한곳에서 경험할 수 있는 플랫폼", category:"gpt", ages:["high","adult"], subjects:["general"]},
-  {name:"DeepL", url:"https://www.deepl.com/translator", desc:"AI 기반의 고품질 번역 서비스", category:"gpt", ages:["mid","high","adult"], subjects:["language"]},
-  {name:"Gamma", url:"https://gamma.app/", desc:"AI를 활용하여 프레젠테이션, 문서를 빠르게 제작", category:"gpt", ages:["high","adult"], subjects:["tech","art"]}
+  // 신규 카테고리/사이트 추가
+  {name:"Science Kids", url:"https://www.sciencekids.co.nz/", desc:"초등학생을 위한 재미있는 과학 실험과 자료", category:"science_lab", ages:["elem"], subjects:["science"]},
+  {name:"DIY.org", url:"https://www.diy.org/", desc:"창의력과 공예 활동을 배울 수 있는 플랫폼", category:"science_lab", ages:["elem","mid"], subjects:["art","tech"]},
+  {name:"커리어넷", url:"https://www.career.go.kr/", desc:"진로 탐색, 직업 정보 제공", category:"career_info", ages:["mid","high","adult"], subjects:["career"]},
+  {name:"Headspace", url:"https://www.headspace.com/", desc:"명상 및 마음 챙김 프로그램 제공", category:"psychology", ages:["high","adult"], subjects:["general"]},
+  {name:"MindTools", url:"https://www.mindtools.com/", desc:"리더십, 자기계발 자료 제공", category:"psychology", ages:["adult"], subjects:["general"]},
+  {name:"Project Gutenberg", url:"https://www.gutenberg.org/", desc:"무료 전자책 제공 사이트", category:"ebooks", ages:["mid","high","adult"], subjects:["general","language"]},
+  {name:"Open Library", url:"https://openlibrary.org/", desc:"다양한 책을 온라인으로 무료 열람", category:"ebooks", ages:["mid","high","adult"], subjects:["general","language"]}
 ];
-
 /* ===== 내부 상태 ===== */
 let sites = [...initialSites];
 let currentAgeFilter = "all";
@@ -398,7 +409,19 @@ function renderSites() {
 }
 
 /* 더보기/접기 */
-function expandSites(category) { expandedCategories[category] = true; renderSites(); }
+function expandSites(category) {
+  if (!expandedCategories[category]) expandedCategories[category] = 0;
+
+  expandedCategories[category] += 5; // 5개씩 추가 표시
+
+  const filtered = getFilteredSites().filter(s => s.category === category);
+  if (expandedCategories[category] >= filtered.length) {
+    // 모든 사이트를 다 펼쳤으면 → 그 카테고리만 보이게
+    currentCategoryFilter = category;
+  }
+
+  renderSites();
+}
 function collapseSites(category) { expandedCategories[category] = false; renderSites(); }
 
 /* ===== 필터 탭(카테고리 탭) 생성 & 이벤트 ===== */
@@ -494,3 +517,4 @@ document.addEventListener("DOMContentLoaded", init);
 </script>
 </body>
 </html>
+

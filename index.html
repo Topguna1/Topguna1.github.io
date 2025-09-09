@@ -2,177 +2,94 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>딱 필요한 사이트 모음 — 뷰어 버전</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>딱 필요한 사이트 모음 — 학생용 뷰어</title>
+<meta name="description" content="학생들을 위한 온라인 강의, 과제 자료, 뉴스 등 필수 사이트 모음">
+<meta name="keywords" content="온라인강의, 과제, 뉴스, 코딩, 학습, 학생">
+<meta name="robots" content="index, follow">
+
 <style>
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  color: #333;
-  transition: all 0.3s ease;
-}
-body.dark {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  color: #fff;
-}
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  background: rgba(255,255,255,0.95);
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  overflow: hidden;
-}
-body.dark .container {
-  background: rgba(26,26,46,0.95);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
+/* ===== 기본 스타일 ===== */
+body {font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#333;transition:all 0.3s ease;}
+body.dark{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:#fff;}
+.container{max-width:1200px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:20px;backdrop-filter:blur(10px);box-shadow:0 20px 40px rgba(0,0,0,0.1);overflow:hidden;transition:all 0.3s ease;}
+body.dark .container{background:rgba(26,26,46,0.95);box-shadow:0 20px 40px rgba(0,0,0,0.3);}
 
 /* header */
-.header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 30px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.header h1 { margin:0 0 8px 0; font-size:2.4em; font-weight:700; }
-.header p { margin:0; opacity:0.95; }
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:30px;text-align:center;position:relative;overflow:hidden;}
+.header h1{margin:0 0 8px 0;font-size:2.4em;font-weight:700;}
+.header p{margin:0;opacity:0.95;}
 
-/* top controls: 검색 + 다크 토글 */
-.top-controls {
-  display:flex;
-  gap:12px;
-  align-items:center;
-  justify-content:space-between;
-  padding:18px 24px;
-  background: rgba(248,249,250,0.85);
-  border-bottom:1px solid #e9ecef;
-  flex-wrap:wrap;
-}
-body.dark .top-controls { background: rgba(40,40,60,0.6); border-bottom-color:#444; }
-.search-box {
-  display:flex;
-  gap:8px;
-  align-items:center;
-  flex:1;
-  min-width:220px;
-}
-.search-box input {
-  width:100%;
-  padding:12px 14px;
-  border-radius:10px;
-  border:2px solid #e9ecef;
-  box-sizing:border-box;
-  font-size:14px;
-}
-.search-box input:focus { outline:none; border-color:#667eea; box-shadow:0 0 0 4px rgba(102,126,234,0.08); }
-.filter-tabs {
-  display:flex;
-  gap:8px;
-  align-items:center;
-  flex-wrap:wrap;
-}
-.tab-btn {
-  padding:10px 14px;
-  border-radius:18px;
-  border:2px solid #e9ecef;
-  background:white;
-  cursor:pointer;
-  font-weight:600;
-}
-.tab-btn.active { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#667eea; box-shadow:0 6px 20px rgba(102,126,234,0.18); }
-.dark-toggle { padding:10px 14px; border-radius:12px; background:linear-gradient(135deg,#343a40 0%,#212529 100%); color:white; border:none; cursor:pointer; }
-.view-all-btn {
-  padding: 10px 18px;
-  border-radius: 10px;
-  border: 2px solid #e9ecef;
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-  color: white;
-  cursor: pointer;
-  font-weight: 700;
-  margin-left: 12px;
-}
-.view-all-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
-}
+/* top controls */
+.top-controls{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:18px 24px;background:rgba(248,249,250,0.85);border-bottom:1px solid #e9ecef;flex-wrap:wrap;transition:all 0.3s ease;}
+body.dark .top-controls{background:rgba(40,40,60,0.6);border-bottom-color:#444;}
+.search-box{display:flex;gap:8px;align-items:center;flex:1;min-width:220px;}
+.search-box input{width:100%;padding:12px 14px;border-radius:10px;border:2px solid #e9ecef;box-sizing:border-box;font-size:14px;transition:all 0.3s ease;}
+.search-box input:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 4px rgba(102,126,234,0.08);}
+.filter-tabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.tab-btn{padding:10px 14px;border-radius:18px;border:2px solid #e9ecef;background:white;cursor:pointer;font-weight:600;transition:all 0.3s ease;}
+.tab-btn.active{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-color:#667eea;box-shadow:0 6px 20px rgba(102,126,234,0.18);}
+.tab-btn:hover{transform:scale(1.05);}
+.dark-toggle{padding:10px 14px;border-radius:12px;background:linear-gradient(135deg,#343a40 0%,#212529 100%);color:white;border:none;cursor:pointer;transition:all 0.3s ease;}
+.view-all-btn{padding:10px 18px;border-radius:10px;border:2px solid #e9ecef;background:linear-gradient(135deg,#764ba2 0%,#667eea 100%);color:white;cursor:pointer;font-weight:700;margin-left:12px;transition:all 0.3s ease;}
+.view-all-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(118,75,162,0.3);}
 
-/* filters area (age & subject simplified) */
-.filters {
-  padding:18px 24px;
-  display:flex;
-  gap:12px;
-  align-items:center;
-  flex-wrap:wrap;
-  background: rgba(248,249,250,0.55);
-  border-bottom:1px solid #e9ecef;
-}
-body.dark .filters { background: rgba(40,40,60,0.45); border-bottom-color:#444; }
-.filter-group { display:flex; flex-direction:column; gap:8px; min-width:120px; }
-.filter-buttons { display:flex; gap:8px; flex-wrap:wrap; }
-.filter-btn { padding:8px 12px; border-radius:16px; border:2px solid #e9ecef; background:white; cursor:pointer; font-weight:600; }
-.filter-btn.active { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#667eea; }
+/* filters */
+.filters{padding:18px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:rgba(248,249,250,0.55);border-bottom:1px solid #e9ecef;transition:all 0.3s ease;}
+body.dark .filters{background:rgba(40,40,60,0.45);border-bottom-color:#444;}
+.filter-group{display:flex;flex-direction:column;gap:8px;min-width:120px;}
+.filter-buttons{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-btn{padding:8px 12px;border-radius:16px;border:2px solid #e9ecef;background:white;cursor:pointer;font-weight:600;transition:all 0.3s ease;}
+.filter-btn.active{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-color:#667eea;}
+.filter-btn:hover{transform:scale(1.05);}
 
 /* stats */
-.stats { display:flex; gap:18px; align-items:center; padding:12px 24px; color:#6c757d; background: rgba(248,249,250,0.28); }
-body.dark .stats { color:#adb5bd; background: rgba(30,30,40,0.28); }
-.stats-item { display:flex; gap:8px; align-items:center; }
+.stats{display:flex;gap:18px;align-items:center;padding:12px 24px;color:#6c757d;background:rgba(248,249,250,0.28);transition:all 0.3s ease;}
+body.dark .stats{color:#adb5bd;background:rgba(30,30,40,0.28);}
+.stats-item{display:flex;gap:8px;align-items:center;}
 
-/* categories grid */
-.categories-container { padding:24px; display:grid; grid-template-columns:repeat(auto-fit,minmax(350px,1fr)); gap:20px; }
-.category-section { background:white; border-radius:14px; overflow:hidden; border:1px solid #e9ecef; transition:all .25s ease; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
-body.dark .category-section { background:#2d2d2d; border-color:#444; box-shadow:0 8px 30px rgba(0,0,0,0.28); }
-.category-header { padding:16px 20px; font-weight:700; display:flex; justify-content:space-between; align-items:center; gap:12px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
-.category-content { padding:18px; }
-.link-card { border-radius:12px; padding:16px; margin:12px 0; background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%); border:2px solid #f1f3f5; position:relative; transition:all .2s ease; }
-body.dark .link-card { background:linear-gradient(135deg,#343a40 0%,#495057 100%); border-color:#444; }
-.link-card:hover { transform:translateY(-3px); box-shadow:0 10px 25px rgba(102,126,234,0.12); border-color:#667eea; }
-.link-card a { text-decoration:none; font-weight:700; display:inline-block; color:#2c3e50; font-size:18px; }
-body.dark .link-card a { color:#f8f9fa; }
-.link-card p { margin:8px 0 0; color:#6c757d; }
-body.dark .link-card p { color:#adb5bd; }
-.tag { padding:4px 10px; border-radius:12px; font-size:12px; font-weight:700; margin-right:6px; display:inline-block; }
-.age-tag { background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%); color:#155724; }
-.category-tag { background:linear-gradient(135deg,#fff3cd 0%,#ffeaa7 100%); color:#856404; }
-body.dark .age-tag { background:linear-gradient(135deg,#28a745 0%,#20c997 100%); color:white; }
-body.dark .category-tag { background:linear-gradient(135deg,#ffc107 0%,#fd7e14 100%); color:#212529; }
+/* categories */
+.categories-container{padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px;}
+.category-section{background:white;border-radius:14px;overflow:hidden;border:1px solid #e9ecef;transition:all .25s ease;box-shadow:0 6px 20px rgba(0,0,0,0.06);}
+body.dark .category-section{background:#2d2d2d;border-color:#444;box-shadow:0 8px 30px rgba(0,0,0,0.28);}
+.category-header{padding:16px 20px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;}
+.category-content{padding:18px;}
+
+/* link-card + tips */
+.link-card{border-radius:16px;padding:20px;margin:14px 0;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border:1px solid #e9ecef;position:relative;transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease;}
+body.dark .link-card{background:linear-gradient(135deg,#2b2b3c 0%,#3a3a50 100%);border-color:#555;color:#f1f1f1;}
+.link-card:hover{transform:translateY(-5px);box-shadow:0 15px 30px rgba(102,126,234,0.15);border-color:#667eea;}
+.link-card a{text-decoration:none;font-weight:700;display:inline-block;color:#2c3e50;font-size:18px;}
+body.dark .link-card a{color:#f8f9fa;}
+.link-card p{margin:8px 0 0;color:#6c757d;}
+body.dark .link-card p{color:#adb5bd;}
+.tag{padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700;margin-right:6px;display:inline-block;}
+.age-tag{background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%);color:#155724;}
+.category-tag{background:linear-gradient(135deg,#fff3cd 0%,#ffeaa7 100%);color:#856404;}
+body.dark .age-tag{background:linear-gradient(135deg,#28a745 0%,#20c997 100%);color:white;}
+body.dark .category-tag{background:linear-gradient(135deg,#ffc107 0%,#fd7e14 100%);color:#212529;}
 
 /* more/collapse */
-.more-btn-container { text-align:center; margin-top:12px; }
-.more-btn, .collapse-btn { padding:10px 18px; border-radius:22px; border:2px solid #dee2e6; background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%); cursor:pointer; font-weight:700; }
-.more-btn:hover, .collapse-btn:hover { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#667eea; }
-
-/* no results */
-.no-results { padding:40px; text-align:center; font-style:italic; color:#6c757d; }
-
-/* responsive */
-@media (max-width:768px) {
-  .categories-container { grid-template-columns:1fr; padding:16px; }
-  .header h1 { font-size:1.8em; }
-}
+.more-btn-container{text-align:center;margin-top:12px;}
+.more-btn,.collapse-btn{padding:10px 18px;border-radius:22px;border:2px solid #dee2e6;background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%);cursor:pointer;font-weight:700;transition:all 0.3s ease;}
+.more-btn:hover,.collapse-btn:hover{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-color:#667eea;transform:scale(1.05);}
+.no-results{padding:40px;text-align:center;font-style:italic;color:#6c757d;}
+@media(max-width:768px){.categories-container{grid-template-columns:1fr;padding:16px;}.header h1{font-size:1.8em;}}
+.dragging{opacity:0.6;}
 </style>
 </head>
 <body>
+<div id="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;display:flex;align-items:center;justify-content:center;z-index:10000;">로딩중...</div>
+
 <div class="container">
   <div class="header">
     <h1>🌟 딱필모 </h1>
-    <p>딱 학생들에게 필요할 만한 사이트만 깔끔하게 모아봤어요 *아직 개발중 입니다. 더 추가될 예정* </p>
+    <p>학생들에게 필요한 사이트만 모았습니다. 개발 중이며 계속 업데이트 됩니다.</p>
   </div>
 
   <div class="top-controls">
-    <div class="search-box" style="margin-right:12px;">
-      <input id="searchInput" placeholder="사이트 이름 또는 설명으로 검색하세요 — 예: Khan, 번역..." />
-    </div>
-
-    <div class="filter-tabs" id="filterTabs">
-      </div>
-    
+    <div class="search-box"><input id="searchInput" placeholder="사이트 이름 또는 설명 검색..." /></div>
+    <div class="filter-tabs" id="filterTabs"></div>
     <button class="dark-toggle" id="darkToggle">🌙 다크 모드</button>
   </div>
 
@@ -187,7 +104,6 @@ body.dark .category-tag { background:linear-gradient(135deg,#ffc107 0%,#fd7e14 1
         <button class="filter-btn" data-age="adult">성인</button>
       </div>
     </div>
-
     <div class="filter-group">
       <label>📚 과목</label>
       <select id="subjectFilter" style="padding:10px;border-radius:10px;border:2px solid #e9ecef;">
@@ -197,370 +113,131 @@ body.dark .category-tag { background:linear-gradient(135deg,#ffc107 0%,#fd7e14 1
         <option value="english">영어</option>
         <option value="science">과학</option>
         <option value="social">사회</option>
-        <option value="history">역사</option>
-        <option value="art">예술</option>
-        <option value="music">음악</option>
-        <option value="pe">체육</option>
-        <option value="tech">기술</option>
         <option value="coding">코딩</option>
-        <option value="language">외국어</option>
         <option value="general">종합</option>
         <option value="exam">시험대비</option>
         <option value="career">진로</option>
       </select>
     </div>
-
-    <div style="margin-left:auto;">
-      <button onclick="resetFilters()" style="padding:10px 14px;border-radius:10px;border:none;background:#6c757d;color:white;cursor:pointer;">🔄 필터 초기화</button>
-    </div>
+    <div style="margin-left:auto;"><button onclick="resetFilters()" style="padding:10px 14px;border-radius:10px;border:none;background:#6c757d;color:white;cursor:pointer;">🔄 필터 초기화</button></div>
   </div>
 
   <div class="stats" id="statsBar">
     <div class="stats-item">📊 총 <strong id="totalCount">0</strong>개 사이트</div>
     <div class="stats-item">🔎 검색 결과: <strong id="filteredCount">0</strong>개</div>
-    <button class="view-all-btn" id="viewAllBtn" style="margin-left: auto;">📖 전체 사이트 보기</button>
+    <button class="view-all-btn" id="viewAllBtn" style="margin-left:auto;">📖 전체 사이트 보기</button>
   </div>
 
   <div class="categories-container" id="categoriesContainer"></div>
-
   <div id="noResults" class="no-results" style="display:none;">
     <h3>🔍 조건에 맞는 사이트가 없습니다</h3>
     <p>필터나 검색어를 바꿔보세요.</p>
   </div>
 </div>
 
-<script>
-/* ===== 데이터 & 설정 ===== */
-const ageNames = {elem:"초등학생", mid:"중학생", high:"고등학생", adult:"성인"};
-const subjectNames = {korean:"국어", math:"수학", english:"영어", science:"과학", social:"사회", history:"역사", art:"예술", music:"음악", pe:"체육", tech:"기술", coding:"코딩", language:"외국어", general:"종합", exam:"시험대비", career:"진로"};
+<footer style="background:#333;color:#fff;text-align:center;padding:15px;margin-top:20px;font-size:14px;">
+  © 2025 딱필모 | 개인 사용 목적
+  <br>
+  💬 문의/버그 신고: <a href="https://discord.gg/여기에_초대코드" target="_blank" style="color:#4da3ff;font-weight:bold;text-decoration:none;">디스코드 참여</a>
+</footer>
 
-/* 기본 카테고리 (관리자/커스텀 제거) */
-const defaultCategories = {
-  learning: {name:"온라인강의", icon:"💻"},
-  info: {name:"참고자료", icon:"🔍"},
-  government: {name:"정부기관", icon:"🏛️"},
-  search: {name:"검색 엔진", icon:"🔍"},
-  gpt: {name:"GPT 활용", icon:"🤖"},
-  exam: {name:"시험/기출", icon:"📝"},
-  assignment: {name:"과제/리포트", icon:"📄"},
-  coding: {name:"코딩/IT", icon:"💻"},
-  news: {name:"뉴스/시사", icon:"📰"},
-  lifestyle: {name:"생활정보", icon:"🏠"},
-  career: {name:"진로/대학", icon:"🎓"},
-  productivity: {name:"생산성/도구", icon:"🛠️"},
-  mental: {name:"심리/정서", icon:"🧠"}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+// ===== 데이터 & 설정 =====
+const ageNames={elem:"초등학생",mid:"중학생",high:"고등학생",adult:"성인"};
+const defaultCategories={
+  learning:{name:"온라인강의",icon:"💻"},
+  info:{name:"참고자료",icon:"📚"},
+  exam:{name:"시험/기출",icon:"📝"},
+  coding:{name:"코딩/IT",icon:"💻"},
+  news:{name:"뉴스/시사",icon:"📰"},
+  gpt:{name:"GPT 활용",icon:"🤖"},
+  assignment:{name:"과제/리포트",icon:"📄"},
+  lifestyle:{name:"생활/진로",icon:"🏠"}
 };
 
-/* 초기 사이트 + 카테고리별 예시 사이트 5개씩 */
 const initialSites = [
   // 온라인강의
-  {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
-  {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
-  {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
-  {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
-  {name:"Coursera",url:"https://www.coursera.org/",desc:"전 세계 대학 및 기업의 온라인 강좌",category:"learning",ages:["high","adult"],subjects:["general","language"]},
-  {name:"edX",url:"https://www.edx.org/",desc:"무료 및 유료 대학 온라인 강의 제공",category:"learning",ages:["high","adult"],subjects:["general"]},
-  {name:"TED-Ed",url:"https://ed.ted.com/",desc:"짧은 영상 강의로 다양한 지식 학습",category:"learning",ages:["mid","high"],subjects:["general"]},
-  {name:"MIT OpenCourseWare",url:"https://ocw.mit.edu/",desc:"MIT 공개 강의 자료",category:"learning",ages:["high","adult"],subjects:["science","tech"]},
-  {name:"Skillshare",url:"https://www.skillshare.com/",desc:"디자인, 코딩, 영상 등 실무 학습",category:"learning",ages:["high","adult"],subjects:["art","tech"]},
-  
+  {name: "EBS 초등", url: "https://www.ebs.co.kr/course/home?courseType=ELMT", desc: "초등 전 과목 온라인 강의", category: "learning", ages: ["elem"], subjects: ["korean","math","science","social"]},
+  {name: "EBS 중등", url: "https://www.ebs.co.kr/course/home?courseType=MID", desc: "중등 전 과목 온라인 강의", category: "learning", ages: ["mid"], subjects: ["korean","math","science","social"]},
+  {name: "EBS 고등", url: "https://www.ebs.co.kr/course/home?courseType=HIGH", desc: "고등 전 과목 온라인 강의", category: "learning", ages: ["high"], subjects: ["korean","math","science","social"]},
+  {name: "Khan Academy", url: "https://ko.khanacademy.org/", desc: "수학, 과학 무료 강의", category: "learning", ages: ["elem","mid","high","adult"], subjects: ["math","science"]},
+  {name: "Code.org", url: "https://code.org", desc: "코딩 기초 학습 사이트", category: "learning", ages: ["elem","mid","high"], subjects: ["coding"]},
+
   // 참고자료
-  {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"나무위키",url:"https://namu.wiki/",desc:"다양한 주제를 다루는 한국어 위키",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
-  {name:"RISS",url:"http://www.riss.kr/",desc:"학술 자료 및 논문 검색",category:"info",ages:["high","adult"],subjects:["general"]},
-  {name:"네이버 지식백과",url:"https://terms.naver.com/",desc:"한국어 참고자료 제공",category:"info",ages:["mid","high","adult"],subjects:["general"]},
-  
+  {name: "위키백과", url: "https://ko.wikipedia.org/", desc: "자유 백과사전", category: "info", ages: ["mid","high","adult"], subjects: ["general"]},
+  {name: "나무위키", url: "https://namu.wiki/", desc: "다양한 주제의 한국어 위키", category: "info", ages: ["mid","high","adult"], subjects: ["general"]},
+  {name: "국립중앙과학관", url: "https://www.science.go.kr/", desc: "과학 교육 자료 및 체험 정보", category: "info", ages: ["elem","mid","high"], subjects: ["science"]},
+  {name: "RISS", url: "http://www.riss.kr", desc: "논문 및 학술 자료 검색", category: "info", ages: ["high","adult"], subjects: ["general"]},
+  {name: "네이버 지식백과", url: "https://terms.naver.com/", desc: "한국어 참고자료 제공", category: "info", ages: ["mid","high"], subjects: ["general"]},
+
   // 시험/기출
-  {name:"토익 공식 사이트",url:"https://www.toeic.co.kr/",desc:"토익 시험 자료",category:"exam",ages:["high","adult"],subjects:["exam"]},
-  {name:"컴퓨터 활용능력 기출",url:"https://www.q-net.or.kr",desc:"컴퓨터 활용능력 시험 기출 문제",category:"exam",ages:["high","adult"],subjects:["exam"]},
-  {name:"한국사 능력검정시험",url:"https://www.historyexam.go.kr/",desc:"한국사 시험 대비 자료",category:"exam",ages:["mid","high"],subjects:["exam"]},
-  {name:"수능 모의고사 자료",url:"https://www.kice.re.kr/",desc:"수능 기출 및 모의고사 자료",category:"exam",ages:["high"],subjects:["exam"]},
-  {name:"SAT Practice",url:"https://collegereadiness.collegeboard.org/sat/practice",desc:"SAT 시험 연습 사이트",category:"exam",ages:["high","adult"],subjects:["exam","english"]},
+  {name: "수능 모의고사", url: "https://www.suneung.kr/", desc: "수능 기출 문제 및 모의고사 제공", category: "exam", ages: ["high"], subjects: ["exam"]},
+  {name: "한국사능력검정시험", url: "https://www.historyexam.go.kr/", desc: "한국사 시험 대비 자료", category: "exam", ages: ["mid","high"], subjects: ["history"]},
+  {name: "토익 공식 사이트", url: "https://www.toeic.or.kr/", desc: "토익 시험 정보 및 자료", category: "exam", ages: ["high","adult"], subjects: ["english"]},
+  {name: "컴퓨터 활용능력 기출", url: "https://www.q-net.or.kr/", desc: "정보 처리 및 컴퓨터 활용능력 시험 기출", category: "exam", ages: ["high","adult"], subjects: ["tech"]},
+  {name: "SAT Practice", url: "https://collegereadiness.collegeboard.org/sat/practice", desc: "SAT 시험 연습 문제 제공", category: "exam", ages: ["high","adult"], subjects: ["math","english"]},
 
   // 코딩/IT
-  {name:"프로그래머스",url:"https://programmers.co.kr/",desc:"코딩 문제와 학습",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
-  {name:"백준 온라인 저지",url:"https://www.acmicpc.net/",desc:"알고리즘 문제 풀이",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
-  {name:"Codecademy",url:"https://www.codecademy.com/",desc:"프로그래밍 언어 학습",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
-  {name:"Codewars",url:"https://www.codewars.com/",desc:"코딩 문제 풀이 및 실력 향상",category:"coding",ages:["high","adult"],subjects:["coding"]},
-  {name:"LeetCode",url:"https://leetcode.com/",desc:"알고리즘 및 코딩 인터뷰 대비",category:"coding",ages:["high","adult"],subjects:["coding"]},
+  {name: "프로그래머스", url: "https://programmers.co.kr/", desc: "코딩 문제 및 알고리즘 학습", category: "coding", ages: ["mid","high","adult"], subjects: ["coding"]},
+  {name: "백준 온라인 저지", url: "https://www.acmicpc.net/", desc: "코딩 연습 및 문제 풀이 사이트", category: "coding", ages: ["mid","high","adult"], subjects: ["coding"]},
+  {name: "Codecademy", url: "https://www.codecademy.com/", desc: "프로그래밍 기초 학습 사이트", category: "coding", ages: ["mid","high","adult"], subjects: ["coding"]},
+  {name: "Codewars", url: "https://www.codewars.com/", desc: "프로그래밍 실력 향상용 문제 사이트", category: "coding", ages: ["high","adult"], subjects: ["coding"]},
+  {name: "LeetCode", url: "https://leetcode.com/", desc: "알고리즘 및 코딩 테스트 대비 사이트", category: "coding", ages: ["high","adult"], subjects: ["coding"]},
 
   // 뉴스/시사
-  {name:"BBC News",url:"https://www.bbc.com/news",desc:"세계 뉴스 제공",category:"news",ages:["high","adult"],subjects:["general"]},
-  {name:"EBS 뉴스",url:"https://www.ebs.co.kr/news",desc:"한국 뉴스와 시사 프로그램",category:"news",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"TED Talks",url:"https://www.ted.com/talks",desc:"전문가 강연 영상",category:"news",ages:["high","adult"],subjects:["general"]},
-  {name:"NY Times",url:"https://www.nytimes.com/",desc:"미국 뉴스 제공",category:"news",ages:["high","adult"],subjects:["general"]},
-  {name:"The Guardian",url:"https://www.theguardian.com/international",desc:"영국 뉴스 사이트",category:"news",ages:["high","adult"],subjects:["general"]},
-
-  // 검색 엔진
-  {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 버전의 구글",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-  {name:"구글",url:"https://www.google.com/",desc:"검색 엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
-  {name:"DuckDuckGo",url:"https://duckduckgo.com/",desc:"개인정보 보호 검색",category:"search",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"Bing",url:"https://www.bing.com/",desc:"마이크로소프트 검색 엔진",category:"search",ages:["mid","high","adult"],subjects:["general"]},
-  {name:"Daum",url:"https://www.daum.net/",desc:"포털 검색",category:"search",ages:["elem","mid","high"],subjects:["general"]},
+  {name: "EBS 뉴스", url: "https://news.ebs.co.kr/", desc: "교육 중심 뉴스 제공", category: "news", ages: ["mid","high"], subjects: ["general"]},
+  {name: "BBC News 한국어", url: "https://www.bbc.com/korean", desc: "세계 뉴스 한국어 제공", category: "news", ages: ["mid","high","adult"], subjects: ["general"]},
+  {name: "조선일보", url: "https://www.chosun.com/", desc: "국내 뉴스 및 시사", category: "news", ages: ["mid","high","adult"], subjects: ["general"]},
+  {name: "중앙일보", url: "https://www.joongang.co.kr/", desc: "국내 뉴스 제공", category: "news", ages: ["mid","high","adult"], subjects: ["general"]},
+  {name: "연합뉴스", url: "https://www.yna.co.kr/", desc: "국내외 뉴스 제공", category: "news", ages: ["mid","high","adult"], subjects: ["general"]},
 
   // GPT 활용
-  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"GPT 1짱", category:"gpt", ages:["mid","high","adult"], subjects:["general","coding"]},
-  {name:"Claude", url:"https://claude.ai/", desc:"GPT 거의1짱이란 평가", category:"gpt", ages:["high","adult"], subjects:["general"]},
-  {name:"Grok", url:"https://grok.com/", desc:"머스크 형이 만든 GPT 지금 성능이 거의 GPT 5 수준", category:"gpt", ages:["mid","high","adult"], subjects:["language"]},
-  {name:"Gamma", url:"https://gamma.app/", desc:"AI 문서/프레젠테이션 제작 PPT만들때 쓰면 꿀", category:"gpt", ages:["mid","high","adult"], subjects:["tech","art"]},
-  {name:"Gemini", url:"https://gemini.google.com/", desc:"잼미니", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+  {name: "ChatGPT", url: "https://chat.openai.com/", desc: "AI 대화 및 학습 지원", category: "gpt", ages: ["mid","high","adult"], subjects: ["general"]},
+  {name: "Claude", url: "https://www.anthropic.com/claude", desc: "AI 기반 학습 및 상담 지원", category: "gpt", ages: ["high","adult"], subjects: ["general"]},
+  {name: "Bard", url: "https://bard.google.com/", desc: "AI 학습 도우미", category: "gpt", ages: ["high","adult"], subjects: ["general"]},
+  {name: "Gemini", url: "https://gemini.com/", desc: "AI 학습 지원 플랫폼", category: "gpt", ages: ["high","adult"], subjects: ["general"]},
+  {name: "Perplexity AI", url: "https://www.perplexity.ai/", desc: "AI 질문 및 정보 검색", category: "gpt", ages: ["high","adult"], subjects: ["general"]},
 
   // 과제/리포트
-  {name:"Google Scholar", url:"https://scholar.google.com", desc:"논문, 학술 자료를 찾을 때 가장 많이 사용되는 곳. 특정 논문의 인용 횟수, 관련 논문도 바로 확인 가능.", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
-  {name:"DBpia", url:"https://www.dbpia.co.kr", desc:"국내 대표 학술 논문 검색 서비스. 대학에서 많이 구독해서 무료로 이용 가능한 경우도 있음.", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
-  {name:"KISS", url:"https://kiss.kstudy.com", desc:"인문사회계열 논문 자료가 풍부. 리포트에서 사회·인문 관련 주제 다룰 때 유용.", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
-  {name:"PubMed", url:"https://pubmed.ncbi.nlm.nih.gov", desc:"의학·생명과학 관련 논문 찾을 때 필수. 전 세계 연구 자료를 모아둔 방대한 데이터베이스.", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
-  {name:"Zotero", url:"https://gemini.google.com/", desc:"참고문헌 관리 툴. 자료를 모아두고 자동으로 서지/인용 정리를 해줌.", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
+  {name: "Google Scholar", url: "https://scholar.google.com/", desc: "논문 검색 및 학술 자료", category: "assignment", ages: ["high","adult"], subjects: ["general"]},
+  {name: "DBpia", url: "https://www.dbpia.co.kr/", desc: "국내 학술 논문 제공", category: "assignment", ages: ["high","adult"], subjects: ["general"]},
+  {name: "KISS", url: "https://kiss.kstudy.com/", desc: "국내 학술지 및 논문 검색", category: "assignment", ages: ["high","adult"], subjects: ["general"]},
+  {name: "PubMed", url: "https://pubmed.ncbi.nlm.nih.gov/", desc: "의학/과학 논문 검색", category: "assignment", ages: ["high","adult"], subjects: ["science"]},
+  {name: "Zotero", url: "https://www.zotero.org/", desc: "참고문헌 관리 도구", category: "assignment", ages: ["high","adult"], subjects: ["general"]},
+
+  // 생활/진로
+  {name: "알바몬", url: "https://www.albamon.com/", desc: "학생 아르바이트 정보", category: "lifestyle", ages: ["high","adult"], subjects: ["career"]},
+  {name: "잡코리아", url: "https://www.jobkorea.co.kr/", desc: "취업/진로 정보", category: "lifestyle", ages: ["high","adult"], subjects: ["career"]},
+  {name: "EBS 진로", url: "https://www.ebs.co.kr/career/", desc: "학생 진로 교육 자료", category: "lifestyle", ages: ["mid","high"], subjects: ["career"]},
+  {name: "대학 입시 포털", url: "https://www.adiga.kr/", desc: "대학 입시 정보 제공", category: "lifestyle", ages: ["high"], subjects: ["career"]},
+  {name: "네이버", url: "https://www.naver.com/", desc: "포털, 뉴스, 검색 등 종합 정보", category: "lifestyle", ages: ["mid","high","adult"], subjects: ["general"]}
 ];
+let sites=[...initialSites];
+let currentAgeFilter="all",currentCategoryFilter="all",currentSubjectFilter="all",currentSearchQuery="";
+let expandedCategories={}; const DEFAULT_DISPLAY_LIMIT=5;
 
+// ===== 유틸 + 렌더링 =====
+function getAllCategories(){return {...defaultCategories};}
+function getCategoryName(key){const c=getAllCategories()[key];return c?c.name:key;}
+function updateStats(){document.getElementById("totalCount").textContent=sites.length;document.getElementById("filteredCount").textContent=getFilteredSites().length;}
+function getFilteredSites(){const q=currentSearchQuery.trim().toLowerCase();return sites.filter(s=>{if(currentAgeFilter!=="all"&&!s.ages.includes(currentAgeFilter))return false;if(currentCategoryFilter!=="all"&&s.category!==currentCategoryFilter)return false;if(currentSubjectFilter!=="all"&&!s.subjects.includes(currentSubjectFilter))return false;if(q){const hay=(s.name+" "+(s.desc||"")).toLowerCase();if(!hay.includes(q))return false;}return true;});}
+function escapeHtml(str){return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");}
+function createCategorySection(categoryKey){const allCategories=getAllCategories();const info=allCategories[categoryKey];if(!info)return null;const section=document.createElement("div");section.className="category-section";section.id=`${categoryKey}-section`;section.innerHTML=`<div class="category-header"><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">${info.icon}</span><div><div style="font-weight:800">${info.name}</div></div></div><div class="category-count" id="${categoryKey}-count">0</div></div><div class="category-content" id="${categoryKey}-content"></div>`;return section;}
+function createSiteCard(site){const card=document.createElement("div");card.className="link-card";const ageTags=site.ages.map(a=>`<span class="tag age-tag">${ageNames[a]}</span>`).join(" ");const categoryTag=`<span class="tag category-tag">${getCategoryName(site.category)}</span>`;card.innerHTML=`<a href="${site.url}" target="_blank" rel="noopener">${escapeHtml(site.name)}</a><div style="margin-top:10px;">${categoryTag} ${ageTags}</div><p>${escapeHtml(site.desc||'설명이 없습니다.')}</p><p style="font-size:12px;color:#888;">💡 활용팁: ${site.tips||'기본 사용법'}</p>`;return card;}
+function renderCategorySections(){const container=document.getElementById("categoriesContainer");container.innerHTML="";Object.keys(getAllCategories()).forEach(k=>{const sec=createCategorySection(k);if(sec)container.appendChild(sec);});}
+function renderSites(){const filtered=getFilteredSites();const hasResults=filtered.length>0;Object.keys(getAllCategories()).forEach(category=>{const content=document.getElementById(`${category}-content`);const section=document.getElementById(`${category}-section`);const countEl=document.getElementById(`${category}-count`);if(!content||!section)return;const sitesInCategory=filtered.filter(s=>s.category===category);content.innerHTML="";if(countEl)countEl.textContent=sitesInCategory.length;if(sitesInCategory.length>0){section.style.display="block";const limit=DEFAULT_DISPLAY_LIMIT;const isExpanded=expandedCategories[category];const toShow=isExpanded?sitesInCategory:sitesInCategory.slice(0,limit);const remaining=Math.max(0,sitesInCategory.length-limit);toShow.forEach(s=>content.appendChild(createSiteCard(s)));if(sitesInCategory.length>limit){const btnContainer=document.createElement("div");btnContainer.className="more-btn-container";btnContainer.innerHTML=isExpanded?`<button class="collapse-btn" onclick="collapseSites('${category}')">접기 ↑</button>`:`<button class="more-btn" onclick="expandSites('${category}')">더보기 (${remaining}개 더 있음) ↓</button>`;content.appendChild(btnContainer);}}else{section.style.display=(currentCategoryFilter==="all"||currentCategoryFilter===category)?"block":"none";if(section.style.display==="block")content.innerHTML="<p style='color:#666;text-align:center;padding:20px;'>해당 조건의 사이트가 없습니다.</p>";}}document.getElementById("noResults").style.display=hasResults?"none":"block";updateStats();}
+function expandSites(category){expandedCategories[category]=true;renderSites();}
+function collapseSites(category){expandedCategories[category]=false;renderSites();}
 
-/* ===== 내부 상태 ===== */
-let sites = [...initialSites];
-let currentAgeFilter = "all";
-let currentCategoryFilter = "all";
-let currentSubjectFilter = "all";
-let currentSearchQuery = "";
-let expandedCategories = {};
-const DEFAULT_DISPLAY_LIMIT = 5; // 기본 노출 개수 (요청대로 일정 수준 이상이면 더보기 표시)
+// 필터/탭/검색
+function buildCategoryTabs(){const tabs=document.getElementById("filterTabs");tabs.innerHTML="";const allCats=getAllCategories();const keys=Object.keys(allCats);const allBtn=document.createElement("button");allBtn.className="tab-btn active";allBtn.dataset.cat="all";allBtn.textContent="전체";allBtn.addEventListener("click",e=>{document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));e.currentTarget.classList.add("active");currentCategoryFilter="all";expandedCategories={};renderSites();});tabs.appendChild(allBtn);keys.forEach(k=>{const btn=document.createElement("button");btn.className="tab-btn";btn.dataset.cat=k;btn.textContent=`${allCats[k].icon} ${allCats[k].name}`;btn.addEventListener("click",e=>{document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));e.currentTarget.classList.add("active");currentCategoryFilter=e.currentTarget.dataset.cat;expandedCategories={};renderSites();});tabs.appendChild(btn);});}
+function setupFilters(){document.querySelectorAll("#ageFilter .filter-btn").forEach(btn=>{btn.addEventListener("click",e=>{document.querySelectorAll("#ageFilter .filter-btn").forEach(b=>b.classList.remove("active"));e.currentTarget.classList.add("active");currentAgeFilter=e.currentTarget.dataset.age;renderSites();});});document.getElementById("subjectFilter").addEventListener("change",e=>{currentSubjectFilter=e.target.value;renderSites();});document.getElementById("searchInput").addEventListener("input",e=>{currentSearchQuery=e.target.value;renderSites();});document.getElementById("darkToggle").addEventListener("click",()=>{document.body.classList.toggle("dark");});document.getElementById("viewAllBtn").addEventListener("click",resetFilters);}
+function resetFilters(){currentAgeFilter="all";currentCategoryFilter="all";currentSubjectFilter="all";currentSearchQuery="";document.getElementById("searchInput").value="";document.querySelector("#ageFilter .filter-btn[data-age='all']").classList.add("active");document.querySelectorAll("#ageFilter .filter-btn:not([data-age='all'])").forEach(b=>b.classList.remove("active"));document.getElementById("subjectFilter").value="all";document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));document.querySelector("#filterTabs .tab-btn[data-cat='all']").classList.add("active");expandedCategories={};renderSites();}
 
-/* ===== 유틸리티 ===== */
-function getAllCategories() { return {...defaultCategories}; }
-function getCategoryName(key) { const c = getAllCategories()[key]; return c ? c.name : key; }
-function getCategoryIcon(key) { const c = getAllCategories()[key]; return c ? c.icon : "📁"; }
-
-function updateStats() {
-  document.getElementById("totalCount").textContent = sites.length;
-  document.getElementById("filteredCount").textContent = getFilteredSites().length;
-}
-
-/* ===== 필터링 & 검색 ===== */
-function getFilteredSites() {
-  const q = currentSearchQuery.trim().toLowerCase();
-  return sites.filter(s => {
-    if (currentAgeFilter !== "all" && !s.ages.includes(currentAgeFilter)) return false;
-    if (currentCategoryFilter !== "all" && s.category !== currentCategoryFilter) return false;
-    if (currentSubjectFilter !== "all" && !s.subjects.includes(currentSubjectFilter)) return false;
-    if (q) {
-      const hay = (s.name + " " + (s.desc || "")).toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
-}
-
-/* ===== DOM 생성: 카테고리 섹션, 카드, 렌더링 ===== */
-function createCategorySection(categoryKey) {
-  const allCategories = getAllCategories();
-  const info = allCategories[categoryKey];
-  if (!info) return null;
-  const section = document.createElement("div");
-  section.className = "category-section";
-  section.id = `${categoryKey}-section`;
-  section.innerHTML = `
-    <div class="category-header">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:20px;">${info.icon}</span>
-        <div>
-          <div style="font-weight:800">${info.name}</div>
-          <div style="font-size:12px;opacity:0.9">카테고리: ${categoryKey}</div>
-        </div>
-      </div>
-      <div class="category-count" id="${categoryKey}-count">0</div>
-    </div>
-    <div class="category-content" id="${categoryKey}-content"></div>
-  `;
-  return section;
-}
-
-function createSiteCard(site) {
-  const card = document.createElement("div");
-  card.className = "link-card";
-  const ageTags = site.ages.map(a => `<span class="tag age-tag">${ageNames[a]}</span>`).join(" ");
-  const categoryTag = `<span class="tag category-tag">${getCategoryName(site.category)}</span>`;
-  card.innerHTML = `
-    <a href="${site.url}" target="_blank" rel="noopener">${escapeHtml(site.name)}</a>
-    <div style="margin-top:10px;">${categoryTag} ${ageTags}</div>
-    <p>${escapeHtml(site.desc || '설명이 없습니다.')}</p>
-  `;
-  return card;
-}
-
-/* 안전한 HTML 이스케이프 */
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-
-function renderCategorySections() {
-  const container = document.getElementById("categoriesContainer");
-  container.innerHTML = "";
-  const keys = Object.keys(getAllCategories());
-  keys.forEach(k => {
-    const sec = createCategorySection(k);
-    if (sec) container.appendChild(sec);
-  });
-}
-
-function renderSites() {
-  const allKeys = Object.keys(getAllCategories());
-  const filtered = getFilteredSites();
-  const hasResults = filtered.length > 0;
-
-  allKeys.forEach(category => {
-    const content = document.getElementById(`${category}-content`);
-    const section = document.getElementById(`${category}-section`);
-    const countEl = document.getElementById(`${category}-count`);
-    if (!content || !section) return;
-
-    const sitesInCategory = filtered.filter(s => s.category === category);
-    content.innerHTML = "";
-    if (countEl) countEl.textContent = sitesInCategory.length;
-
-    if (sitesInCategory.length > 0) {
-      section.style.display = "block";
-      const limit = DEFAULT_DISPLAY_LIMIT;
-      const isExpanded = expandedCategories[category];
-      const toShow = isExpanded ? sitesInCategory : sitesInCategory.slice(0, limit);
-      const remaining = Math.max(0, sitesInCategory.length - limit);
-
-      toShow.forEach(s => content.appendChild(createSiteCard(s)));
-
-      if (sitesInCategory.length > limit) {
-        const btnContainer = document.createElement("div");
-        btnContainer.className = "more-btn-container";
-        if (isExpanded) {
-          btnContainer.innerHTML = `<button class="collapse-btn" onclick="collapseSites('${category}')">접기 ↑</button>`;
-        } else {
-          btnContainer.innerHTML = `<button class="more-btn" onclick="expandSites('${category}')">더보기 (${remaining}개 더 있음) ↓</button>`;
-        }
-        content.appendChild(btnContainer);
-      }
-    } else {
-      // 카테고리 필터가 전체 or 이 카테고리가 선택된 경우 빈 메시지 보이기
-      if (currentCategoryFilter === "all" || currentCategoryFilter === category) {
-        section.style.display = "block";
-        content.innerHTML = "<p style='color:#666;text-align:center;padding:20px;'>해당 조건의 사이트가 없습니다.</p>";
-      } else {
-        section.style.display = "none";
-      }
-    }
-  });
-
-  document.getElementById("noResults").style.display = hasResults ? "none" : "block";
-  updateStats();
-}
-
-/* 더보기/접기 */
-function expandSites(category) { expandedCategories[category] = true; renderSites(); }
-function collapseSites(category) { expandedCategories[category] = false; renderSites(); }
-
-/* ===== 필터 탭(카테고리 탭) 생성 & 이벤트 ===== */
-function buildCategoryTabs() {
-  const tabs = document.getElementById("filterTabs");
-  tabs.innerHTML = "";
-  const allCats = getAllCategories();
-  const keys = Object.keys(allCats);
-  // '전체' 탭 추가
-  const allBtn = document.createElement("button");
-  allBtn.className = "tab-btn active";
-  allBtn.dataset.cat = "all";
-  allBtn.textContent = "전체";
-  allBtn.addEventListener("click", e => {
-    document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));
-    e.currentTarget.classList.add("active");
-    currentCategoryFilter = "all";
-    expandedCategories = {};
-    renderSites();
-  });
-  tabs.appendChild(allBtn);
-
-  keys.forEach(k => {
-    const btn = document.createElement("button");
-    btn.className = "tab-btn";
-    btn.dataset.cat = k;
-    btn.textContent = `${allCats[k].icon} ${allCats[k].name}`;
-    btn.addEventListener("click", e => {
-      document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));
-      e.currentTarget.classList.add("active");
-      currentCategoryFilter = e.currentTarget.dataset.cat;
-      expandedCategories = {};
-      renderSites();
-    });
-    tabs.appendChild(btn);
-  });
-}
-
-/* ===== 필터/검색 이벤트 연결 ===== */
-function setupFilters() {
-  document.querySelectorAll("#ageFilter .filter-btn").forEach(btn => {
-    btn.addEventListener("click", e => {
-      document.querySelectorAll("#ageFilter .filter-btn").forEach(b=>b.classList.remove("active"));
-      e.currentTarget.classList.add("active");
-      currentAgeFilter = e.currentTarget.dataset.age;
-      renderSites();
-    });
-  });
-
-  document.getElementById("subjectFilter").addEventListener("change", e => {
-    currentSubjectFilter = e.target.value;
-    renderSites();
-  });
-
-  document.getElementById("searchInput").addEventListener("input", e => {
-    currentSearchQuery = e.target.value;
-    renderSites();
-  });
-
-  document.getElementById("darkToggle").addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-  });
-
-  document.getElementById("viewAllBtn").addEventListener("click", resetFilters);
-}
-
-/* ===== 초기화 & 유틸 ===== */
-function resetFilters() {
-  currentAgeFilter = "all";
-  currentCategoryFilter = "all";
-  currentSubjectFilter = "all";
-  currentSearchQuery = "";
-  document.getElementById("searchInput").value = "";
-  document.querySelector("#ageFilter .filter-btn[data-age='all']").classList.add("active");
-  // reset other age buttons
-  document.querySelectorAll("#ageFilter .filter-btn:not([data-age='all'])").forEach(b=>b.classList.remove("active"));
-  document.getElementById("subjectFilter").value = "all";
-  // reset tabs
-  document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));
-  document.querySelector("#filterTabs .tab-btn[data-cat='all']").classList.add("active");
-  expandedCategories = {};
-  renderSites();
-}
-
-function init() {
-  renderCategorySections();
-  buildCategoryTabs();
-  setupFilters();
-  renderSites();
-}
-
-/* DOMContentLoaded */
-document.addEventListener("DOMContentLoaded", init);
+// 초기화
+function init(){renderCategorySections();buildCategoryTabs();setupFilters();renderSites();document.getElementById("loading").style.display="none";Object.keys(getAllCategories()).forEach(category=>{const content=document.getElementById(`${category}-content`);if(content)new Sortable(content,{animation:150,ghostClass:'dragging'});});document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='f'){e.preventDefault();document.getElementById('searchInput').focus();}});}
+document.addEventListener("DOMContentLoaded",init);
 </script>
-<footer style="background:#333; color:#fff; text-align:center; padding:15px; margin-top:20px; font-size:14px;">
-  © 2025 딱필모 | 이 사이트는 Ai를 사용해 제작되었고 개인 사용을 목적으로 제작되었습니다.
-  <br>
-  💬 문의 및 버그신고는 디스코드 서버에서 받습니다 (아직 디코 서버 만들지 않음)👉 
-  <a href="https://discord.gg/여기에_초대코드" target="_blank" style="color:#4da3ff; font-weight:bold; text-decoration:none;">
-    디스코드 참여하기
-  </a>
-</footer>
 </body>
 </html>
-
-
-

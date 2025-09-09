@@ -240,6 +240,7 @@ const defaultCategories = {
   info: {name:"참고자료", icon:"🔍"},
   exam: {name:"시험/기출", icon:"📝"},
   assignment: {name:"과제/리포트", icon:"📄"},
+  gpt: {name:"GPT 활용", icon:"🤖"},
   coding: {name:"코딩/IT", icon:"💻"},
   career: {name:"진로/대학", icon:"🎓"},
   productivity: {name:"생산성/도구", icon:"🛠️"},
@@ -285,6 +286,52 @@ const initialSites = [
   {name:"네이버 학술정보", url:"https://academic.naver.com/", desc:"논문 및 연구자료 검색", category:"assignment", ages:["high","adult"], subjects:["general"]},
   {name:"국립중앙도서관 학술정보", url:"https://www.nl.go.kr/", desc:"리포트 참고자료 제공", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
   {name:"RISS", url:"http://www.riss.kr/", desc:"논문 및 레포트 자료", category:"assignment", ages:["high","adult"], subjects:["general"]},
+
+  // ================== GPT 활용 예시 사이트 ==================
+  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"GPT 5가 호들갑 떤거 생각하면 성능이... 아무튼 현존 최강* 초기 사이트 + 카테고리별 예시 사이트 5개씩 */
+const initialSites = [
+  /* ================== 온라인강의 💻 ================== */
+  {name:"EBS 초등", url:"https://www.ebs.co.kr/course/home?courseType=ELMT", desc:"초등 전 과목 온라인 강의", category:"learning", ages:["elem"], subjects:["korean","math","science","social"]},
+  {name:"EBS 중등", url:"https://www.ebs.co.kr/course/home?courseType=MIDD", desc:"중학생 대상 전 과목 온라인 강의", category:"learning", ages:["mid"], subjects:["korean","math","science","social"]},
+  {name:"메가스터디", url:"https://www.megastudy.net/", desc:"중고등 학생 대상 강의", category:"learning", ages:["mid","high"], subjects:["korean","math","english","science"]},
+  {name:"스터디파이", url:"https://www.studypie.co.kr/", desc:"온라인 맞춤 학습 서비스", category:"learning", ages:["elem","mid","high"], subjects:["korean","math","english"]},
+  {name:"야나두", url:"https://yanadoo.com/", desc:"영어 및 중국어 학습", category:"learning", ages:["mid","high","adult"], subjects:["english","language"]},
+  {name:"Coursera", url:"https://www.coursera.org/", desc:"전 세계 대학 및 기업의 온라인 강좌", category:"learning", ages:["high","adult"], subjects:["general","language"]},
+  {name:"edX", url:"https://www.edx.org/", desc:"무료 및 유료 대학 온라인 강의 제공", category:"learning", ages:["high","adult"], subjects:["general"]},
+  {name:"TED-Ed", url:"https://ed.ted.com/", desc:"짧은 영상 강의로 다양한 지식 학습", category:"learning", ages:["mid","high"], subjects:["general"]},
+  {name:"MIT OpenCourseWare", url:"https://ocw.mit.edu/", desc:"MIT 공개 강의 자료", category:"learning", ages:["high","adult"], subjects:["science","tech"]},
+  {name:"Skillshare", url:"https://www.skillshare.com/", desc:"디자인, 코딩, 영상 등 실무 학습", category:"learning", ages:["high","adult"], subjects:["art","tech"]},
+
+  /* ================== 참고자료 🔍 ================== */
+  {name:"위키백과", url:"https://ko.wikipedia.org/", desc:"자유 백과사전", category:"info", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"나무위키", url:"https://namu.wiki/", desc:"다양한 주제를 다루는 한국어 위키", category:"info", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"국립중앙과학관", url:"https://www.science.go.kr/", desc:"과학 체험 및 교육 정보", category:"info", ages:["elem","mid","high"], subjects:["science"]},
+  {name:"RISS", url:"http://www.riss.kr/", desc:"학술 자료 및 논문 검색", category:"info", ages:["high","adult"], subjects:["general"]},
+  {name:"국립중앙도서관", url:"https://www.nl.go.kr/", desc:"디지털 자료 및 자료 검색", category:"info", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"국가과학기술정보센터", url:"https://www.ntis.go.kr/", desc:"과학/기술 자료 검색", category:"info", ages:["mid","high","adult"], subjects:["science","tech"]},
+
+  /* ================== 시험/기출 📝 ================== */
+  {name:"토익 공식 사이트", url:"https://www.toeic.co.kr/", desc:"토익 시험 자료", category:"exam", ages:["high","adult"], subjects:["exam"]},
+  {name:"컴퓨터 활용능력 기출", url:"https://www.q-net.or.kr", desc:"컴퓨터 활용능력 시험 기출 문제", category:"exam", ages:["high","adult"], subjects:["exam"]},
+  {name:"한국사 능력검정시험", url:"https://www.historyexam.go.kr/", desc:"한국사 시험 대비 자료", category:"exam", ages:["mid","high"], subjects:["exam"]},
+  {name:"수능 모의고사 자료", url:"https://www.kice.re.kr/", desc:"수능 기출 및 모의고사 자료", category:"exam", ages:["high"], subjects:["exam"]},
+  {name:"SAT Practice", url:"https://collegereadiness.collegeboard.org/sat/practice", desc:"SAT 시험 연습 사이트", category:"exam", ages:["high","adult"], subjects:["exam","english"]},
+  {name:"EBS 수능특강", url:"https://www.ebs.co.kr/special/suneung", desc:"수능 대비 온라인 강의", category:"exam", ages:["high"], subjects:["exam","korean","math","english"]},
+
+  /* ================== 과제/리포트 📄 ================== */
+  {name:"DBpia", url:"https://www.dbpia.co.kr/", desc:"학술 논문 및 자료 검색", category:"assignment", ages:["high","adult"], subjects:["general","science","social"]},
+  {name:"에듀넷", url:"https://www.edunet.net/", desc:"학교 과제 자료 및 학습 자료", category:"assignment", ages:["elem","mid","high"], subjects:["general","korean","math"]},
+  {name:"네이버 학술정보", url:"https://academic.naver.com/", desc:"논문 및 연구자료 검색", category:"assignment", ages:["high","adult"], subjects:["general"]},
+  {name:"국립중앙도서관 학술정보", url:"https://www.nl.go.kr/", desc:"리포트 참고자료 제공", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"RISS", url:"http://www.riss.kr/", desc:"논문 및 레포트 자료", category:"assignment", ages:["high","adult"], subjects:["general"]},
+
+  // ================== GPT 활용 예시 사이트 ==================
+  {name:"ChatGPT", url:"https://chat.com/", desc:"GPT 5가 호들갑 떤거 생각하면 성능이... 아무튼 현존 최강", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"Gemini", url:"https://gemini.google.com/", desc:"잼미니", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"Claude", url:"https://claude.ai/", desc:"GPT 보단 코딩 잘함", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"Grok", url:"https://grok.com/", desc:"머스크 형의 챗지피티 이상의 GPT", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"Perplexity", url:"https://www.perplexity.ai/", desc:"정보 찾는 GPT(이거 쓸바엔 다른거 쓰긴함)", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"Gamma", url:"https://gamma.app/", desc:"PPT 제작 노예", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
 
   /* ================== 코딩/IT 💻 ================== */
   {name:"Inflearn", url:"https://www.inflearn.com/", desc:"국내 온라인 IT/코딩 강의", category:"coding", ages:["mid","high","adult"], subjects:["coding","tech"]},
@@ -583,6 +630,7 @@ document.addEventListener("DOMContentLoaded", init);
 </footer>
 </body>
 </html>
+
 
 
 

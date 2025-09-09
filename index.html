@@ -1,618 +1,566 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>딱필모 — 학생용 큐레이션 포털</title>
-  <meta name="description" content="대한민국 학생들을 위한 엄선된 학습·참고·진로 사이트 모음 — 전문가 추천, 시기별/학년별 큐레이션과 활용 가이드 제공" />
-  <meta name="author" content="딱필모" />
-  <meta name="keywords" content="학생,학습,참고자료,수능,강의,큐레이션,교사추천" />
-  <!-- Open Graph -->
-  <meta property="og:title" content="딱필모 — 학생용 큐레이션 포털" />
-  <meta property="og:description" content="대한민국 학생들을 위한 엄선된 학습·참고·진로 사이트 모음" />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="ko_KR" />
-  <!-- JSON-LD 구조화 데이터 (사이트 개요) -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "딱필모",
-    "url": "https://example.com/",
-    "description": "대한민국 학생들을 위한 엄선된 학습·참고·진로 사이트 모음",
-    "inLanguage": "ko-KR"
-  }
-  </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>딱 필요한 사이트 모음 — 뷰어 버전</title>
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #333;
+  transition: all 0.3s ease;
+}
+body.dark {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.95);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+body.dark .container {
+  background: rgba(26,26,46,0.95);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
 
-  <style>
-    :root{
-      --bg1: #f5f7fb;
-      --card: #fff;
-      --muted:#6c757d;
-      --accent1:#6c63ff;
-      --accent2:#7b61ff;
-      --glass: rgba(255,255,255,0.6);
-      --radius:14px;
-    }
-    [data-theme="dark"]{
-      --bg1:#0f141a;
-      --card:#121416;
-      --muted:#9aa3b2;
-      --accent1:#7b61ff;
-      --accent2:#5a41d6;
-      --glass: rgba(20,20,30,0.6);
-    }
-    html,body{height:100%;margin:0;font-family:Inter, "Noto Sans KR", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
-    body{background:linear-gradient(180deg,var(--bg1),#e9eef9 60%);padding:20px;transition:background .3s,color .3s;}
-    .app{max-width:1200px;margin:0 auto;background:var(--glass);border-radius:18px;padding:16px;box-shadow:0 20px 40px rgba(2,6,23,0.12);backdrop-filter: blur(6px);}
-    header{display:flex;align-items:center;gap:12px;padding:16px 8px;}
-    .logo{display:flex;align-items:center;gap:10px;}
-    .logo h1{margin:0;font-size:1.4rem;letter-spacing:-0.5px;}
-    .controls{margin-left:auto;display:flex;gap:8px;align-items:center;}
-    input.search{padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,0.08);min-width:220px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.4);transition:box-shadow .12s, border-color .12s;}
-    input.search:focus{outline:none;border-color:var(--accent1);box-shadow:0 6px 18px rgba(99,88,255,0.12);}
-    .btn{padding:9px 12px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#fff;font-weight:600;cursor:pointer;}
-    .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(0,0,0,0.06);}
-    nav.tabs{display:flex;gap:8px;padding:12px 8px;flex-wrap:wrap;}
-    .tab{padding:8px 12px;border-radius:999px;background:transparent;border:1px solid rgba(0,0,0,0.04);cursor:pointer;}
-    .tab.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#fff;border-color:transparent;box-shadow:0 8px 30px rgba(99,88,255,0.12);}
+/* header */
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header h1 { margin:0 0 8px 0; font-size:2.4em; font-weight:700; }
+.header p { margin:0; opacity:0.95; }
 
-    /* grid */
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;padding:14px;}
-    .card{background:var(--card);border-radius:12px;padding:14px;border:1px solid rgba(0,0,0,0.04);position:relative;transition:transform .14s ease,box-shadow .14s;}
-    .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(48,45,73,0.08);}
-    .card .title{font-weight:800;font-size:1.05rem;display:flex;gap:8px;align-items:center;}
-    .desc{color:var(--muted);font-size:0.95rem;margin-top:6px;}
-    .meta{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}
-    .tag{padding:6px 8px;border-radius:10px;background:linear-gradient(180deg,#f1f3ff,#fff);font-weight:700;font-size:12px;color:#333;}
-    [data-theme="dark"] .tag{background:linear-gradient(180deg,#2b2c3a,#23232f);color:#fff;}
+/* top controls: 검색 + 다크 토글 */
+.top-controls {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 24px;
+  background: rgba(248,249,250,0.85);
+  border-bottom:1px solid #e9ecef;
+  flex-wrap:wrap;
+}
+body.dark .top-controls { background: rgba(40,40,60,0.6); border-bottom-color:#444; }
+.search-box {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex:1;
+  min-width:220px;
+}
+.search-box input {
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:2px solid #e9ecef;
+  box-sizing:border-box;
+  font-size:14px;
+}
+.search-box input:focus { outline:none; border-color:#667eea; box-shadow:0 0 0 4px rgba(102,126,234,0.08); }
+.filter-tabs {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.tab-btn {
+  padding:10px 14px;
+  border-radius:18px;
+  border:2px solid #e9ecef;
+  background:white;
+  cursor:pointer;
+  font-weight:600;
+}
+.tab-btn.active { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#667eea; box-shadow:0 6px 20px rgba(102,126,234,0.18); }
+.dark-toggle { padding:10px 14px; border-radius:12px; background:linear-gradient(135deg,#343a40 0%,#212529 100%); color:white; border:none; cursor:pointer; }
+.view-all-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  margin-left: 12px;
+}
+.view-all-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+}
 
-    /* actions */
-    .card-actions{position:absolute;right:12px;top:12px;display:flex;gap:6px;}
-    .icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;}
-    .icon-btn.q{background:linear-gradient(90deg,rgba(99,88,255,0.1),rgba(123,97,255,0.08));}
-    .icon-btn.bookmark{background:linear-gradient(90deg,rgba(255,210,64,0.08),rgba(255,150,0,0.06));}
+/* filters area (age & subject simplified) */
+.filters {
+  padding:18px 24px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  background: rgba(248,249,250,0.55);
+  border-bottom:1px solid #e9ecef;
+}
+body.dark .filters { background: rgba(40,40,60,0.45); border-bottom-color:#444; }
+.filter-group { display:flex; flex-direction:column; gap:8px; min-width:120px; }
+.filter-buttons { display:flex; gap:8px; flex-wrap:wrap; }
+.filter-btn { padding:8px 12px; border-radius:16px; border:2px solid #e9ecef; background:white; cursor:pointer; font-weight:600; }
+.filter-btn.active { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#667eea; }
 
-    /* guide panel */
-    .guide-panel{padding:12px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfbff);margin:6px 0;border:1px solid rgba(0,0,0,0.04);}
-    [data-theme="dark"] .guide-panel{background:linear-gradient(180deg,#1b1b2a,#14141b);}
+/* stats */
+.stats { display:flex; gap:18px; align-items:center; padding:12px 24px; color:#6c757d; background: rgba(248,249,250,0.28); }
+body.dark .stats { color:#adb5bd; background: rgba(30,30,40,0.28); }
+.stats-item { display:flex; gap:8px; align-items:center; }
 
-    /* preview modal */
-    .modal{position:fixed;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.5);z-index:999;opacity:0;pointer-events:none;transition:opacity .12s;}
-    .modal.open{opacity:1;pointer-events:auto;}
-    .modal .box{width:90%;max-width:1100px;height:80%;background:var(--card);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;}
-    .modal .frame{flex:1;border:0;}
-    .modal .modal-head{padding:12px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(0,0,0,0.04);}
-    .modal .modal-head .title{font-weight:800;}
-    .close-x{margin-left:auto;background:transparent;border:none;font-size:18px;padding:6px;cursor:pointer;}
+/* categories grid */
+.categories-container { padding:24px; display:grid; grid-template-columns:repeat(auto-fit,minmax(350px,1fr)); gap:20px; }
+.category-section { background:white; border-radius:14px; overflow:hidden; border:1px solid #e9ecef; transition:all .25s ease; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
+body.dark .category-section { background:#2d2d2d; border-color:#444; box-shadow:0 8px 30px rgba(0,0,0,0.28); }
+.category-header { padding:16px 20px; font-weight:700; display:flex; justify-content:space-between; align-items:center; gap:12px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
+.category-content { padding:18px; }
+.link-card { border-radius:12px; padding:16px; margin:12px 0; background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%); border:2px solid #f1f3f5; position:relative; transition:all .2s ease; }
+body.dark .link-card { background:linear-gradient(135deg,#343a40 0%,#495057 100%); border-color:#444; }
+.link-card:hover { transform:translateY(-3px); box-shadow:0 10px 25px rgba(102,126,234,0.12); border-color:#667eea; }
+.link-card a { text-decoration:none; font-weight:700; display:inline-block; color:#2c3e50; font-size:18px; }
+body.dark .link-card a { color:#f8f9fa; }
+.link-card p { margin:8px 0 0; color:#6c757d; }
+body.dark .link-card p { color:#adb5bd; }
+.tag { padding:4px 10px; border-radius:12px; font-size:12px; font-weight:700; margin-right:6px; display:inline-block; }
+.age-tag { background:linear-gradient(135deg,#d4edda 0%,#c3e6cb 100%); color:#155724; }
+.category-tag { background:linear-gradient(135deg,#fff3cd 0%,#ffeaa7 100%); color:#856404; }
+body.dark .age-tag { background:linear-gradient(135deg,#28a745 0%,#20c997 100%); color:white; }
+body.dark .category-tag { background:linear-gradient(135deg,#ffc107 0%,#fd7e14 100%); color:#212529; }
 
-    /* loading spinner */
-    .spinner{width:36px;height:36px;border-radius:50%;border:4px solid rgba(0,0,0,0.06);border-top-color:var(--accent1);animation:spin 1s linear infinite;}
-    @keyframes spin{to{transform:rotate(360deg)}}
+/* more/collapse */
+.more-btn-container { text-align:center; margin-top:12px; }
+.more-btn, .collapse-btn { padding:10px 18px; border-radius:22px; border:2px solid #dee2e6; background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%); cursor:pointer; font-weight:700; }
+.more-btn:hover, .collapse-btn:hover { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-color:#667eea; }
 
-    /* drag handle */
-    .drag-handle{cursor:grab;padding:6px;border-radius:8px;border:1px dashed rgba(0,0,0,0.04);background:transparent;font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;}
-    .dragging{opacity:0.6;transform:scale(.98) rotate(-1deg);}
+/* no results */
+.no-results { padding:40px; text-align:center; font-style:italic; color:#6c757d; }
 
-    /* small responsive */
-    @media (max-width:640px){ .controls{flex-direction:column;gap:6px} input.search{width:100%} .modal .box{height:90%} }
-
-    /* micro interactions */
-    .pulse{animation:pulse 2.2s infinite;}
-    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
-  </style>
+/* responsive */
+@media (max-width:768px) {
+  .categories-container { grid-template-columns:1fr; padding:16px; }
+  .header h1 { font-size:1.8em; }
+}
+</style>
 </head>
-<body data-theme="light">
-  <div class="app" role="main" aria-live="polite">
-    <header>
-      <div class="logo">
-        <div style="font-size:1.8rem">🌟</div>
-        <div>
-          <h1>딱필모</h1>
-          <div style="font-size:12px;color:var(--muted)">학생들을 위한 엄선된 사이트 & 실전 가이드</div>
-        </div>
-      </div>
-
-      <div class="controls" aria-hidden="false">
-        <input id="search" class="search" placeholder="사이트 이름/설명 검색 — '/' 키를 눌러 바로 검색" autocomplete="off" />
-        <button id="guideToggle" class="btn ghost" title="가이드 보이기/숨기기">가이드 토글 (G)</button>
-        <button id="themeToggle" class="btn" title="다크 모드 전환 (D)">다크모드</button>
-      </div>
-    </header>
-
-    <nav class="tabs" id="tabs">
-      <button class="tab active" data-tab="expert">교사/전문가 추천</button>
-      <button class="tab" data-tab="season">시기별 추천</button>
-      <button class="tab" data-tab="grade">학년별 추천</button>
-      <button class="tab" data-tab="all">전체</button>
-    </nav>
-
-    <section id="guideArea" class="guide-panel" aria-hidden="false">
-      <strong>가이드 요약</strong>
-      <div id="guideSummary" style="margin-top:8px;color:var(--muted);">
-        — 각 사이트별 활용법, 시험/방학에 따른 추천, 과목별 조합 팁을 카드에서 확인하세요.
-      </div>
-    </section>
-
-    <main>
-      <div id="grid" class="grid" aria-live="polite"></div>
-    </main>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🌟 딱필모 </h1>
+    <p>딱 학생들에게 필요할 만한 사이트만 깔끔하게 모아봤어요 *아직 개발중 입니다. 더 추가될 예정* </p>
   </div>
 
-  <!-- preview modal -->
-  <div id="previewModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="box" role="document">
-      <div class="modal-head">
-        <div class="title" id="modalTitle">사이트 미리보기</div>
-        <button class="close-x" id="closePreview">✕</button>
+  <div class="top-controls">
+    <div class="search-box" style="margin-right:12px;">
+      <input id="searchInput" placeholder="사이트 이름 또는 설명으로 검색하세요 — 예: Khan, 번역..." />
+    </div>
+
+    <div class="filter-tabs" id="filterTabs">
       </div>
-      <iframe id="previewFrame" class="frame" title="사이트 미리보기"></iframe>
+    
+    <button class="dark-toggle" id="darkToggle">🌙 다크 모드</button>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label>🎯 연령대</label>
+      <div class="filter-buttons" id="ageFilter">
+        <button class="filter-btn active" data-age="all">전체</button>
+        <button class="filter-btn" data-age="elem">초등</button>
+        <button class="filter-btn" data-age="mid">중등</button>
+        <button class="filter-btn" data-age="high">고등</button>
+        <button class="filter-btn" data-age="adult">성인</button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label>📚 과목</label>
+      <select id="subjectFilter" style="padding:10px;border-radius:10px;border:2px solid #e9ecef;">
+        <option value="all">전체 과목</option>
+        <option value="korean">국어</option>
+        <option value="math">수학</option>
+        <option value="english">영어</option>
+        <option value="science">과학</option>
+        <option value="social">사회</option>
+        <option value="history">역사</option>
+        <option value="art">예술</option>
+        <option value="music">음악</option>
+        <option value="pe">체육</option>
+        <option value="tech">기술</option>
+        <option value="coding">코딩</option>
+        <option value="language">외국어</option>
+        <option value="general">종합</option>
+        <option value="exam">시험대비</option>
+        <option value="career">진로</option>
+      </select>
+    </div>
+
+    <div style="margin-left:auto;">
+      <button onclick="resetFilters()" style="padding:10px 14px;border-radius:10px;border:none;background:#6c757d;color:white;cursor:pointer;">🔄 필터 초기화</button>
     </div>
   </div>
 
-  <script>
-  /***********************
-   * 초기 데이터 정의 (사이트 + 가이드 + 메타)
-   ***********************/
-  const initialSites = [
-    {
-      id: 'ebs',
-      name:'EBS 초등/중/고',
-      url:'https://www.ebs.co.kr',
-      category:'learning',
-      ages:['elem','mid','high'],
-      subjects:['korean','math','science','social'],
-      guide: 'EBS는 수능/교과 연계 자료가 풍부합니다. 과목별 짧은 강의로 요약 학습에 적합합니다. 추천 사용법: ① 관심 과목 프리패스 강의 골라보기 ② 모의고사 강의로 약점 보완',
-      tips: ['교과서 단원에 맞춰 영상 재생','노트에 요점 정리 후 복습','모의고사 전 EBS 연계 문제 확인'],
-      expert:true
-    },
-    {
-      id: 'khan',
-      name:'Khan Academy (한국어)',
-      url:'https://ko.khanacademy.org/',
-      category:'learning',
-      ages:['mid','high','adult'],
-      subjects:['math','science'],
-      guide:'기초 개념을 쉬운 설명으로 다지고 싶은 학생에게 최적. 단계별 문제풀이가 체계적입니다.',
-      tips:['수학 개념은 예제 먼저 풀어보기','영상 보며 손으로 직접 풀기'],
-      expert:false
-    },
-    {
-      id: 'programmers',
-      name:'프로그래머스',
-      url:'https://programmers.co.kr/',
-      category:'coding',
-      ages:['high','adult'],
-      subjects:['coding'],
-      guide:'코딩 기초부터 실무형 문제까지. 알고리즘 연습으로 문제 해결 능력 강화.',
-      tips:['난이도별 루틴 만들기','문제 해결 후 해설 정리'],
-      expert:true
-    },
-    {
-      id: 'naver',
-      name:'네이버',
-      url:'https://www.naver.com/',
-      category:'search',
-      ages:['elem','mid','high','adult'],
-      subjects:['general'],
-      guide:'일상적 검색, 사전, 지식인 이용. 리포트 자료 찾을 때 출처 확인 필수.',
-      tips:['검색어에 따옴표 사용','고급검색(기간/도메인) 활용'],
-      expert:false
-    },
-    {
-      id: 'kice',
-      name:'한국교육과정평가원 (수능/기출)',
-      url:'https://www.kice.re.kr/',
-      category:'exam',
-      ages:['high'],
-      subjects:['exam'],
-      guide:'수능/모의고사 자료, 기출 확인 필수. 기출분석으로 출제경향 파악하기.',
-      tips:['기출문제를 시간 재고 풀기','오답노트로 유형 분류'],
-      examSeason:true,
-      expert:true
+  <div class="stats" id="statsBar">
+    <div class="stats-item">📊 총 <strong id="totalCount">0</strong>개 사이트</div>
+    <div class="stats-item">🔎 검색 결과: <strong id="filteredCount">0</strong>개</div>
+    <button class="view-all-btn" id="viewAllBtn" style="margin-left: auto;">📖 전체 사이트 보기</button>
+  </div>
+
+  <div class="categories-container" id="categoriesContainer"></div>
+
+  <div id="noResults" class="no-results" style="display:none;">
+    <h3>🔍 조건에 맞는 사이트가 없습니다</h3>
+    <p>필터나 검색어를 바꿔보세요.</p>
+  </div>
+</div>
+
+<script>
+/* ===== 데이터 & 설정 ===== */
+const ageNames = {elem:"초등학생", mid:"중학생", high:"고등학생", adult:"성인"};
+const subjectNames = {korean:"국어", math:"수학", english:"영어", science:"과학", social:"사회", history:"역사", art:"예술", music:"음악", pe:"체육", tech:"기술", coding:"코딩", language:"외국어", general:"종합", exam:"시험대비", career:"진로"};
+
+/* 기본 카테고리 (관리자/커스텀 제거) */
+const defaultCategories = {
+  learning: {name:"온라인강의", icon:"💻"},
+  info: {name:"참고자료", icon:"🔍"},
+  government: {name:"정부기관", icon:"🏛️"},
+  search: {name:"검색 엔진", icon:"🔍"},
+  gpt: {name:"GPT 활용", icon:"🤖"},
+  exam: {name:"시험/기출", icon:"📝"},
+  assignment: {name:"과제/리포트", icon:"📄"},
+  coding: {name:"코딩/IT", icon:"💻"},
+  news: {name:"뉴스/시사", icon:"📰"},
+  lifestyle: {name:"생활정보", icon:"🏠"},
+  career: {name:"진로/대학", icon:"🎓"},
+  productivity: {name:"생산성/도구", icon:"🛠️"},
+  mental: {name:"심리/정서", icon:"🧠"}
+};
+
+/* 초기 사이트 + 카테고리별 예시 사이트 5개씩 */
+const initialSites = [
+  // 온라인강의
+  {name:"EBS 초등",url:"https://www.ebs.co.kr/course/home?courseType=ELMT",desc:"초등 전 과목 온라인 강의",category:"learning",ages:["elem"],subjects:["korean","math","science","social"]},
+  {name:"Khan Academy",url:"https://ko.khanacademy.org/",desc:"수학, 과학 무료 강의",category:"learning",ages:["elem","mid","high","adult"],subjects:["math","science"]},
+  {name:"Code.org",url:"https://code.org",desc:"초등~고등 코딩 학습",category:"learning",ages:["elem","mid","high"],subjects:["coding"]},
+  {name:"Duolingo",url:"https://www.duolingo.com/",desc:"외국어 학습 게임형 플랫폼",category:"learning",ages:["elem","mid","high","adult"],subjects:["language","english"]},
+  {name:"Coursera",url:"https://www.coursera.org/",desc:"전 세계 대학 및 기업의 온라인 강좌",category:"learning",ages:["high","adult"],subjects:["general","language"]},
+  {name:"edX",url:"https://www.edx.org/",desc:"무료 및 유료 대학 온라인 강의 제공",category:"learning",ages:["high","adult"],subjects:["general"]},
+  {name:"TED-Ed",url:"https://ed.ted.com/",desc:"짧은 영상 강의로 다양한 지식 학습",category:"learning",ages:["mid","high"],subjects:["general"]},
+  {name:"MIT OpenCourseWare",url:"https://ocw.mit.edu/",desc:"MIT 공개 강의 자료",category:"learning",ages:["high","adult"],subjects:["science","tech"]},
+  {name:"Skillshare",url:"https://www.skillshare.com/",desc:"디자인, 코딩, 영상 등 실무 학습",category:"learning",ages:["high","adult"],subjects:["art","tech"]},
+  
+  // 참고자료
+  {name:"위키백과",url:"https://ko.wikipedia.org/",desc:"자유 백과사전",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"나무위키",url:"https://namu.wiki/",desc:"다양한 주제를 다루는 한국어 위키",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"국립중앙과학관",url:"https://www.science.go.kr/",desc:"과학 체험 및 교육 정보",category:"info",ages:["elem","mid","high"],subjects:["science"]},
+  {name:"RISS",url:"http://www.riss.kr/",desc:"학술 자료 및 논문 검색",category:"info",ages:["high","adult"],subjects:["general"]},
+  {name:"네이버 지식백과",url:"https://terms.naver.com/",desc:"한국어 참고자료 제공",category:"info",ages:["mid","high","adult"],subjects:["general"]},
+  
+  // 시험/기출
+  {name:"토익 공식 사이트",url:"https://www.toeic.co.kr/",desc:"토익 시험 자료",category:"exam",ages:["high","adult"],subjects:["exam"]},
+  {name:"컴퓨터 활용능력 기출",url:"https://www.q-net.or.kr",desc:"컴퓨터 활용능력 시험 기출 문제",category:"exam",ages:["high","adult"],subjects:["exam"]},
+  {name:"한국사 능력검정시험",url:"https://www.historyexam.go.kr/",desc:"한국사 시험 대비 자료",category:"exam",ages:["mid","high"],subjects:["exam"]},
+  {name:"수능 모의고사 자료",url:"https://www.kice.re.kr/",desc:"수능 기출 및 모의고사 자료",category:"exam",ages:["high"],subjects:["exam"]},
+  {name:"SAT Practice",url:"https://collegereadiness.collegeboard.org/sat/practice",desc:"SAT 시험 연습 사이트",category:"exam",ages:["high","adult"],subjects:["exam","english"]},
+
+  // 코딩/IT
+  {name:"프로그래머스",url:"https://programmers.co.kr/",desc:"코딩 문제와 학습",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
+  {name:"백준 온라인 저지",url:"https://www.acmicpc.net/",desc:"알고리즘 문제 풀이",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
+  {name:"Codecademy",url:"https://www.codecademy.com/",desc:"프로그래밍 언어 학습",category:"coding",ages:["mid","high","adult"],subjects:["coding"]},
+  {name:"Codewars",url:"https://www.codewars.com/",desc:"코딩 문제 풀이 및 실력 향상",category:"coding",ages:["high","adult"],subjects:["coding"]},
+  {name:"LeetCode",url:"https://leetcode.com/",desc:"알고리즘 및 코딩 인터뷰 대비",category:"coding",ages:["high","adult"],subjects:["coding"]},
+
+  // 뉴스/시사
+  {name:"BBC News",url:"https://www.bbc.com/news",desc:"세계 뉴스 제공",category:"news",ages:["high","adult"],subjects:["general"]},
+  {name:"EBS 뉴스",url:"https://www.ebs.co.kr/news",desc:"한국 뉴스와 시사 프로그램",category:"news",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"TED Talks",url:"https://www.ted.com/talks",desc:"전문가 강연 영상",category:"news",ages:["high","adult"],subjects:["general"]},
+  {name:"NY Times",url:"https://www.nytimes.com/",desc:"미국 뉴스 제공",category:"news",ages:["high","adult"],subjects:["general"]},
+  {name:"The Guardian",url:"https://www.theguardian.com/international",desc:"영국 뉴스 사이트",category:"news",ages:["high","adult"],subjects:["general"]},
+
+  // 검색 엔진
+  {name:"네이버",url:"https://www.naver.com/",desc:"대한민국 버전의 구글",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
+  {name:"구글",url:"https://www.google.com/",desc:"검색 엔진",category:"search",ages:["elem","mid","high","adult"],subjects:["general"]},
+  {name:"DuckDuckGo",url:"https://duckduckgo.com/",desc:"개인정보 보호 검색",category:"search",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"Bing",url:"https://www.bing.com/",desc:"마이크로소프트 검색 엔진",category:"search",ages:["mid","high","adult"],subjects:["general"]},
+  {name:"Daum",url:"https://www.daum.net/",desc:"포털 검색",category:"search",ages:["elem","mid","high"],subjects:["general"]},
+
+  // GPT 활용
+  {name:"ChatGPT", url:"https://chat.openai.com/", desc:"GPT 1짱", category:"gpt", ages:["mid","high","adult"], subjects:["general","coding"]},
+  {name:"Claude", url:"https://claude.ai/", desc:"GPT 거의1짱이란 평가", category:"gpt", ages:["high","adult"], subjects:["general"]},
+  {name:"Grok", url:"https://grok.com/", desc:"머스크 형이 만든 GPT 지금 성능이 거의 GPT 5 수준", category:"gpt", ages:["mid","high","adult"], subjects:["language"]},
+  {name:"Gamma", url:"https://gamma.app/", desc:"AI 문서/프레젠테이션 제작 PPT만들때 쓰면 꿀", category:"gpt", ages:["mid","high","adult"], subjects:["tech","art"]},
+  {name:"Gemini", url:"https://gemini.google.com/", desc:"잼미니", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+
+  // 과제/리포트
+  {name:"Google Scholar", url:"https://scholar.google.com", desc:"논문, 학술 자료를 찾을 때 가장 많이 사용되는 곳. 특정 논문의 인용 횟수, 관련 논문도 바로 확인 가능.", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"DBpia", url:"https://www.dbpia.co.kr", desc:"국내 대표 학술 논문 검색 서비스. 대학에서 많이 구독해서 무료로 이용 가능한 경우도 있음.", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"KISS", url:"https://kiss.kstudy.com", desc:"인문사회계열 논문 자료가 풍부. 리포트에서 사회·인문 관련 주제 다룰 때 유용.", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"PubMed", url:"https://pubmed.ncbi.nlm.nih.gov", desc:"의학·생명과학 관련 논문 찾을 때 필수. 전 세계 연구 자료를 모아둔 방대한 데이터베이스.", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"Zotero", url:"https://gemini.google.com/", desc:"참고문헌 관리 툴. 자료를 모아두고 자동으로 서지/인용 정리를 해줌.", category:"assignment", ages:["mid","high","adult"], subjects:["general"]},
+];
+
+
+/* ===== 내부 상태 ===== */
+let sites = [...initialSites];
+let currentAgeFilter = "all";
+let currentCategoryFilter = "all";
+let currentSubjectFilter = "all";
+let currentSearchQuery = "";
+let expandedCategories = {};
+const DEFAULT_DISPLAY_LIMIT = 5; // 기본 노출 개수 (요청대로 일정 수준 이상이면 더보기 표시)
+
+/* ===== 유틸리티 ===== */
+function getAllCategories() { return {...defaultCategories}; }
+function getCategoryName(key) { const c = getAllCategories()[key]; return c ? c.name : key; }
+function getCategoryIcon(key) { const c = getAllCategories()[key]; return c ? c.icon : "📁"; }
+
+function updateStats() {
+  document.getElementById("totalCount").textContent = sites.length;
+  document.getElementById("filteredCount").textContent = getFilteredSites().length;
+}
+
+/* ===== 필터링 & 검색 ===== */
+function getFilteredSites() {
+  const q = currentSearchQuery.trim().toLowerCase();
+  return sites.filter(s => {
+    if (currentAgeFilter !== "all" && !s.ages.includes(currentAgeFilter)) return false;
+    if (currentCategoryFilter !== "all" && s.category !== currentCategoryFilter) return false;
+    if (currentSubjectFilter !== "all" && !s.subjects.includes(currentSubjectFilter)) return false;
+    if (q) {
+      const hay = (s.name + " " + (s.desc || "")).toLowerCase();
+      if (!hay.includes(q)) return false;
     }
-  ];
+    return true;
+  });
+}
 
-  // 로컬 상태 (sites 실제 사용 데이터)
-  let sites = [];
-  // 선택/포커스 상태
-  let focusedIndex = 0;
-  // 현재 탭
-  let currentTab = 'expert';
-
-  /***********************
-   * 초기화
-   ***********************/
-  function init(){
-    // load saved order/data
-    const saved = localStorage.getItem('dfm_sites_v1');
-    if(saved){
-      try{
-        const parsed = JSON.parse(saved);
-        if(Array.isArray(parsed) && parsed.length) sites = parsed;
-        else sites = initialSites;
-      }catch(e){ sites = initialSites; }
-    } else {
-      sites = initialSites;
-    }
-
-    renderTabs();
-    renderGrid();
-    attachEvents();
-    highlightFilteredCount();
-  }
-
-  /***********************
-   * 렌더링: 탭 + 그리드
-   ***********************/
-  function renderTabs(){
-    document.querySelectorAll('.tab').forEach(btn=>{
-      btn.classList.toggle('active', btn.dataset.tab === currentTab);
-    });
-  }
-
-  function getFilteredSites(){
-    const q = document.getElementById('search').value.trim().toLowerCase();
-    let arr = sites.slice();
-    // tab 필터
-    if(currentTab === 'expert'){
-      arr = arr.filter(s=>s.expert);
-    } else if(currentTab === 'season'){
-      // exam season detection simple heuristic: if today is within 45 days of Nov 15 (수능) mark examSeason
-      const now = new Date();
-      const thisYear = now.getFullYear();
-      const suneung = new Date(thisYear,10,14); // 11월 15일(0-indexed month 10) 대략
-      const diffDays = Math.abs((suneung - now)/(1000*60*60*24));
-      if(diffDays <= 60){
-        arr = arr.filter(s=>s.examSeason || s.category==='exam');
-      } else {
-        // 방학 시즌(7~8월) 추천
-        if(now.getMonth()===6 || now.getMonth()===7){
-          arr = arr.filter(s=>s.category==='learning' || s.category==='coding');
-        } else {
-          arr = arr; // default
-        }
-      }
-    } else if(currentTab === 'grade'){
-      // 간단 UI: 학년별 버튼으로 필터 (추가 구현 가능). 현재는 전체.
-      arr = arr;
-    }
-    if(q){
-      arr = arr.filter(s=>{
-        const h = (s.name+' '+(s.desc||'')+' '+(s.guide||'')).toLowerCase();
-        return h.includes(q);
-      });
-    }
-    return arr;
-  }
-
-  function renderGrid(){
-    const container = document.getElementById('grid');
-    container.innerHTML = '';
-    const list = getFilteredSites();
-    if(list.length===0){
-      container.innerHTML = `<div style="grid-column:1/-1;padding:24px;border-radius:12px;background:var(--card);text-align:center;color:var(--muted)">조건에 맞는 사이트가 없습니다.</div>`;
-      return;
-    }
-
-    list.forEach((s, idx) => {
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.draggable = true;
-      card.dataset.id = s.id;
-      // card inner
-      card.innerHTML = `
-        <div class="card-actions">
-          <button class="icon-btn q" title="미리보기 (P)" data-action="preview">👁</button>
-          <button class="icon-btn bookmark" title="가이드 보기" data-action="guide">📘</button>
-          <a class="icon-btn" title="새 탭에서 열기" href="${escapeHtml(s.url)}" target="_blank" rel="noopener" data-action="open">↗</a>
-        </div>
-        <div class="title"><span>${escapeHtml(s.name)}</span> <span style="font-size:12px;color:var(--muted);font-weight:600">· ${escapeHtml(s.category)}</span></div>
-        <div class="desc">${escapeHtml(s.desc || s.guide || '')}</div>
-        <div class="meta">
-          ${ (s.ages || []).map(a=>`<span class="tag">${escapeHtml(a)}</span>`).join(' ') }
-          ${ (s.subjects || []).map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join(' ') }
-          <span style="margin-left:auto" class="drag-handle" title="드래그로 순서 변경">☰ 순서</span>
-        </div>
-      `;
-      // data
-      container.appendChild(card);
-
-      // attach per-card behaviors
-      // preview
-      card.querySelector('[data-action="preview"]').addEventListener('click', (e)=>{
-        openPreview(s);
-      });
-      // guide
-      card.querySelector('[data-action="guide"]').addEventListener('click', (e)=>{
-        showGuide(s, card);
-      });
-      // open (link)
-      card.querySelector('[data-action="open"]').addEventListener('click', (e)=>{
-        // save recent view
-        pushRecent(s);
-      });
-
-      // drag events
-      addDragHandlers(card);
-      // keyboard focus
-      card.tabIndex = 0;
-      card.addEventListener('focus', ()=>{ focusedIndex = idx; });
-    });
-
-    // after render, attempt link health check in background
-    setTimeout(()=>{ checkLinksHealth(); }, 600);
-  }
-
-  /***********************
-   * 가이드 표시 (카드 아래 혹은 모달)
-   ***********************/
-  function showGuide(site, cardEl){
-    // toggle small panel
-    let panel = cardEl.querySelector('.guide-box');
-    if(panel){
-      panel.remove();
-      return;
-    }
-    panel = document.createElement('div');
-    panel.className = 'guide-box';
-    panel.style.marginTop = '10px';
-    panel.innerHTML = `
-      <div style="padding:12px;border-radius:10px;border:1px dashed rgba(0,0,0,0.04);background:linear-gradient(180deg,#fafaff,#fff)">
-        <strong>활용 가이드</strong>
-        <div style="margin-top:8px;color:var(--muted)">${escapeHtml(site.guide || '가이드가 등록되어 있지 않습니다.')}</div>
-        <div style="margin-top:8px"><strong>팁</strong>
-          <ul style="margin:8px 0 0 18px;color:var(--muted)">${(site.tips||[]).map(t=>`<li>${escapeHtml(t)}</li>`).join('')}</ul>
-        </div>
-        <div style="margin-top:10px"><strong>사이트 조합 추천</strong>
-          <div style="margin-top:6px;color:var(--muted)">${makeComboRecommendation(site)}</div>
+/* ===== DOM 생성: 카테고리 섹션, 카드, 렌더링 ===== */
+function createCategorySection(categoryKey) {
+  const allCategories = getAllCategories();
+  const info = allCategories[categoryKey];
+  if (!info) return null;
+  const section = document.createElement("div");
+  section.className = "category-section";
+  section.id = `${categoryKey}-section`;
+  section.innerHTML = `
+    <div class="category-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:20px;">${info.icon}</span>
+        <div>
+          <div style="font-weight:800">${info.name}</div>
+          <div style="font-size:12px;opacity:0.9">카테고리: ${categoryKey}</div>
         </div>
       </div>
-    `;
-    cardEl.appendChild(panel);
-  }
+      <div class="category-count" id="${categoryKey}-count">0</div>
+    </div>
+    <div class="category-content" id="${categoryKey}-content"></div>
+  `;
+  return section;
+}
 
-  function makeComboRecommendation(site){
-    // 간단 추천: 같은 과목/연령대에 평판 좋은 다른 사이트 2개
-    const sameSubject = sites.filter(s=>{
-      if(s.id === site.id) return false;
-      const inter = (s.subjects||[]).filter(x=> (site.subjects||[]).includes(x));
-      return inter.length>0;
-    });
-    if(sameSubject.length===0) return '관련 사이트가 더 없습니다.';
-    return '예: '+sameSubject.slice(0,2).map(x=>`${x.name}`).join(' / ');
-  }
+function createSiteCard(site) {
+  const card = document.createElement("div");
+  card.className = "link-card";
+  const ageTags = site.ages.map(a => `<span class="tag age-tag">${ageNames[a]}</span>`).join(" ");
+  const categoryTag = `<span class="tag category-tag">${getCategoryName(site.category)}</span>`;
+  card.innerHTML = `
+    <a href="${site.url}" target="_blank" rel="noopener">${escapeHtml(site.name)}</a>
+    <div style="margin-top:10px;">${categoryTag} ${ageTags}</div>
+    <p>${escapeHtml(site.desc || '설명이 없습니다.')}</p>
+  `;
+  return card;
+}
 
-  /***********************
-   * 미리보기 모달
-   ***********************/
-  const previewModal = document.getElementById('previewModal');
-  const previewFrame = document.getElementById('previewFrame');
-  const modalTitle = document.getElementById('modalTitle');
-  document.getElementById('closePreview').addEventListener('click', closePreview);
+/* 안전한 HTML 이스케이프 */
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
 
-  function openPreview(site){
-    modalTitle.textContent = site.name;
-    previewFrame.src = site.url;
-    previewModal.classList.add('open');
-    previewModal.setAttribute('aria-hidden','false');
-  }
-  function closePreview(){
-    previewFrame.src = 'about:blank';
-    previewModal.classList.remove('open');
-    previewModal.setAttribute('aria-hidden','true');
-  }
+function renderCategorySections() {
+  const container = document.getElementById("categoriesContainer");
+  container.innerHTML = "";
+  const keys = Object.keys(getAllCategories());
+  keys.forEach(k => {
+    const sec = createCategorySection(k);
+    if (sec) container.appendChild(sec);
+  });
+}
 
-  /***********************
-   * 링크 상태 확인 (가능하면 HEAD 요청, 실패시 '알 수 없음')
-   ***********************/
-  async function checkLinksHealth(){
-    const cardEls = Array.from(document.querySelectorAll('.card'));
-    for(const card of cardEls){
-      const hrefEl = card.querySelector('a[data-action="open"]');
-      if(!hrefEl) continue;
-      const url = hrefEl.href;
-      // show spinner
-      let s = document.createElement('div'); s.className='spinner'; s.style.width='18px'; s.style.height='18px'; s.style.marginLeft='6px';
-      hrefEl.parentElement.appendChild(s);
-      try{
-        const ok = await fetchWithTimeout(url, {method:'HEAD'}, 3000);
-        s.remove();
-        const badge = document.createElement('span');
-        badge.className = 'tag';
-        badge.textContent = ok && ok.ok ? '정상' : '응답없음';
-        if(!ok || !ok.ok) badge.style.background='linear-gradient(90deg,#f8d7da,#fbe0e6)';
-        card.querySelector('.meta').appendChild(badge);
-      }catch(err){
-        s.remove();
-        const badge = document.createElement('span');
-        badge.className = 'tag';
-        badge.textContent = '알 수 없음';
-        badge.style.background='linear-gradient(90deg,#fff3cd,#fff7e6)';
-        card.querySelector('.meta').appendChild(badge);
-      }
-    }
-  }
+function renderSites() {
+  const allKeys = Object.keys(getAllCategories());
+  const filtered = getFilteredSites();
+  const hasResults = filtered.length > 0;
 
-  function fetchWithTimeout(resource, options = {}, timeout = 5000){
-    return new Promise((resolve,reject)=>{
-      const timer = setTimeout(()=>reject(new Error('timeout')), timeout);
-      fetch(resource, options).then(res=>{
-        clearTimeout(timer);
-        resolve(res);
-      }).catch(err=>{
-        clearTimeout(timer);
-        reject(err);
-      });
-    });
-  }
+  allKeys.forEach(category => {
+    const content = document.getElementById(`${category}-content`);
+    const section = document.getElementById(`${category}-section`);
+    const countEl = document.getElementById(`${category}-count`);
+    if (!content || !section) return;
 
-  /***********************
-   * 드래그앤드롭 정렬 (HTML5 drag)
-   ***********************/
-  function addDragHandlers(card){
-    card.addEventListener('dragstart', (e)=>{
-      card.classList.add('dragging');
-      e.dataTransfer.setData('text/plain', card.dataset.id);
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    card.addEventListener('dragend', (e)=>{
-      card.classList.remove('dragging');
-      saveOrderToLocal();
-      renderGrid(); // re-render to update indices
-    });
-    card.addEventListener('dragover', (e)=>{
-      e.preventDefault();
-      const dragging = document.querySelector('.dragging');
-      if(!dragging || dragging === card) return;
-      const grid = document.getElementById('grid');
-      const rect = card.getBoundingClientRect();
-      const after = (e.clientY - rect.top) > rect.height/2;
-      if(after) grid.insertBefore(dragging, card.nextSibling);
-      else grid.insertBefore(dragging, card);
-    });
-  }
+    const sitesInCategory = filtered.filter(s => s.category === category);
+    content.innerHTML = "";
+    if (countEl) countEl.textContent = sitesInCategory.length;
 
-  function saveOrderToLocal(){
-    // get current order from DOM
-    const ids = Array.from(document.querySelectorAll('.card')).map(c=>c.dataset.id);
-    const newOrder = [];
-    ids.forEach(id=>{
-      const s = sites.find(x=>x.id===id);
-      if(s) newOrder.push(s);
-    });
-    if(newOrder.length) {
-      sites = newOrder;
-      localStorage.setItem('dfm_sites_v1', JSON.stringify(sites));
-      showToast('정렬이 저장되었습니다.');
-    }
-  }
+    if (sitesInCategory.length > 0) {
+      section.style.display = "block";
+      const limit = DEFAULT_DISPLAY_LIMIT;
+      const isExpanded = expandedCategories[category];
+      const toShow = isExpanded ? sitesInCategory : sitesInCategory.slice(0, limit);
+      const remaining = Math.max(0, sitesInCategory.length - limit);
 
-  /***********************
-   * 최근 본 사이트 (간단 저장)
-   ***********************/
-  function pushRecent(site){
-    try{
-      let recent = JSON.parse(localStorage.getItem('dfm_recent_v1')||'[]');
-      recent = recent.filter(r=>r.id !== site.id);
-      recent.unshift({id:site.id,name:site.name,url:site.url,time:Date.now()});
-      recent = recent.slice(0,10);
-      localStorage.setItem('dfm_recent_v1', JSON.stringify(recent));
-    }catch(e){}
-  }
+      toShow.forEach(s => content.appendChild(createSiteCard(s)));
 
-  /***********************
-   * 유틸: XSS 방지
-   ***********************/
-  function escapeHtml(s){ if(!s) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
-
-  /***********************
-   * 토스트
-   ***********************/
-  function showToast(msg, err=false){
-    const el = document.createElement('div');
-    el.textContent = msg;
-    el.style.position='fixed'; el.style.right='18px'; el.style.bottom='18px';
-    el.style.padding='10px 14px'; el.style.borderRadius='12px'; el.style.background= err? '#dc3545' : 'linear-gradient(90deg,#6c63ff,#7b61ff)';
-    el.style.color='#fff'; el.style.boxShadow='0 10px 30px rgba(0,0,0,0.18)'; el.style.zIndex=9999;
-    document.body.appendChild(el);
-    setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>el.remove(),400); },2500);
-  }
-
-  /***********************
-   * 키보드 단축키
-   ***********************/
-  function attachEvents(){
-    // tabs click
-    document.querySelectorAll('.tab').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        currentTab = btn.dataset.tab;
-        renderTabs();
-        renderGrid();
-      });
-    });
-    // search
-    document.getElementById('search').addEventListener('input', ()=>{
-      renderGrid();
-    });
-    // theme toggle
-    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-    // guide toggle
-    document.getElementById('guideToggle').addEventListener('click', ()=>{
-      const g = document.getElementById('guideArea');
-      const vis = g.getAttribute('aria-hidden') === 'true' ? false : false;
-      if(g.style.display === 'none' || g.getAttribute('aria-hidden')==='true'){
-        g.style.display='block';
-        g.setAttribute('aria-hidden','false');
-      } else {
-        g.style.display='none';
-        g.setAttribute('aria-hidden','true');
-      }
-    });
-
-    // keyboard
-    document.addEventListener('keydown', (e)=>{
-      if(e.key === '/') { e.preventDefault(); document.getElementById('search').focus(); }
-      if(e.key === 'd' || e.key === 'D'){ toggleTheme(); }
-      if(e.key === 'g' || e.key === 'G'){ document.getElementById('guideToggle').click(); }
-      if(e.key === 'p' || e.key === 'P'){ // preview focused card
-        const focused = document.querySelector('.card:focus') || document.querySelector('.card');
-        if(focused){
-          const id = focused.dataset.id;
-          const site = sites.find(s=>s.id===id);
-          if(site) openPreview(site);
+      if (sitesInCategory.length > limit) {
+        const btnContainer = document.createElement("div");
+        btnContainer.className = "more-btn-container";
+        if (isExpanded) {
+          btnContainer.innerHTML = `<button class="collapse-btn" onclick="collapseSites('${category}')">접기 ↑</button>`;
+        } else {
+          btnContainer.innerHTML = `<button class="more-btn" onclick="expandSites('${category}')">더보기 (${remaining}개 더 있음) ↓</button>`;
         }
+        content.appendChild(btnContainer);
       }
-      // left/right to change tabs (simple)
-      if(e.key === 'ArrowLeft' || e.key === 'ArrowRight'){
-        const tabButtons = Array.from(document.querySelectorAll('.tab'));
-        const curIdx = tabButtons.findIndex(b=>b.classList.contains('active'));
-        let next = curIdx;
-        if(e.key === 'ArrowLeft') next = Math.max(0, curIdx-1);
-        if(e.key === 'ArrowRight') next = Math.min(tabButtons.length-1, curIdx+1);
-        if(tabButtons[next]) tabButtons[next].click();
+    } else {
+      // 카테고리 필터가 전체 or 이 카테고리가 선택된 경우 빈 메시지 보이기
+      if (currentCategoryFilter === "all" || currentCategoryFilter === category) {
+        section.style.display = "block";
+        content.innerHTML = "<p style='color:#666;text-align:center;padding:20px;'>해당 조건의 사이트가 없습니다.</p>";
+      } else {
+        section.style.display = "none";
       }
+    }
+  });
+
+  document.getElementById("noResults").style.display = hasResults ? "none" : "block";
+  updateStats();
+}
+
+/* 더보기/접기 */
+function expandSites(category) { expandedCategories[category] = true; renderSites(); }
+function collapseSites(category) { expandedCategories[category] = false; renderSites(); }
+
+/* ===== 필터 탭(카테고리 탭) 생성 & 이벤트 ===== */
+function buildCategoryTabs() {
+  const tabs = document.getElementById("filterTabs");
+  tabs.innerHTML = "";
+  const allCats = getAllCategories();
+  const keys = Object.keys(allCats);
+  // '전체' 탭 추가
+  const allBtn = document.createElement("button");
+  allBtn.className = "tab-btn active";
+  allBtn.dataset.cat = "all";
+  allBtn.textContent = "전체";
+  allBtn.addEventListener("click", e => {
+    document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));
+    e.currentTarget.classList.add("active");
+    currentCategoryFilter = "all";
+    expandedCategories = {};
+    renderSites();
+  });
+  tabs.appendChild(allBtn);
+
+  keys.forEach(k => {
+    const btn = document.createElement("button");
+    btn.className = "tab-btn";
+    btn.dataset.cat = k;
+    btn.textContent = `${allCats[k].icon} ${allCats[k].name}`;
+    btn.addEventListener("click", e => {
+      document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+      currentCategoryFilter = e.currentTarget.dataset.cat;
+      expandedCategories = {};
+      renderSites();
     });
+    tabs.appendChild(btn);
+  });
+}
 
-    // modal close by ESC
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closePreview(); });
-
-    // click outside preview to close
-    previewModal.addEventListener('click', (ev)=>{
-      if(ev.target === previewModal) closePreview();
+/* ===== 필터/검색 이벤트 연결 ===== */
+function setupFilters() {
+  document.querySelectorAll("#ageFilter .filter-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      document.querySelectorAll("#ageFilter .filter-btn").forEach(b=>b.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+      currentAgeFilter = e.currentTarget.dataset.age;
+      renderSites();
     });
-  }
+  });
 
-  /***********************
-   * 테마 저장/토글
-   ***********************/
-  function toggleTheme(){
-    const el = document.body;
-    const cur = el.getAttribute('data-theme') || 'light';
-    const next = cur === 'light' ? 'dark' : 'light';
-    el.setAttribute('data-theme', next);
-    localStorage.setItem('dfm_theme_v1', next);
-  }
-  (function loadTheme(){
-    const saved = localStorage.getItem('dfm_theme_v1');
-    if(saved) document.body.setAttribute('data-theme', saved);
-  })();
+  document.getElementById("subjectFilter").addEventListener("change", e => {
+    currentSubjectFilter = e.target.value;
+    renderSites();
+  });
 
-  /***********************
-   * UI 보조: 필터 결과 카운트
-   ***********************/
-  function highlightFilteredCount(){
-    // small quick info in guide area
-    const cnt = getFilteredSites().length;
-    document.getElementById('guideSummary').textContent = `현재 ${cnt}개 사이트가 표시됩니다. '/'로 검색, 드래그로 정렬 가능.`;
-  }
+  document.getElementById("searchInput").addEventListener("input", e => {
+    currentSearchQuery = e.target.value;
+    renderSites();
+  });
 
-  // re-highlight after render
-  const origRenderGrid = renderGrid;
-  renderGrid = function(){ origRenderGrid(); highlightFilteredCount(); };
+  document.getElementById("darkToggle").addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+  });
 
-  // init
-  init();
-  </script>
+  document.getElementById("viewAllBtn").addEventListener("click", resetFilters);
+}
+
+/* ===== 초기화 & 유틸 ===== */
+function resetFilters() {
+  currentAgeFilter = "all";
+  currentCategoryFilter = "all";
+  currentSubjectFilter = "all";
+  currentSearchQuery = "";
+  document.getElementById("searchInput").value = "";
+  document.querySelector("#ageFilter .filter-btn[data-age='all']").classList.add("active");
+  // reset other age buttons
+  document.querySelectorAll("#ageFilter .filter-btn:not([data-age='all'])").forEach(b=>b.classList.remove("active"));
+  document.getElementById("subjectFilter").value = "all";
+  // reset tabs
+  document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));
+  document.querySelector("#filterTabs .tab-btn[data-cat='all']").classList.add("active");
+  expandedCategories = {};
+  renderSites();
+}
+
+function init() {
+  renderCategorySections();
+  buildCategoryTabs();
+  setupFilters();
+  renderSites();
+}
+
+/* DOMContentLoaded */
+document.addEventListener("DOMContentLoaded", init);
+</script>
+<footer style="background:#333; color:#fff; text-align:center; padding:15px; margin-top:20px; font-size:14px;">
+  © 2025 딱필모 | 이 사이트는 Ai를 사용해 제작되었고 개인 사용을 목적으로 제작되었습니다.
+  <br>
+  💬 문의 및 버그신고는 디스코드 서버에서 받습니다 (아직 디코 서버 만들지 않음)👉 
+  <a href="https://discord.gg/여기에_초대코드" target="_blank" style="color:#4da3ff; font-weight:bold; text-decoration:none;">
+    디스코드 참여하기
+  </a>
+</footer>
 </body>
 </html>
+
+
+

@@ -322,7 +322,7 @@ function updateStats() {
   document.getElementById("filteredCount").textContent = getFilteredSites().length;
 }
 
-/* ===== 필터링 & 검색 (카테고리별 검색 포함) ===== */
+/* ===== 필터링 & 검색 ===== */
 function getFilteredSites(categoryFilter = "all") {
   const q = currentSearchQuery.trim().toLowerCase();
   return sites.filter(s => {
@@ -337,7 +337,7 @@ function getFilteredSites(categoryFilter = "all") {
   });
 }
 
-/* ===== DOM 생성 함수 (카테고리 & 카드) ===== */
+/* ===== DOM 생성 ===== */
 function createCategorySection(categoryKey) {
   const allCategories = getAllCategories();
   const info = allCategories[categoryKey];
@@ -397,7 +397,7 @@ function renderRecommendations() {
 }
 
 /* ===== 사이트 렌더링 ===== */
-function renderSites(categoryFilter = "all") {
+function renderSites(categoryFilter = currentCategoryFilter) {
   showSpinner();
   const allKeys = Object.keys(getAllCategories());
   const filtered = getFilteredSites(categoryFilter);
@@ -457,7 +457,7 @@ function buildCategoryTabs() {
   tabs.innerHTML = "";
   const allCats = getAllCategories();
   const keys = Object.keys(allCats);
-  // '전체' 탭 추가
+
   const allBtn = document.createElement("button");
   allBtn.className = "tab-btn active";
   allBtn.dataset.cat = "all";
@@ -515,7 +515,7 @@ function setupFilters() {
   document.getElementById("viewAllBtn").addEventListener("click", resetFilters);
 }
 
-/* ===== 초기화 & 유틸 ===== */
+/* ===== 필터 초기화 ===== */
 function resetFilters() {
   currentAgeFilter = "all";
   currentCategoryFilter = "all";
@@ -523,16 +523,26 @@ function resetFilters() {
   currentSearchQuery = "";
   document.getElementById("searchInput").value = "";
   document.querySelector("#ageFilter .filter-btn[data-age='all']").classList.add("active");
-  // reset other age buttons
   document.querySelectorAll("#ageFilter .filter-btn:not([data-age='all'])").forEach(b=>b.classList.remove("active"));
   document.getElementById("subjectFilter").value = "all";
-  // reset tabs
   document.querySelectorAll("#filterTabs .tab-btn").forEach(b=>b.classList.remove("active"));
   document.querySelector("#filterTabs .tab-btn[data-cat='all']").classList.add("active");
   expandedCategories = {};
   renderSites();
 }
 
+/* ===== 카테고리 섹션 생성 ===== */
+function renderCategorySections() {
+  const container = document.getElementById("siteContainer");
+  container.innerHTML = "";
+  const allCategories = getAllCategories();
+  Object.keys(allCategories).forEach(catKey => {
+    const section = createCategorySection(catKey);
+    if (section) container.appendChild(section);
+  });
+}
+
+/* ===== 초기화 ===== */
 function init() {
   renderCategorySections();
   buildCategoryTabs();

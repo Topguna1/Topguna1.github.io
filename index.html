@@ -687,8 +687,7 @@ else {
     `${siteName} 북마크에 추가되었습니다` : 
     `${siteName} 북마크에서 제거되었습니다`);
 }
-function shareSite(siteName, url) {
-  const text = `${siteName}: ${url}`;
+: ${url}`;
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => {
       showToast('링크가 클립보드에 복사되었습니다!');
@@ -1835,10 +1834,6 @@ function addBookmarkManagement() {
     e.target.value = '';
   });
 }
-function exportBookmarks() {
-  if (window.bookmarkManager) {
-    window.bookmarkManager.exportBookmarks();
-  }
 }
 function buildCategoryTabsFixed() {
   const tabs = document.getElementById("filterTabs");
@@ -1933,7 +1928,6 @@ setTimeout(() => {
     </p>
   </div>
 </footer>
-
 <script>
 window.shareSite = function(siteName, url) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1951,6 +1945,5 @@ window.shareSite = function(siteName, url) {
   }
 };
 </script>
-
 </body>
 </html>

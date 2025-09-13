@@ -2475,8 +2475,35 @@ setTimeout(() => {
 })();
 </script>
 
+<script>
+(function(){
+  const origRenderSites = window.renderSites;
+
+  // renderSites 끝난 후 북마크 탭 보정
+  window.renderSites = function() {
+    if (origRenderSites) origRenderSites();
+
+    if (typeof currentCategoryFilter !== "undefined" && currentCategoryFilter === "bookmarks") {
+      const allKeys = Object.keys(getAllCategories());
+      allKeys.forEach(category => {
+        const content = document.getElementById(`${category}-content`);
+        const section = document.getElementById(`${category}-section`);
+        if (!content || !section) return;
+
+        const hasBookmark = Array.from(content.querySelectorAll(".link-card"))
+          .some(card => bookmarkManager.isBookmarked(card.getAttribute("data-site")));
+
+        if (!hasBookmark) {
+          section.style.display = "none";
+        }
+      });
+    }
+  };
+})();
+</script>
 </body>
 </html>
+
 
 
 

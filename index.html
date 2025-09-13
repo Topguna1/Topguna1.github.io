@@ -698,10 +698,10 @@ function escapeHtml(str) {
 
 function debounce(func, wait) {
   let timeout;
-  return function executedFunction(...args) {
+  return function executedFunction(.....args) {
     const later = () => {
       clearTimeout(timeout);
-      func(...args);
+      func(.....args);
     };
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
@@ -926,7 +926,7 @@ function renderSites() {
   // 북마크된 사이트를 먼저 표시
   const bookmarkedFiltered = filtered.filter(s => bookmarkedSites.has(s.name));
   const nonBookmarkedFiltered = filtered.filter(s => !bookmarkedSites.has(s.name));
-  const sortedFiltered = [...bookmarkedFiltered, ...nonBookmarkedFiltered];
+  const sortedFiltered = [.....bookmarkedFiltered, .....nonBookmarkedFiltered];
   
   allKeys.forEach(category => {
     const content = document.getElementById(`${category}-content`);
@@ -1356,7 +1356,7 @@ let currentSort = 'default';
 /* ======= 정렬 함수 ======= */
 function sortSitesArray(arr) {
   if (!Array.isArray(arr)) return arr;
-  const copy = [...arr];
+  const copy = [.....arr];
   if (currentSort === 'alpha') {
     copy.sort((a,b) => a.name.localeCompare(b.name,'ko'));
   } else if (currentSort === 'bookmark') {
@@ -1513,7 +1513,7 @@ function attachGlobalLinkHandlerAndCardButtons() {
       const name = card.getAttribute('data-site');
       const site = sites.find(s=>s.name===name);
       if (site) {
-        const text = site.url;
+        const text = `${site.name} - ${site.url}`;
         if (navigator.clipboard) navigator.clipboard.writeText(text).then(()=>showToast('링크가 복사되었습니다!'));
         else {
           const ta = document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
@@ -2029,7 +2029,7 @@ function renderSitesWithFeatures() {
     !window.bookmarkManager.isBookmarked(s.name) : 
     (!window.bookmarkedSites || !window.bookmarkedSites.has(s.name))
   );
-  const sortedFiltered = [...bookmarkedFiltered, ...nonBookmarkedFiltered];
+  const sortedFiltered = [.....bookmarkedFiltered, .....nonBookmarkedFiltered];
   
   allKeys.forEach(category => {
     const content = document.getElementById(`${category}-content`);
@@ -2260,297 +2260,135 @@ setTimeout(() => {
 </footer>
 
 
-<script>
-(function(){
-  // --- BookmarkManager 정의 ---
-  class BookmarkManager {
-    constructor(key) {
-      this.STORAGE_KEY = key;
-      this.load();
-    }
-    load() {
-      try {
-        this.bookmarks = new Set(JSON.parse(localStorage.getItem(this.STORAGE_KEY) || "[]"));
-      } catch(e) {
-        this.bookmarks = new Set();
-      }
-    }
-    save() {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify([...this.bookmarks]));
-    }
-    isBookmarked(name) {
-      return this.bookmarks.has(name);
-    }
-    toggle(name) {
-      if (this.isBookmarked(name)) {
-        this.bookmarks.delete(name);
-      } else {
-        this.bookmarks.add(name);
-      }
-      this.save();
-    }
-  }
 
-  window.bookmarkManager = new BookmarkManager("siteBookmarks");
-
-  // --- createSiteCard 확장: 북마크 버튼 상태 반영 ---
-  const origCreateSiteCard = window.createSiteCard;
-  if (origCreateSiteCard) {
-    window.createSiteCard = function(site) {
-      const card = origCreateSiteCard(site);
-      const btn = card.querySelector(".bookmark-btn");
-      if (btn) {
-        const isB = bookmarkManager.isBookmarked(site.name);
-        btn.classList.toggle("bookmarked", isB);
-        btn.textContent = isB ? "❤️" : "🤍";
-      }
-      return card;
-    };
-  }
-
-  // --- toggleBookmark 확장 ---
-  window.toggleBookmark = function(siteName) {
-    bookmarkManager.toggle(siteName);
-    if (typeof showToast === "function") {
-      showToast(
-        bookmarkManager.isBookmarked(siteName)
-          ? `${siteName} 북마크에 추가됨`
-          : `${siteName} 북마크에서 제거됨`
-      );
-    }
-    if (typeof renderSites === "function") renderSites();
-  };
-
-  // --- renderSites 후처리: 북마크 탭일 때 북마크 없는 카테고리 숨김 ---
-  const origRenderSites = window.renderSites;
-  if (origRenderSites) {
-    window.renderSites = function() {
-      origRenderSites();
-
-      if (typeof currentCategoryFilter !== "undefined" && currentCategoryFilter === "bookmarks") {
-        const allKeys = Object.keys(getAllCategories());
-        allKeys.forEach(category => {
-          const section = document.getElementById(`${category}-section`);
-          const content = document.getElementById(`${category}-content`);
-          if (!section || !content) return;
-          const hasBookmark = [...content.querySelectorAll(".link-card")].some(card =>
-            bookmarkManager.isBookmarked(card.getAttribute("data-site"))
-          );
-          if (!hasBookmark) {
-            section.style.display = "none";
-          }
-        });
-      }
-    };
-  }
-})();
-</script>
-
-
+<!-- Bookmark-sync patch START -->
 <script>
 (function(){
   const LS_KEY = (typeof LS_KEYS !== 'undefined' && LS_KEYS.BOOKMARKS) ? LS_KEYS.BOOKMARKS : 'dikpilmo_bookmarks_v1';
-  function safeParse(key, fallback){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }catch(e){ return fallback; } }
-  function safeSave(key, obj){ try{ localStorage.setItem(key, JSON.stringify(obj)); }catch(e){} }
 
-  // initialize global bookmarkedSites Set from existing managers or localStorage
-  if (window.bookmarkManager && window.bookmarkManager.bookmarks) {
-    window.bookmarkedSites = new Set(Array.from(window.bookmarkManager.bookmarks));
-  } else {
-    window.bookmarkedSites = new Set(safeParse(LS_KEY, []));
+  function safeLoad() {
+    try {
+      const v = localStorage.getItem(LS_KEY);
+      return v ? JSON.parse(v) : [];
+    } catch (e) { return []; }
+  }
+  function safeSave(arr) {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e) {}
   }
 
-  // helper to update all bookmark buttons for current DOM
-  function refreshBookmarkButtons() {
-    document.querySelectorAll('.link-card').forEach(card => {
-      const name = card.getAttribute('data-site');
-      if (!name) return;
-      const btn = card.querySelector('.bookmark-btn');
-      if (!btn) return;
-      const isB = window.bookmarkedSites.has(name);
-      btn.classList.toggle('bookmarked', isB);
-      btn.innerHTML = isB ? '❤️' : '🤍';
-    });
-    // update bookmark count if function exists
-    if (window.bookmarkManager && typeof window.bookmarkManager.updateBookmarkCount === 'function') {
-      try { window.bookmarkManager.updateBookmarkCount(); } catch(e) {}
-    }
-  }
-
-  // toggle helper
-  function toggleSiteBookmark(name) {
-    if (window.bookmarkedSites.has(name)) window.bookmarkedSites.delete(name);
-    else window.bookmarkedSites.add(name);
-    // persist both to LS_KEY and to bookmarkManager if present
-    safeSave(LS_KEY, Array.from(window.bookmarkedSites));
-    if (window.bookmarkManager && typeof window.bookmarkManager.save === 'function') {
-      try { window.bookmarkManager.bookmarks = new Set(Array.from(window.bookmarkedSites)); window.bookmarkManager.save(); } catch(e) {}
-    }
-    refreshBookmarkButtons();
-  }
-
-  // intercept clicks globally for bookmark buttons & share buttons
-  document.addEventListener('click', function(e){
-    const bb = e.target.closest('.bookmark-btn');
-    if (bb) {
-      const card = bb.closest('[data-site]');
-      if (!card) return;
-      const name = card.getAttribute('data-site');
-      toggleSiteBookmark(name);
-      if (typeof showToast === 'function') {
-        showToast(window.bookmarkedSites.has(name) ? `${name} 북마크에 추가되었습니다` : `${name} 북마크에서 제거되었습니다`);
-      }
-      e.preventDefault();
-      return;
+  function ensureBookmarkManager(stored) {
+    if (window.bookmarkManager && typeof window.bookmarkManager.toggle === 'function') {
+      try {
+        if (window.bookmarkManager.bookmarks instanceof Set) {
+          stored.forEach(s => window.bookmarkManager.bookmarks.add(s));
+        } else if (Array.isArray(window.bookmarkManager.bookmarks)) {
+          window.bookmarkManager.bookmarks = new Set(window.bookmarkManager.bookmarks.concat(stored));
+        } else if (typeof window.bookmarkManager.load === 'function') {
+          window.bookmarkManager.load();
+          (stored || []).forEach(s => { if (!window.bookmarkManager.isBookmarked(s)) window.bookmarkManager.toggle(s); });
+        }
+        if (typeof window.bookmarkManager.saveBookmarks !== 'function' && typeof window.bookmarkManager.save !== 'function') {
+          window.bookmarkManager.save = function(){ try{ safeSave(Array.from(this.bookmarks || [])); }catch(e){} };
+        }
+      } catch(e) { console.warn('bookmarkManager merge error', e); }
+      return window.bookmarkManager;
     }
 
-    const sb = e.target.closest('.share-btn');
-    if (sb) {
-      const card = sb.closest('[data-site]');
-      if (!card) return;
-      const name = card.getAttribute('data-site');
-      // find site url from global sites array
-      const site = (Array.isArray(window.sites) ? window.sites.find(s => s.name === name) : null);
-      const url = site ? site.url : (card.querySelector('a') ? card.querySelector('a').href : null);
-      if (!url) {
-        if (typeof showToast === 'function') showToast('링크를 찾을 수 없습니다.');
-        return;
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(()=>{ if (typeof showToast === 'function') showToast('링크가 클립보드에 복사되었습니다!'); });
-      } else {
-        // fallback copy
-        const ta = document.createElement('textarea');
-        ta.value = url; document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); if (typeof showToast === 'function') showToast('링크가 클립보드에 복사되었습니다!'); } catch(e){ if (typeof showToast === 'function') showToast('복사에 실패했습니다.'); }
-        ta.remove();
-      }
-      e.preventDefault();
-      return;
-    }
-  }, true);
-
-  // also override existing shareSite function to copy only URL (for inline onclicks)
-  window.shareSite = function(siteName, url){
-    if (!url) return;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(()=>{ if (typeof showToast === 'function') showToast('링크가 클립보드에 복사되었습니다!'); });
+    if (!window.bookmarkedSites || !(window.bookmarkedSites instanceof Set)) {
+      window.bookmarkedSites = new Set(stored || []);
     } else {
-      const ta = document.createElement('textarea');
-      ta.value = url; document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); if (typeof showToast === 'function') showToast('링크가 클립보드에 복사되었습니다!'); } catch(e){ if (typeof showToast === 'function') showToast('복사에 실패했습니다.'); }
-      ta.remove();
+      (stored || []).forEach(s => window.bookmarkedSites.add(s));
     }
-  };
 
-  // ensure buttons reflect stored bookmarks after initial render
-  function safeInitialRefresh(){
-    try { refreshBookmarkButtons(); } catch(e) {}
+    var mgr = {
+      bookmarks: window.bookmarkedSites,
+      isBookmarked: function(name){ return window.bookmarkedSites.has(name); },
+      toggle: function(name){ if (window.bookmarkedSites.has(name)) window.bookmarkedSites.delete(name); else window.bookmarkedSites.add(name); safeSave(Array.from(window.bookmarkedSites)); },
+      add: function(name){ window.bookmarkedSites.add(name); safeSave(Array.from(window.bookmarkedSites)); },
+      remove: function(name){ window.bookmarkedSites.delete(name); safeSave(Array.from(window.bookmarkedSites)); },
+      getBookmarkedSites: function(){ try { return (typeof sites !== 'undefined') ? sites.filter(function(s){ return window.bookmarkedSites.has(s.name); }) : []; } catch(e){ return []; } },
+      updateBookmarkCount: function(){ try { var el = document.getElementById('bookmark-count'); if (el) el.textContent = this.bookmarks.size; } catch(e){} },
+      save: function(){ safeSave(Array.from(this.bookmarks || [])); }
+    };
+    window.bookmarkManager = mgr;
+    return mgr;
+  }
+
+  function attachOverrides() {
+    try {
+      var stored = safeLoad();
+      ensureBookmarkManager(stored);
+
+      window.toggleBookmark = function(siteName){
+        try {
+          if (window.bookmarkManager && typeof window.bookmarkManager.toggle === 'function') {
+            window.bookmarkManager.toggle(siteName);
+            if (typeof window.bookmarkManager.save === 'function') window.bookmarkManager.save();
+            if (typeof showToast === 'function') {
+              showToast(window.bookmarkManager.isBookmarked(siteName) ? siteName + ' 북마크 추가됨' : siteName + ' 북마크 제거됨');
+            }
+            document.querySelectorAll('.link-card').forEach(function(card){
+              var name = card.getAttribute('data-site');
+              if (name === siteName) {
+                var btn = card.querySelector('.bookmark-btn');
+                if (btn) {
+                  var isB = window.bookmarkManager.isBookmarked(siteName);
+                  btn.classList.toggle('bookmarked', isB);
+                  btn.textContent = isB ? '❤️' : '🤍';
+                }
+              }
+            });
+            if (typeof renderSites === 'function') renderSites();
+          }
+        } catch(e) {
+          console.error('toggleBookmark override error', e);
+        }
+      };
+
+      window.shareSite = function(siteName, url) {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function(){ if (typeof showToast === 'function') showToast('링크가 클립보드에 복사되었습니다!'); }).catch(function(){ fallbackCopy(url); });
+          } else {
+            fallbackCopy(url);
+          }
+        } catch(e) {
+          console.error('shareSite override error', e);
+        }
+      };
+
+      if (typeof addBookmarkTab === 'function') {
+        try { addBookmarkTab(); } catch(e){}
+      }
+
+      setTimeout(function(){
+        document.querySelectorAll('.link-card').forEach(function(card){
+          var name = card.getAttribute('data-site');
+          var btn = card.querySelector('.bookmark-btn');
+          if (btn && name) {
+            var isB = window.bookmarkManager && typeof window.bookmarkManager.isBookmarked === 'function'
+                        ? window.bookmarkManager.isBookmarked(name)
+                        : (window.bookmarkedSites && window.bookmarkedSites.has(name));
+            btn.classList.toggle('bookmarked', isB);
+            btn.textContent = isB ? '❤️' : '🤍';
+          }
+        });
+        if (typeof renderSites === 'function') renderSites();
+      }, 60);
+
+    } catch(e) {
+      console.error('attachOverrides error', e);
+    }
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', safeInitialRefresh);
-    // also run a bit later in case some scripts render after DOMContentLoaded
-    window.addEventListener('load', safeInitialRefresh);
-    setTimeout(safeInitialRefresh, 500);
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(attachOverrides, 40); });
   } else {
-    safeInitialRefresh();
+    setTimeout(attachOverrides, 40);
   }
-
-  // expose utility
-  window.refreshBookmarkButtons = refreshBookmarkButtons;
-  window.toggleSiteBookmark = toggleSiteBookmark;
-
 })();
 </script>
-
-<script>
-(function(){
-  // BookmarkManager (localStorage 기반)
-  class BookmarkManager {
-    constructor(key="siteBookmarks") {
-      this.key = key;
-      this.load();
-    }
-    load() {
-      try {
-        this.bookmarks = new Set(JSON.parse(localStorage.getItem(this.key) || "[]"));
-      } catch(e) {
-        this.bookmarks = new Set();
-      }
-    }
-    save() {
-      localStorage.setItem(this.key, JSON.stringify([...this.bookmarks]));
-    }
-    isBookmarked(name) {
-      return this.bookmarks.has(name);
-    }
-    toggle(name) {
-      if (this.isBookmarked(name)) this.bookmarks.delete(name);
-      else this.bookmarks.add(name);
-      this.save();
-    }
-  }
-
-  window.bookmarkManager = new BookmarkManager();
-
-  // createSiteCard 수정 → 북마크 버튼 상태 반영
-  const origCreateSiteCard = window.createSiteCard;
-  window.createSiteCard = function(site) {
-    const card = origCreateSiteCard(site);
-    const btn = card.querySelector(".bookmark-btn");
-    if (btn) {
-      const isB = bookmarkManager.isBookmarked(site.name);
-      btn.textContent = isB ? "❤️" : "🤍";
-      btn.classList.toggle("bookmarked", isB);
-    }
-    return card;
-  };
-
-  // toggleBookmark 수정
-  window.toggleBookmark = function(siteName) {
-    bookmarkManager.toggle(siteName);
-    if (typeof showToast === "function") {
-      showToast(
-        bookmarkManager.isBookmarked(siteName)
-          ? `${siteName} 북마크에 추가됨`
-          : `${siteName} 북마크에서 제거됨`
-      );
-    }
-    renderSites();
-  };
-
-  // renderSites 후처리: 북마크 탭
-  const origRenderSites = window.renderSites;
-  window.renderSites = function() {
-    origRenderSites();
-
-    if (currentCategoryFilter === "bookmarks") {
-      const allKeys = Object.keys(getAllCategories());
-      allKeys.forEach(category => {
-        const section = document.getElementById(`${category}-section`);
-        const content = document.getElementById(`${category}-content`);
-        if (!section || !content) return;
-
-        // 카테고리 내 북마크 필터링
-        [...content.querySelectorAll(".link-card")].forEach(card => {
-          const name = card.getAttribute("data-site");
-          if (!bookmarkManager.isBookmarked(name)) {
-            card.remove();
-          }
-        });
-
-        // 북마크 없는 카테고리는 숨김
-        if (content.children.length === 0) {
-          section.style.display = "none";
-        }
-      });
-    }
-  };
-})();
-</script>
+<!-- Bookmark-sync patch END -->
 
 </body>
 </html>
-
-

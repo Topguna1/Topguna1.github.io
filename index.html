@@ -554,81 +554,7 @@ body.dark .link-card p {
   }
 }
 </style>
-<script src="categories-data.js">
-// renderSites 함수 수정
-function renderSites() {
-  const allKeys = Object.keys(getAllCategories());
-  const filtered = getFilteredSites();
-  const hasResults = filtered.length > 0;
-
-  // 북마크 필터 처리
-  let sortedFiltered;
-  if (currentCategoryFilter === "bookmarks") {
-    sortedFiltered = filtered.filter(s => bookmarkManager.isBookmarked(s.name));
-  } else {
-    const bookmarkedFiltered = filtered.filter(s => bookmarkManager.isBookmarked(s.name));
-    const nonBookmarkedFiltered = filtered.filter(s => !bookmarkManager.isBookmarked(s.name));
-    sortedFiltered = [...bookmarkedFiltered, ...nonBookmarkedFiltered];
-  }
-
-  allKeys.forEach(category => {
-    const content = document.getElementById(`${category}-content`);
-    const section = document.getElementById(`${category}-section`);
-    const countEl = document.getElementById(`${category}-count`);
-
-    if (!content || !section) return;
-
-    const sitesInCategory = sortedFiltered.filter(s => s.category === category);
-
-    if (currentCategoryFilter === "bookmarks" && sitesInCategory.length === 0) {
-      section.style.display = "none";
-      return;
-    }
-
-    content.innerHTML = "";
-    if (countEl) countEl.textContent = sitesInCategory.length;
-
-    if (sitesInCategory.length > 0) {
-      section.style.display = "block";
-
-      const limit = DEFAULT_DISPLAY_LIMIT;
-      const isExpanded = expandedCategories[category];
-      const toShow = isExpanded ? sitesInCategory : sitesInCategory.slice(0, limit);
-      const remaining = Math.max(0, sitesInCategory.length - limit);
-
-      toShow.forEach(s => {
-        content.appendChild(createSiteCard(s));
-      });
-
-      if (sitesInCategory.length > limit) {
-        const btnContainer = document.createElement("div");
-        btnContainer.className = "more-btn-container";
-
-        if (isExpanded) {
-          btnContainer.innerHTML = `
-            <button class="collapse-btn" onclick="collapseSites('${category}')">
-              접기 ↑
-            </button>
-          `;
-        } else {
-          btnContainer.innerHTML = `
-            <button class="more-btn" onclick="expandSites('${category}')">
-              더보기 (+${remaining}개) ↓
-            </button>
-          `;
-        }
-        content.appendChild(btnContainer);
-      }
-    } else {
-      section.style.display = "none";
-    }
-  });
-
-  document.getElementById("noResults").style.display = hasResults ? "none" : "block";
-  updateStats();
-}
-
-</script>
+<script src="categories-data.js"></script>
 <script src="sites-data.js"></script>
 </head>
 <body>
@@ -989,6 +915,19 @@ function renderCategorySections() {
   });
 }
 
+function renderSites() {
+  const allKeys = Object.keys(getAllCategories());
+  const filtered = getFilteredSites();
+  const hasResults = filtered.length > 0;
+
+  // 북마크된 사이트를 먼저 표시
+  const bookmarkedFiltered = filtered.filter(s => bookmarkedSites.has(s.name));
+  const nonBookmarkedFiltered = filtered.filter(s => !bookmarkedSites.has(s.name));
+  let sortedFiltered = [...bookmarkedFiltered, ...nonBookmarkedFiltered];
+
+  if (currentCategoryFilter === "bookmarks") {
+    sortedFiltered = sortedFiltered.filter(s => bookmarkManager.isBookmarked(s.name));
+  }
 
   
   allKeys.forEach(category => {
@@ -2416,7 +2355,77 @@ setTimeout(() => {
 
   // Override renderSites to show categories normally OR when in 'bookmarks' tab,
   // only categories that contain bookmarked items will be visible.
-  
+  window.renderSites = function() {
+    const allKeys = Object.keys(getAllCategories());
+    const filtered = getFilteredSites();
+    const hasResults = filtered.length > 0;
+
+    let sortedFiltered;
+    if (currentCategoryFilter === "bookmarks") {
+      sortedFiltered = filtered.filter(s => bookmarkManager.isBookmarked(s.name));
+    } else {
+      const bookmarkedFiltered = filtered.filter(s => bookmarkManager.isBookmarked(s.name));
+      const nonBookmarkedFiltered = filtered.filter(s => !bookmarkManager.isBookmarked(s.name));
+      sortedFiltered = [...bookmarkedFiltered, ...nonBookmarkedFiltered];
+    }
+
+    allKeys.forEach(category => {
+      const content = document.getElementById(`${category}-content`);
+      const section = document.getElementById(`${category}-section`);
+      const countEl = document.getElementById(`${category}-count`);
+
+      if (!content || !section) return;
+
+      const sitesInCategory = sortedFiltered.filter(s => s.category === category);
+
+      // If in bookmarks tab, hide categories with zero bookmarked items
+      if (currentCategoryFilter === "bookmarks" && sitesInCategory.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      content.innerHTML = "";
+      if (countEl) countEl.textContent = sitesInCategory.length;
+
+      if (sitesInCategory.length > 0) {
+        section.style.display = "block";
+        const limit = typeof DEFAULT_DISPLAY_LIMIT !== 'undefined' ? DEFAULT_DISPLAY_LIMIT : 6;
+        const isExpanded = expandedCategories[category];
+        const toShow = isExpanded ? sitesInCategory : sitesInCategory.slice(0, limit);
+        const remaining = Math.max(0, sitesInCategory.length - limit);
+
+        toShow.forEach(s => {
+          content.appendChild(createSiteCard(s));
+        });
+
+        if (sitesInCategory.length > limit) {
+          const btnContainer = document.createElement("div");
+          btnContainer.className = "more-btn-container";
+
+          if (isExpanded) {
+            btnContainer.innerHTML = `
+              <button class="collapse-btn" onclick="collapseSites('${category}')">
+                접기 ↑
+              </button>
+            `;
+          } else {
+            btnContainer.innerHTML = `
+              <button class="more-btn" onclick="expandSites('${category}')">
+                더보기 (+${remaining}개) ↓
+              </button>
+            `;
+          }
+          content.appendChild(btnContainer);
+        }
+      } else {
+        // hide empty categories in all modes (so UI is cleaner)
+        section.style.display = "none";
+      }
+    });
+
+    document.getElementById("noResults").style.display = hasResults ? "none" : "block";
+    if (typeof updateStats === 'function') updateStats();
+  };
 
   // Ensure initial render uses the new logic (in case file had been rendered earlier without proper bookmark state)
   function safeInitialRender() {
@@ -2436,5 +2445,40 @@ setTimeout(() => {
 })();
 </script>
 
+
+<script>
+(function() {
+  const originalRenderSites = window.renderSites;
+
+  window.renderSites = function() {
+    if (originalRenderSites) {
+      originalRenderSites();
+    }
+
+    // 북마크 탭일 때 북마크 없는 카테고리 숨김
+    if (typeof currentCategoryFilter !== 'undefined' && currentCategoryFilter === "bookmarks") {
+      const allKeys = Object.keys(getAllCategories());
+      allKeys.forEach(category => {
+        const content = document.getElementById(`${category}-content`);
+        const section = document.getElementById(`${category}-section`);
+        if (!content || !section) return;
+
+        const hasBookmark = Array.from(content.querySelectorAll(".link-card"))
+          .some(card => bookmarkManager.isBookmarked(card.getAttribute("data-site")));
+
+        if (!hasBookmark) {
+          section.style.display = "none";
+        }
+      });
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
+
+
+
+
+

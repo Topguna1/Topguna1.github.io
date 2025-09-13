@@ -2219,7 +2219,79 @@ setTimeout(() => {
   }
 }, 600);
 </script>
+  
+<script>
+(function(){
+  // 안전 헬퍼(페이지에 이미 있으면 그걸 사용)
+  const safeParseFn = (typeof safeParse === 'function') ? safeParse : (k, f)=>{ try { const v = localStorage.getItem(k); return v?JSON.parse(v):f } catch(e){return f} };
+  const safeSaveFn = (typeof safeSave === 'function') ? safeSave : (k,obj)=>{ try{ localStorage.setItem(k, JSON.stringify(obj)); }catch(e){} };
 
+  function unifyBookmarks() {
+    try {
+      const desiredKey = (typeof LS_KEYS !== 'undefined' && LS_KEYS.BOOKMARKS) ? LS_KEYS.BOOKMARKS : 'dikpilmo_bookmarks_v1';
+
+      // 1) if bookmarkManager exists -> adopt desiredKey & merge older data
+      if (window.bookmarkManager) {
+        if (window.bookmarkManager.STORAGE_KEY !== desiredKey) {
+          const arr = safeParseFn(desiredKey, []);
+          arr.forEach(n => window.bookmarkManager.bookmarks.add(n));
+          window.bookmarkManager.STORAGE_KEY = desiredKey;
+          window.bookmarkManager.saveBookmarks();
+        }
+        window.bookmarkedSites = new Set(window.bookmarkManager.bookmarks);
+        if (typeof bookmarkedSites !== 'undefined') bookmarkedSites = new Set(window.bookmarkManager.bookmarks);
+      } else {
+        // 2) no manager yet -> ensure global Set uses stored array
+        const arr = safeParseFn(desiredKey, []);
+        window.bookmarkedSites = new Set(arr);
+        if (typeof bookmarkedSites !== 'undefined') bookmarkedSites = new Set(arr);
+      }
+      // update any bookmark count UI if manager exists
+      if (window.bookmarkManager && typeof window.bookmarkManager.updateBookmarkCount === 'function') {
+        window.bookmarkManager.updateBookmarkCount();
+      }
+    } catch(e) {
+      console.warn('북마크 동기화 실패', e);
+    }
+  }
+
+  // 3) 통합된 toggleBookmark: manager가 있으면 위임, 없으면 레거시 처리 + 저장
+  window.toggleBookmark = function(siteName) {
+    try {
+      if (window.bookmarkManager && typeof window.bookmarkManager.toggle === 'function') {
+        return window.bookmarkManager.toggle(siteName);
+      }
+      if (!window.bookmarkedSites) window.bookmarkedSites = new Set();
+      const was = window.bookmarkedSites.has(siteName);
+      if (was) window.bookmarkedSites.delete(siteName);
+      else window.bookmarkedSites.add(siteName);
+
+      // 저장 (LS_KEYS 우선)
+      if (typeof LS_KEYS !== 'undefined') {
+        safeSaveFn(LS_KEYS.BOOKMARKS, Array.from(window.bookmarkedSites));
+      } else {
+        safeSaveFn('dikpilmo_bookmarks_v1', Array.from(window.bookmarkedSites));
+      }
+
+      // UI 업데이트: 기존 renderSites() 사용
+      if (typeof renderSites === 'function') renderSites();
+      if (typeof window.bookmarkManager === 'object' && typeof window.bookmarkManager.updateBookmarkCount === 'function') {
+        window.bookmarkManager.updateBookmarkCount();
+      }
+
+      showToast(window.bookmarkedSites.has(siteName) ? `${siteName} 북마크 추가됨` : `${siteName} 북마크 제거됨`);
+    } catch(e) {
+      console.error('toggleBookmark 오류', e);
+    }
+  };
+
+  // 4) 초기 동기화 (초기화 시점에 따라 늦게 생성될 수 있으므로 지연 호출)
+  setTimeout(unifyBookmarks, 600);
+  // 안전상 DOMContentLoaded에도 한 번 더
+  document.addEventListener('DOMContentLoaded', () => setTimeout(unifyBookmarks, 300));
+})();
+</script>
+  
 <footer style="
   background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
   color: white;
@@ -2261,6 +2333,7 @@ setTimeout(() => {
 
 </body>
 </html>
+
 
 
 

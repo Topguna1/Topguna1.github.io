@@ -2464,6 +2464,93 @@ setTimeout(() => {
 })();
 </script>
 
+<script>
+(function(){
+  // BookmarkManager (localStorage 기반)
+  class BookmarkManager {
+    constructor(key="siteBookmarks") {
+      this.key = key;
+      this.load();
+    }
+    load() {
+      try {
+        this.bookmarks = new Set(JSON.parse(localStorage.getItem(this.key) || "[]"));
+      } catch(e) {
+        this.bookmarks = new Set();
+      }
+    }
+    save() {
+      localStorage.setItem(this.key, JSON.stringify([...this.bookmarks]));
+    }
+    isBookmarked(name) {
+      return this.bookmarks.has(name);
+    }
+    toggle(name) {
+      if (this.isBookmarked(name)) this.bookmarks.delete(name);
+      else this.bookmarks.add(name);
+      this.save();
+    }
+  }
+
+  window.bookmarkManager = new BookmarkManager();
+
+  // createSiteCard 수정 → 북마크 버튼 상태 반영
+  const origCreateSiteCard = window.createSiteCard;
+  window.createSiteCard = function(site) {
+    const card = origCreateSiteCard(site);
+    const btn = card.querySelector(".bookmark-btn");
+    if (btn) {
+      const isB = bookmarkManager.isBookmarked(site.name);
+      btn.textContent = isB ? "❤️" : "🤍";
+      btn.classList.toggle("bookmarked", isB);
+    }
+    return card;
+  };
+
+  // toggleBookmark 수정
+  window.toggleBookmark = function(siteName) {
+    bookmarkManager.toggle(siteName);
+    if (typeof showToast === "function") {
+      showToast(
+        bookmarkManager.isBookmarked(siteName)
+          ? `${siteName} 북마크에 추가됨`
+          : `${siteName} 북마크에서 제거됨`
+      );
+    }
+    renderSites();
+  };
+
+  // renderSites 후처리: 북마크 탭
+  const origRenderSites = window.renderSites;
+  window.renderSites = function() {
+    origRenderSites();
+
+    if (currentCategoryFilter === "bookmarks") {
+      const allKeys = Object.keys(getAllCategories());
+      allKeys.forEach(category => {
+        const section = document.getElementById(`${category}-section`);
+        const content = document.getElementById(`${category}-content`);
+        if (!section || !content) return;
+
+        // 카테고리 내 북마크 필터링
+        [...content.querySelectorAll(".link-card")].forEach(card => {
+          const name = card.getAttribute("data-site");
+          if (!bookmarkManager.isBookmarked(name)) {
+            card.remove();
+          }
+        });
+
+        // 북마크 없는 카테고리는 숨김
+        if (content.children.length === 0) {
+          section.style.display = "none";
+        }
+      });
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
+
 

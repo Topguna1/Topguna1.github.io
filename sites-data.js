@@ -33,7 +33,7 @@
 
 const initialSites = [
   /* ================== 온라인강의 💻 ================== */
-  {name:"EBS", url:"https://www.ebs.co.kr/", desc:"전 국민의 평생학교 EBS", category:"learning", ages:["elem"], subjects:["korean","math","science","social"]},
+  {name:"EBS", url:"https://www.ebs.co.kr/", desc:"전 국민의 평생학교 EBS", category:"learning", ages:["elem","mid","high"], subjects:["korean","math","science","social"]},
   {name:"EBS 중학프리미엄", url:"https://mid.ebs.co.kr/", desc:"중학생 대상 전 과목 온라인 강의", category:"learning", ages:["mid"], subjects:["korean","math","science","social"]},
   {name:"EBSi", url:"https://www.ebsi.co.kr/", desc:"EBS 고등 온라인 강의", category:"learning", ages:["high"], subjects:["korean","math","english","science"]},
   {name:"메가스터디", url:"https://www.megastudy.net/", desc:"중고등 학생 대상 강의", category:"learning", ages:["mid","high"], subjects:["korean","math","english","science"]},

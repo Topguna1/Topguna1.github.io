@@ -2263,5 +2263,187 @@ setTimeout(() => {
   </div>
 </footer>
 
+
+<!-- Bookmark manager + render override (ensures localStorage persistence and "bookmarked categories only" view) -->
+<script>
+(function(){
+  const LS_KEY = 'dikpilmo_bookmarks_v1';
+
+  // Simple BookmarkManager if none exists
+  if (!window.bookmarkManager) {
+    class SimpleBookmarkManager {
+      constructor(key){ this.STORAGE_KEY = key || LS_KEY; this.load(); }
+      load(){ try{ this.bookmarks = new Set(JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]')); }catch(e){ this.bookmarks = new Set(); } }
+      save(){ try{ localStorage.setItem(this.STORAGE_KEY, JSON.stringify(Array.from(this.bookmarks))); }catch(e){} }
+      isBookmarked(name){ return this.bookmarks.has(String(name)); }
+      add(name){ this.bookmarks.add(String(name)); this.save(); }
+      remove(name){ this.bookmarks.delete(String(name)); this.save(); }
+      toggle(name){ if(this.isBookmarked(name)) this.remove(name); else this.add(name); }
+    }
+    window.bookmarkManager = new SimpleBookmarkManager(LS_KEY);
+  } else {
+    // if provided manager has load, call it to ensure up-to-date
+    if (typeof window.bookmarkManager.load === 'function') {
+      try{ window.bookmarkManager.load(); }catch(e){}
+    }
+  }
+
+  // Safe showToast guard
+  const toast = (typeof showToast === 'function') ? showToast : (msg)=>{ console.log('TOAST:', msg); };
+
+  // Override createSiteCard to rely on bookmarkManager (ensures consistent UI)
+  window.createSiteCard = function(site) {
+    const card = document.createElement("div");
+    card.className = "link-card";
+    card.setAttribute("data-site", site.name);
+
+    const ageTags = (site.ages || []).map(a => `<span class="tag age-tag">${ageNames[a] || a}</span>`).join(" ");
+    const categoryTag = `<span class="tag category-tag">${getCategoryName(site.category)}</span>`;
+    const ratingTag = site.rating ? `<span class="tag rating-tag">⭐ ${site.rating}</span>` : "";
+
+    const isBookmarked = bookmarkManager.isBookmarked(site.name);
+
+    card.innerHTML = `
+      <div class="link-card-header">
+        <a href="${escapeHtml(site.url)}" data-site="${escapeHtml(site.name)}" target="_blank" rel="noopener noreferrer">
+          ${escapeHtml(site.name)}
+        </a>
+        <div class="link-card-actions">
+          <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
+                  onclick="toggleBookmark('${escapeHtml(site.name)}')">
+            ${isBookmarked ? '❤️' : '🤍'}
+          </button>
+          <button class="share-btn" 
+                  onclick="shareSite('${escapeHtml(site.name)}', '${escapeHtml(site.url)}')">
+            📤
+          </button>
+        </div>
+      </div>
+      <div class="link-card-tags">
+        ${categoryTag} ${ageTags} ${ratingTag}
+      </div>
+      <p>${escapeHtml(site.desc || '설명이 없습니다.')}</p>
+    `;
+
+    return card;
+  };
+
+  // Unified toggleBookmark that updates manager + UI + storage
+  window.toggleBookmark = function(siteName) {
+    try {
+      bookmarkManager.toggle(siteName);
+      // update button state if present
+      const card = document.querySelector(`[data-site="${siteName}"]`);
+      if (card) {
+        const btn = card.querySelector('.bookmark-btn');
+        if (btn) {
+          const isB = bookmarkManager.isBookmarked(siteName);
+          btn.className = `bookmark-btn ${isB ? 'bookmarked' : ''}`;
+          btn.innerHTML = isB ? '❤️' : '🤍';
+          // small animation
+          btn.style.transform = 'scale(1.15)';
+          setTimeout(()=>btn.style.transform = 'scale(1)', 140);
+        }
+      }
+      toast(bookmarkManager.isBookmarked(siteName) ? `${siteName} 북마크에 추가되었습니다` : `${siteName} 북마크에서 제거되었습니다`);
+      // re-render to reflect ordering and bookmark-tab changes
+      if (typeof renderSites === 'function') try{ renderSites(); }catch(e){ console.warn(e); }
+    } catch (e) {
+      console.error('toggleBookmark error', e);
+    }
+  };
+
+  // Override renderSites to show categories normally OR when in 'bookmarks' tab,
+  // only categories that contain bookmarked items will be visible.
+  window.renderSites = function() {
+    const allKeys = Object.keys(getAllCategories());
+    const filtered = getFilteredSites();
+    const hasResults = filtered.length > 0;
+
+    let sortedFiltered;
+    if (currentCategoryFilter === "bookmarks") {
+      sortedFiltered = filtered.filter(s => bookmarkManager.isBookmarked(s.name));
+    } else {
+      const bookmarkedFiltered = filtered.filter(s => bookmarkManager.isBookmarked(s.name));
+      const nonBookmarkedFiltered = filtered.filter(s => !bookmarkManager.isBookmarked(s.name));
+      sortedFiltered = [...bookmarkedFiltered, ...nonBookmarkedFiltered];
+    }
+
+    allKeys.forEach(category => {
+      const content = document.getElementById(`${category}-content`);
+      const section = document.getElementById(`${category}-section`);
+      const countEl = document.getElementById(`${category}-count`);
+
+      if (!content || !section) return;
+
+      const sitesInCategory = sortedFiltered.filter(s => s.category === category);
+
+      // If in bookmarks tab, hide categories with zero bookmarked items
+      if (currentCategoryFilter === "bookmarks" && sitesInCategory.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      content.innerHTML = "";
+      if (countEl) countEl.textContent = sitesInCategory.length;
+
+      if (sitesInCategory.length > 0) {
+        section.style.display = "block";
+        const limit = typeof DEFAULT_DISPLAY_LIMIT !== 'undefined' ? DEFAULT_DISPLAY_LIMIT : 6;
+        const isExpanded = expandedCategories[category];
+        const toShow = isExpanded ? sitesInCategory : sitesInCategory.slice(0, limit);
+        const remaining = Math.max(0, sitesInCategory.length - limit);
+
+        toShow.forEach(s => {
+          content.appendChild(createSiteCard(s));
+        });
+
+        if (sitesInCategory.length > limit) {
+          const btnContainer = document.createElement("div");
+          btnContainer.className = "more-btn-container";
+
+          if (isExpanded) {
+            btnContainer.innerHTML = `
+              <button class="collapse-btn" onclick="collapseSites('${category}')">
+                접기 ↑
+              </button>
+            `;
+          } else {
+            btnContainer.innerHTML = `
+              <button class="more-btn" onclick="expandSites('${category}')">
+                더보기 (+${remaining}개) ↓
+              </button>
+            `;
+          }
+          content.appendChild(btnContainer);
+        }
+      } else {
+        // hide empty categories in all modes (so UI is cleaner)
+        section.style.display = "none";
+      }
+    });
+
+    document.getElementById("noResults").style.display = hasResults ? "none" : "block";
+    if (typeof updateStats === 'function') updateStats();
+  };
+
+  // Ensure initial render uses the new logic (in case file had been rendered earlier without proper bookmark state)
+  function safeInitialRender() {
+    try {
+      if (typeof renderCategorySections === 'function') renderCategorySections();
+      if (typeof buildCategoryTabs === 'function') buildCategoryTabs();
+      if (typeof setupFilters === 'function') setupFilters();
+      if (typeof renderSites === 'function') renderSites();
+    } catch(e){ /* ignore */ }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(safeInitialRender, 30));
+  } else {
+    setTimeout(safeInitialRender, 30);
+  }
+})();
+</script>
+
 </body>
 </html>

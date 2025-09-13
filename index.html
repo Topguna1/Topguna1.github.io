@@ -2389,6 +2389,102 @@ setTimeout(() => {
 })();
 </script>
 <!-- Bookmark-sync patch END -->
+<script>
+(function(){
+  // --- Bookmark Manager (localStorage 기반) ---
+  class BookmarkManager {
+    constructor(key="siteBookmarks") {
+      this.key = key;
+      this.load();
+    }
+    load() {
+      try {
+        this.bookmarks = new Set(JSON.parse(localStorage.getItem(this.key) || "[]"));
+      } catch(e) {
+        this.bookmarks = new Set();
+      }
+    }
+    save() {
+      localStorage.setItem(this.key, JSON.stringify([...this.bookmarks]));
+    }
+    isBookmarked(name) { return this.bookmarks.has(name); }
+    toggle(name) {
+      if (this.isBookmarked(name)) this.bookmarks.delete(name);
+      else this.bookmarks.add(name);
+      this.save();
+    }
+  }
+
+  const bm = new BookmarkManager();
+  window.bookmarkManager = bm;
+
+  // --- 북마크 버튼 상태 갱신 ---
+  function updateBookmarkButtons() {
+    document.querySelectorAll(".link-card").forEach(card => {
+      const name = card.getAttribute("data-site");
+      const btn = card.querySelector(".bookmark-btn");
+      if (!btn || !name) return;
+      const isB = bm.isBookmarked(name);
+      btn.textContent = isB ? "❤️" : "🤍";
+      btn.classList.toggle("bookmarked", isB);
+      btn.onclick = () => {
+        bm.toggle(name);
+        updateBookmarkButtons();
+        if (typeof renderSites === "function") renderSites();
+        if (typeof showToast === "function") {
+          showToast(isB ? `${name} 북마크에서 제거됨` : `${name} 북마크에 추가됨`);
+        }
+      };
+    });
+  }
+
+  // --- 공유 버튼 수정: URL만 복사 ---
+  window.shareSite = function(siteName, url) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        if (typeof showToast === "function") showToast("링크 복사됨!");
+      });
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      if (typeof showToast === "function") showToast("링크 복사됨!");
+    }
+  };
+
+  // --- renderSites 후처리 ---
+  const origRenderSites = window.renderSites;
+  window.renderSites = function() {
+    origRenderSites();
+    updateBookmarkButtons();
+
+    // 북마크 탭일 때 필터링
+    if (window.currentCategoryFilter === "bookmarks") {
+      Object.keys(getAllCategories()).forEach(category => {
+        const section = document.getElementById(`${category}-section`);
+        const content = document.getElementById(`${category}-content`);
+        if (!section || !content) return;
+        [...content.querySelectorAll(".link-card")].forEach(card => {
+          const name = card.getAttribute("data-site");
+          if (!bm.isBookmarked(name)) card.remove();
+        });
+        if (content.children.length === 0) {
+          section.style.display = "none";
+        }
+      });
+    }
+  };
+
+  // --- 초기 렌더 직후 버튼 상태 맞추기 ---
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(updateBookmarkButtons, 100);
+  });
+})();
+</script>
 
 </body>
 </html>
+

@@ -667,37 +667,6 @@ function updateStats() {
   document.getElementById("filteredCount").textContent = filtered;
 }
 // 북마크 & 공유 기능
-else {
-    bookmarkedSites.add(siteName);
-  }
-  // UI 업데이트
-  const card = document.querySelector(`[data-site="${siteName}"]`);
-  if (card) {
-    const btn = card.querySelector('.bookmark-btn');
-    const isBookmarked = bookmarkedSites.has(siteName);
-    btn.className = `bookmark-btn ${isBookmarked ? 'bookmarked' : ''}`;
-    btn.innerHTML = isBookmarked ? '❤️' : '🤍';
-    // 애니메이션 효과
-    btn.style.transform = 'scale(1.2)';
-    setTimeout(() => {
-      btn.style.transform = 'scale(1)';
-    }, 150);
-  }
-  showToast(bookmarkedSites.has(siteName) ? 
-    `${siteName} 북마크에 추가되었습니다` : 
-    `${siteName} 북마크에서 제거되었습니다`);
-}
-: ${url}`;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      showToast('링크가 클립보드에 복사되었습니다!');
-    }).catch(() => {
-      fallbackCopy(text);
-    });
-  } else {
-    fallbackCopy(text);
-  }
-}
 function fallbackCopy(text) {
   const textArea = document.createElement('textarea');
   textArea.value = text;
@@ -747,17 +716,12 @@ function createSiteCard(site) {
   ).join(" ");
   const categoryTag = `<span class="tag category-tag">${getCategoryName(site.category)}</span>`;
   const ratingTag = site.rating ? `<span class="tag rating-tag">⭐ ${site.rating}</span>` : "";
-  const isBookmarked = bookmarkedSites.has(site.name);
   card.innerHTML = `
     <div class="link-card-header">
       <a href="${site.url}" target="_blank" rel="noopener noreferrer">
         ${escapeHtml(site.name)}
       </a>
       <div class="link-card-actions">
-        <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
-                onclick="toggleBookmark('${escapeHtml(site.name)}')">
-          ${isBookmarked ? '❤️' : '🤍'}
-        </button>
         <button class="share-btn" 
                 onclick="shareSite('${escapeHtml(site.name)}', '${site.url}')">
           📤
@@ -787,16 +751,12 @@ function renderSites() {
   const allKeys = Object.keys(getAllCategories());
   const filtered = getFilteredSites();
   const hasResults = filtered.length > 0;
-  // 북마크된 사이트를 먼저 표시
-  const bookmarkedFiltered = filtered.filter(s => bookmarkedSites.has(s.name));
-  const nonBookmarkedFiltered = filtered.filter(s => !bookmarkedSites.has(s.name));
-  const sortedFiltered = [...bookmarkedFiltered, ...nonBookmarkedFiltered];
   allKeys.forEach(category => {
     const content = document.getElementById(`${category}-content`);
     const section = document.getElementById(`${category}-section`);
     const countEl = document.getElementById(`${category}-count`);
     if (!content || !section) return;
-    const sitesInCategory = sortedFiltered.filter(s => s.category === category);
+    const sitesInCategory = filtered.filter(s => s.category === category);
     content.innerHTML = "";
     if (countEl) countEl.textContent = sitesInCategory.length;
     if (sitesInCategory.length > 0) {
@@ -805,11 +765,9 @@ function renderSites() {
       const isExpanded = expandedCategories[category];
       const toShow = isExpanded ? sitesInCategory : sitesInCategory.slice(0, limit);
       const remaining = Math.max(0, sitesInCategory.length - limit);
-      // 사이트 카드들 추가
       toShow.forEach(s => {
         content.appendChild(createSiteCard(s));
       });
-      // 더보기 버튼
       if (sitesInCategory.length > limit) {
         const btnContainer = document.createElement("div");
         btnContainer.className = "more-btn-container";
@@ -829,7 +787,6 @@ function renderSites() {
         content.appendChild(btnContainer);
       }
     } else {
-      // 빈 카테고리 처리
       if (currentCategoryFilter === "all" || currentCategoryFilter === category) {
         section.style.display = "block";
         content.innerHTML = `
@@ -1085,8 +1042,6 @@ let userTheme = localStorage.getItem(LS_KEYS.THEME) || null;
 function saveBookmarks() {
   safeSave(LS_KEYS.BOOKMARKS, Array.from(bookmarkedSites));
 }
-북마크 추가됨` : `${siteName} 북마크 제거됨`);
-}
 /* ======= 유틸: 최근 방문 기록 ======= */
 function pushRecent(site) {
   // site: {name,url}
@@ -1137,6 +1092,8 @@ function renderRecentSection() {
 }
 /* ======= 정렬 옵션 추가 (UI) ======= */
 function buildSortControl() {
+/* ======= 정렬 옵션 추가 (UI) ======= */
+function buildSortControl() {
   if (document.getElementById('sortSelect')) return;
   const container = document.querySelector('.top-controls');
   const sel = document.createElement('select');
@@ -1147,7 +1104,6 @@ function buildSortControl() {
   sel.innerHTML = `
     <option value="default">정렬: 기본</option>
     <option value="alpha">정렬: 가나다순</option>
-    <option value="bookmark">정렬: 북마크 우선</option>
     <option value="recent">정렬: 최근 본 우선</option>
   `;
   sel.addEventListener('change', () => {
@@ -1163,8 +1119,6 @@ function sortSitesArray(arr) {
   const copy = [...arr];
   if (currentSort === 'alpha') {
     copy.sort((a,b) => a.name.localeCompare(b.name,'ko'));
-  } else if (currentSort === 'bookmark') {
-    copy.sort((a,b) => (window.bookmarkedSites.has(b.name) ? 1:0) - (window.bookmarkedSites.has(a.name) ? 1:0));
   } else if (currentSort === 'recent') {
     const recMap = new Map(recentList.map((r,i)=>[r.name, i]));
     copy.sort((a,b) => {
@@ -1175,8 +1129,6 @@ function sortSitesArray(arr) {
   }
   return copy;
 }
-/* ======= 카테고리 접기 상태 저장/복원 ======= */
-function loadExpandedFromLS() {
   try { window.expandedCategories = {...expandedCategoriesLS}; } catch(e) { window.expandedCategories = {}; }
 }
 function saveExpandedToLS() { safeSave(LS_KEYS.EXPANDED, window.expandedCategories); }
@@ -1287,18 +1239,14 @@ function attachGlobalLinkHandlerAndCardButtons() {
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[data-site]'); // 개선 파일에서 site 링크에 data-site 넣어두면 좋음
     if (a) {
+/* ======= 링크 클릭 감지로 '최근 본' 저장 ======= */
+function attachGlobalLinkHandler() {
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-site]');
+    if (a) {
       const name = a.getAttribute('data-site') || a.textContent.trim();
       const url = a.href;
-      // push recent (비동기적이지만 바로 저장)
       pushRecent({name, url});
-      // do not prevent navigation
-    }
-    const bb = e.target.closest('.bookmark-btn');
-    if (bb) {
-      const card = bb.closest('[data-site]');
-      if (!card) return;
-      const name = card.getAttribute('data-site');
-      toggleBookmark(name);
     }
     const sb = e.target.closest('.share-btn');
     if (sb) {
@@ -1317,11 +1265,6 @@ function attachGlobalLinkHandlerAndCardButtons() {
     }
   });
 }
-/* ======= 페이지 초기화 (must run after 기본 DOM/데이터가 준비된 뒤) ======= */
-function initClientEnhancements() {
-  // 1) 로컬 상태 복원
-  loadExpandedFromLS();
-  applyThemeFromPref();
   buildSortControl();
   buildAutocomplete();
   buildPrintButton();
@@ -1332,531 +1275,269 @@ function initClientEnhancements() {
 // hook: 호출 위치는 improved 파일 내부에서 DOM 및 기본 렌더링이 완료된 직후여야 합니다.
 // 예: 기존 스크립트의 끝부분에 아래 한 줄을 추가:
 // initClientEnhancements();
+function initClientEnhancements() {
+  // 1) 로컬 상태 복원
+  loadExpandedFromLS();
+  applyThemeFromPref();
+  buildSortControl();
+  buildAutocomplete();
+  buildPrintButton();
+  tryRegisterPWA();
+  attachGlobalLinkHandler();
+  renderRecentSection();
+}
 // 실제로 DOMContentLoaded 이후에 실행
 document.addEventListener("DOMContentLoaded", function() {
   if (typeof initClientEnhancements === "function") {
     initClientEnhancements();
   }
 });
-// hook: 호출 위치는 improved 파일 내부에서 DOM 및 기본 렌더링이 완료된 직후여야 합니다.
-// 예: 기존 스크립트의 끝부분에 아래 한 줄을 추가:
-// initClientEnhancements();
 </script>
 <!-- --- END: 클라이언트 기능 확장 스크립트 --- -->
 <script>
-// ==================== 북마크 영구 저장 시스템 ====================
-class BookmarkManager {
-  constructor() {
-    this.STORAGE_KEY = 'dikpilmo_bookmarks_v2';
-    this.bookmarks = this.loadBookmarks();
-    this.initBookmarkSystem();
-  }
-  loadBookmarks() {
-    try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      return new Set(stored ? JSON.parse(stored) : []);
-    } catch (error) {
-      console.warn('북마크 로드 실패:', error);
-      return new Set();
     }
   }
-  saveBookmarks() {
-    try {
-      const bookmarkArray = Array.from(this.bookmarks);
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(bookmarkArray));
-      sessionStorage.setItem(this.STORAGE_KEY + '_backup', JSON.stringify(bookmarkArray));
-      console.log(`✅ 북마크 저장 완료: ${bookmarkArray.length}개`);
-    } catch (error) {
-      console.error('북마크 저장 실패:', error);
-      showToast('⚠️ 북마크 저장에 실패했습니다');
+  /**
+   * 북마크 관련 기능 전체 삭제 및 오류 수정
+   * - 북마크 버튼, 내보내기/가져오기, 관련 함수/코드 제거
+   * - 검색 하이라이트, 검색 통계, 사이트 카드 하이라이트만 유지
+   */
+
+  // ==================== 검색 하이라이트 클래스 ====================
+  class SearchHighlighter {
+    constructor() {
+      this.highlightClass = "search-highlight";
+      this.injectStyle();
     }
-  }
-  toggle(siteName) {
-    const wasBookmarked = this.bookmarks.has(siteName);
-    if (wasBookmarked) {
-      this.bookmarks.delete(siteName);
-    } else {
-      this.bookmarks.add(siteName);
-    }
-    this.saveBookmarks();
-    this.updateBookmarkUI(siteName, !wasBookmarked);
-    if (typeof window.bookmarkedSites !== 'undefined') {
-      window.bookmarkedSites = new Set(this.bookmarks);
-    }
-    showToast(wasBookmarked ? 
-      `${siteName} 북마크에서 제거되었습니다` : 
-      `${siteName} 북마크에 추가되었습니다`
-    );
-    if (currentCategoryFilter === 'bookmarks') {
-      renderSites();
-    }
-    return !wasBookmarked;
-  }
-  updateBookmarkUI(siteName, isBookmarked) {
-    const cards = document.querySelectorAll(`[data-site="${siteName}"]`);
-    cards.forEach(card => {
-      const btn = card.querySelector('.bookmark-btn');
-      if (btn) {
-        btn.className = `bookmark-btn ${isBookmarked ? 'bookmarked' : ''}`;
-        btn.innerHTML = isBookmarked ? '❤️' : '🤍';
-        btn.title = isBookmarked ? '북마크에서 제거' : '북마크에 추가';
-        btn.style.transform = 'scale(1.3)';
-        setTimeout(() => btn.style.transform = 'scale(1)', 200);
-      }
-    });
-    this.updateBookmarkCount();
-  }
-  isBookmarked(siteName) {
-    return this.bookmarks.has(siteName);
-  }
-  getBookmarkedSites() {
-    return sites.filter(site => this.bookmarks.has(site.name));
-  }
-  updateBookmarkCount() {
-    const countEl = document.getElementById('bookmark-count');
-    if (countEl) {
-      countEl.textContent = this.bookmarks.size;
-      const bookmarkTab = document.querySelector('.bookmark-tab');
-      if (bookmarkTab) {
-        bookmarkTab.classList.toggle('has-bookmarks', this.bookmarks.size > 0);
-      }
-    }
-  }
-  initBookmarkSystem() {
-    window.bookmarkedSites = new Set(this.bookmarks);
-  }
-  exportBookmarks() {
-    const bookmarkData = {
-      version: '2.0',
-      timestamp: Date.now(),
-      bookmarks: Array.from(this.bookmarks),
-      sites: this.getBookmarkedSites()
-    };
-    const blob = new Blob([JSON.stringify(bookmarkData, null, 2)], {
-      type: 'application/json'
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `딱필모_북마크_${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('📥 북마크가 파일로 저장되었습니다');
-  }
-  async importBookmarks(file) {
-    try {
-      const text = await file.text();
-      const data = JSON.parse(text);
-      if (data.bookmarks && Array.isArray(data.bookmarks)) {
-        const imported = new Set(data.bookmarks);
-        const newBookmarks = [...imported].filter(name => !this.bookmarks.has(name));
-        data.bookmarks.forEach(bookmark => this.bookmarks.add(bookmark));
-        this.saveBookmarks();
-        showToast(`📤 ${newBookmarks.length}개의 새로운 북마크가 추가되었습니다`);
-        if (typeof renderSites === 'function') {
-          renderSites();
+    injectStyle() {
+      if (document.getElementById("search-highlight-style")) return;
+      const style = document.createElement("style");
+      style.id = "search-highlight-style";
+      style.textContent = `
+        .search-highlight {
+          background: linear-gradient(90deg, #fff3cd 0%, #ffeaa7 100%);
+          color: #856404;
+          border-radius: 4px;
+          padding: 0 2px;
+          animation: highlight-glow 1.2s ease-in-out;
         }
-      }
-    } catch (error) {
-      console.error('북마크 가져오기 실패:', error);
-      showToast('⚠️ 북마크 파일을 읽을 수 없습니다');
+        @keyframes highlight-glow {
+          0% { background-color: transparent; }
+          50% { background-color: rgba(255, 195, 7, 0.8); }
+          100% { background-color: rgba(255, 195, 7, 0.3); }
+        }
+        .search-stats {
+          background: rgba(255, 195, 7, 0.1);
+          border: 1px solid rgba(255, 195, 7, 0.3);
+          padding: 8px 12px;
+          border-radius: 8px;
+          margin: 8px 0;
+          font-size: 14px;
+          color: #856404;
+        }
+        body.dark .search-stats {
+          background: rgba(255, 193, 7, 0.2);
+          border-color: rgba(255, 193, 7, 0.4);
+          color: #ffc107;
+        }
+      `;
+      document.head.appendChild(style);
     }
-  }
-}
-// ==================== 즐겨찾기 전용 탭 ====================
-function addBookmarkTab() {
-  const filterTabs = document.getElementById('filterTabs');
-  if (!filterTabs || document.querySelector('.tab-btn[data-cat="bookmarks"]')) return;
-  const bookmarkTab = document.createElement('button');
-  bookmarkTab.className = 'tab-btn bookmark-tab';
-  bookmarkTab.dataset.cat = 'bookmarks';
-  bookmarkTab.innerHTML = `❤️ 즐겨찾기 <span id="bookmark-count" class="bookmark-count">0</span>`;
-  if (!document.querySelector('#bookmark-styles')) {
-    const style = document.createElement('style');
-    style.id = 'bookmark-styles';
-    style.textContent = `
-      .bookmark-count {
-        background: rgba(255,255,255,0.3);
-        padding: 2px 6px;
-        border-radius: 10px;
-        font-size: 12px;
-        margin-left: 4px;
-        min-width: 20px;
-        display: inline-block;
-        text-align: center;
-      }
-      .tab-btn.active .bookmark-count {
-        background: rgba(255,255,255,0.4);
-      }
-      .bookmark-tab.has-bookmarks {
-        animation: bookmark-glow 2s ease-in-out infinite alternate;
-      }
-      @keyframes bookmark-glow {
-        from { box-shadow: 0 0 5px rgba(255,107,53,0.3); }
-        to { box-shadow: 0 0 15px rgba(255,107,53,0.6); }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-  bookmarkTab.addEventListener('click', () => {
-    updateActiveTab(bookmarkTab);
-    currentCategoryFilter = 'bookmarks';
-    expandedCategories = {};
-    renderSitesWithFeatures();
-  });
-  const allTab = filterTabs.querySelector('.tab-btn[data-cat="all"]');
-  if (allTab && allTab.nextSibling) {
-    filterTabs.insertBefore(bookmarkTab, allTab.nextSibling);
-  } else {
-    filterTabs.appendChild(bookmarkTab);
-  }
-  if (window.bookmarkManager) {
-    window.bookmarkManager.updateBookmarkCount();
-  }
-}
-function renderBookmarkSites() {
-  const container = document.getElementById('categoriesContainer');
-  if (!container) return;
-  const bookmarkedSites = window.bookmarkManager ? 
-    window.bookmarkManager.getBookmarkedSites() : [];
-  if (bookmarkedSites.length === 0) {
-    container.innerHTML = `
-      <div class="no-bookmarks" style="
-        text-align: center;
-        padding: 80px 40px;
-        background: rgba(255,255,255,0.9);
-        border-radius: 20px;
-        margin: 20px;
-      ">
-        <div style="font-size: 64px; margin-bottom: 20px;">❤️</div>
-        <h3 style="margin-bottom: 16px; color: #666;">아직 즐겨찾기가 없습니다</h3>
-        <p style="color: #999; margin-bottom: 24px;">
-          마음에 드는 사이트의 하트 버튼을 클릭해서<br>
-          즐겨찾기에 추가해보세요!
-        </p>
-        <button class="view-all-btn" onclick="showAllSites()" style="
-          background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-          border: none;
-          color: white;
-          padding: 12px 24px;
-          border-radius: 16px;
-          cursor: pointer;
-          font-weight: 700;
-        ">
-          🌟 사이트 둘러보기
-        </button>
-      </div>
-    `;
-    document.getElementById("noResults").style.display = "none";
-    updateStats();
-    return;
-  }
-  const categorizedBookmarks = {};
-  const allCategories = getAllCategories();
-  bookmarkedSites.forEach(site => {
-    if (!categorizedBookmarks[site.category]) {
-      categorizedBookmarks[site.category] = [];
-    }
-    categorizedBookmarks[site.category].push(site);
-  });
-  container.innerHTML = '';
-  Object.entries(categorizedBookmarks).forEach(([categoryKey, sitesInCategory]) => {
-    const categoryInfo = allCategories[categoryKey];
-    if (!categoryInfo) return;
-    const section = document.createElement('div');
-    section.className = 'category-section bookmark-category';
-    section.innerHTML = `
-      <div class="category-header">
-        <div class="category-info">
-          <span class="category-icon">${categoryInfo.icon}</span>
-          <div>
-            <div class="category-title">${categoryInfo.name}</div>
-            <div class="category-subtitle">즐겨찾기</div>
-          </div>
-        </div>
-        <div class="category-count">${sitesInCategory.length}</div>
-      </div>
-      <div class="category-content"></div>
-    `;
-    const content = section.querySelector('.category-content');
-    sitesInCategory.forEach(site => {
-      content.appendChild(createSiteCard(site));
-    });
-    container.appendChild(section);
-  });
-  document.getElementById("noResults").style.display = "none";
-  updateStats();
-}
-function showAllSites() {
-  const allTab = document.querySelector('.tab-btn[data-cat="all"]');
-  if (allTab) allTab.click();
-}
-// ==================== 검색어 하이라이트 시스템 ====================
-class SearchHighlighter {
-  constructor() {
-    this.highlightClass = 'search-highlight';
-    this.addHighlightStyles();
-  }
-  addHighlightStyles() {
-    if (document.querySelector('#highlight-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'highlight-styles';
-    style.textContent = `
-      .search-highlight {
-        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-        color: #856404;
-        padding: 2px 4px;
-        border-radius: 4px;
-        font-weight: 700;
-        animation: highlight-glow 0.3s ease-in-out;
-      }
-      body.dark .search-highlight {
-        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-        color: #212529;
-      }
-      @keyframes highlight-glow {
-        0% { background-color: transparent; }
-        50% { background-color: rgba(255, 195, 7, 0.8); }
-        100% { background-color: rgba(255, 195, 7, 0.3); }
-      }
-      .search-stats {
-        background: rgba(255, 195, 7, 0.1);
-        border: 1px solid rgba(255, 195, 7, 0.3);
-        padding: 8px 12px;
-        border-radius: 8px;
-        margin: 8px 0;
-        font-size: 14px;
-        color: #856404;
-      }
-      body.dark .search-stats {
-        background: rgba(255, 193, 7, 0.2);
-        border-color: rgba(255, 193, 7, 0.4);
-        color: #ffc107;
-      }
-    `;
-    document.head.appendChild(style);
-  }
-  highlightText(text, searchQuery) {
-    if (!searchQuery || !text) return text;
-    const queries = searchQuery.trim().split(/\s+/).filter(q => q.length > 0);
-    let result = text;
-    queries.forEach(query => {
-      const regex = new RegExp(`(${this.escapeRegExp(query)})`, 'gi');
-      result = result.replace(regex, `<span class="${this.highlightClass}">$1</span>`);
-    });
-    return result;
-  }
-  escapeRegExp(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-  showSearchStats(query, totalResults) {
-    const statsContainer = document.getElementById('statsBar');
-    if (!statsContainer || !query) return;
-    const existingStats = document.querySelector('.search-stats');
-    if (existingStats) existingStats.remove();
-    const searchStats = document.createElement('div');
-    searchStats.className = 'search-stats';
-    searchStats.innerHTML = `
-      🔍 "<strong>${this.escapeHtml(query)}</strong>"에 대한 검색 결과: 
-      <strong>${totalResults}</strong>개 사이트 발견
-    `;
-    statsContainer.appendChild(searchStats);
-    setTimeout(() => {
-      if (searchStats.parentNode) {
-        searchStats.remove();
-      }
-    }, 5000);
-  }
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-}
-// ==================== 개선된 렌더링 함수들 ====================
-function createSiteCardWithHighlight(site) {
-  const card = document.createElement("div");
-  card.className = "link-card";
-  card.setAttribute("data-site", site.name);
-  const highlighter = window.searchHighlighter;
-  const query = currentSearchQuery;
-  const highlightedName = query ? 
-    highlighter.highlightText(site.name, query) : 
-    escapeHtml(site.name);
-  const highlightedDesc = query ? 
-    highlighter.highlightText(site.desc || '설명이 없습니다.', query) : 
-    escapeHtml(site.desc || '설명이 없습니다.');
-  const ageTags = site.ages.map(a => 
-    `<span class="tag age-tag">${ageNames[a]}</span>`
-  ).join(" ");
-  const categoryTag = `<span class="tag category-tag">${getCategoryName(site.category)}</span>`;
-  const ratingTag = site.rating ? `<span class="tag rating-tag">⭐ ${site.rating}</span>` : "";
-  const isBookmarked = window.bookmarkManager ? 
-    window.bookmarkManager.isBookmarked(site.name) : 
-    bookmarkedSites.has(site.name);
-  card.innerHTML = `
-    <div class="link-card-header">
-      <a href="${site.url}" target="_blank" rel="noopener noreferrer" data-site="${escapeHtml(site.name)}">
-        ${highlightedName}
-      </a>
-      <div class="link-card-actions">
-        <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" 
-                onclick="toggleBookmark('${escapeHtml(site.name)}')"
-                title="${isBookmarked ? '북마크에서 제거' : '북마크에 추가'}">
-          ${isBookmarked ? '❤️' : '🤍'}
-        </button>
-        <button class="share-btn" 
-                onclick="shareSite('${escapeHtml(site.name)}', '${site.url}')"
-                title="링크 공유">
-          📤
-        </button>
-      </div>
-    </div>
-    <div class="link-card-tags">
-      ${categoryTag} ${ageTags} ${ratingTag}
-    </div>
-    <p>${highlightedDesc}</p>
-  `;
-  return card;
-}
-function renderSitesWithFeatures() {
-  if (currentCategoryFilter === 'bookmarks') {
-    renderBookmarkSites();
-    return;
-  }
-  const allKeys = Object.keys(getAllCategories());
-  const filtered = getFilteredSites();
-  const hasResults = filtered.length > 0;
-  const bookmarkedFiltered = filtered.filter(s => 
-    window.bookmarkManager ? 
-    window.bookmarkManager.isBookmarked(s.name) : 
-    (window.bookmarkedSites && window.bookmarkedSites.has(s.name))
-  );
-  const nonBookmarkedFiltered = filtered.filter(s => 
-    window.bookmarkManager ? 
-    !window.bookmarkManager.isBookmarked(s.name) : 
-    (!window.bookmarkedSites || !window.bookmarkedSites.has(s.name))
-  );
-  const sortedFiltered = [...bookmarkedFiltered, ...nonBookmarkedFiltered];
-  allKeys.forEach(category => {
-    const content = document.getElementById(`${category}-content`);
-    const section = document.getElementById(`${category}-section`);
-    const countEl = document.getElementById(`${category}-count`);
-    if (!content || !section) return;
-    const sitesInCategory = sortedFiltered.filter(s => s.category === category);
-    content.innerHTML = "";
-    if (countEl) countEl.textContent = sitesInCategory.length;
-    if (sitesInCategory.length > 0) {
-      section.style.display = "block";
-      const limit = DEFAULT_DISPLAY_LIMIT || 6;
-      const isExpanded = expandedCategories[category];
-      const toShow = isExpanded ? sitesInCategory : sitesInCategory.slice(0, limit);
-      const remaining = Math.max(0, sitesInCategory.length - limit);
-      toShow.forEach(s => {
-        content.appendChild(createSiteCardWithHighlight(s));
+    highlightText(text, searchQuery) {
+      if (!searchQuery || !text) return text;
+      const queries = searchQuery.trim().split(/\s+/).filter(q => q.length > 0);
+      let result = text;
+      queries.forEach(query => {
+        const regex = new RegExp(`(${this.escapeRegExp(query)})`, 'gi');
+        result = result.replace(regex, `<span class="${this.highlightClass}">$1</span>`);
       });
-      if (sitesInCategory.length > limit) {
-        const btnContainer = document.createElement("div");
-        btnContainer.className = "more-btn-container";
-        if (isExpanded) {
-          btnContainer.innerHTML = `
-            <button class="collapse-btn" onclick="collapseSites('${category}')">
-              접기 ↑
-            </button>
+      return result;
+    }
+    escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    showSearchStats(query, totalResults) {
+      const statsContainer = document.getElementById('statsBar');
+      if (!statsContainer || !query) return;
+      const existingStats = document.querySelector('.search-stats');
+      if (existingStats) existingStats.remove();
+      const searchStats = document.createElement('div');
+      searchStats.className = 'search-stats';
+      searchStats.innerHTML = `
+        🔍 "<strong>${this.escapeHtml(query)}</strong>"에 대한 검색 결과: 
+        <strong>${totalResults}</strong>개 사이트 발견
+      `;
+      statsContainer.appendChild(searchStats);
+      setTimeout(() => {
+        if (searchStats.parentNode) {
+          searchStats.remove();
+        }
+      }, 5000);
+    }
+    escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  }
+
+  // ==================== 개선된 렌더링 함수들 ====================
+  function createSiteCardWithHighlight(site) {
+    const card = document.createElement("div");
+    card.className = "link-card";
+    card.setAttribute("data-site", site.name);
+    const highlighter = window.searchHighlighter;
+    const query = currentSearchQuery;
+    const highlightedName = query ? 
+      highlighter.highlightText(site.name, query) : 
+      escapeHtml(site.name);
+    const highlightedDesc = query ? 
+      highlighter.highlightText(site.desc || '설명이 없습니다.', query) : 
+      escapeHtml(site.desc || '설명이 없습니다.');
+    const ageTags = site.ages.map(a => 
+      `<span class="tag age-tag">${ageNames[a]}</span>`
+    ).join(" ");
+    const categoryTag = `<span class="tag category-tag">${getCategoryName(site.category)}</span>`;
+    const ratingTag = site.rating ? `<span class="tag rating-tag">⭐ ${site.rating}</span>` : "";
+    card.innerHTML = `
+      <div class="link-card-header">
+        <a href="${site.url}" target="_blank" rel="noopener noreferrer" data-site="${escapeHtml(site.name)}">
+          ${highlightedName}
+        </a>
+        <div class="link-card-actions">
+          <button class="share-btn" 
+                  onclick="shareSite('${escapeHtml(site.name)}', '${site.url}')"
+                  title="링크 공유">
+            📤
+          </button>
+        </div>
+      </div>
+      <div class="link-card-tags">
+        ${categoryTag} ${ageTags} ${ratingTag}
+      </div>
+      <p>${highlightedDesc}</p>
+    `;
+    return card;
+  }
+
+  function renderSitesWithFeatures() {
+    const allKeys = Object.keys(getAllCategories());
+    const filtered = getFilteredSites();
+    const hasResults = filtered.length > 0;
+    allKeys.forEach(category => {
+      const content = document.getElementById(`${category}-content`);
+      const section = document.getElementById(`${category}-section`);
+      const countEl = document.getElementById(`${category}-count`);
+      if (!content || !section) return;
+      const sitesInCategory = filtered.filter(s => s.category === category);
+      content.innerHTML = "";
+      if (countEl) countEl.textContent = sitesInCategory.length;
+      if (sitesInCategory.length > 0) {
+        section.style.display = "block";
+        const limit = DEFAULT_DISPLAY_LIMIT || 6;
+        const isExpanded = expandedCategories[category];
+        const toShow = isExpanded ? sitesInCategory : sitesInCategory.slice(0, limit);
+        const remaining = Math.max(0, sitesInCategory.length - limit);
+        toShow.forEach(s => {
+          content.appendChild(createSiteCardWithHighlight(s));
+        });
+        if (sitesInCategory.length > limit) {
+          const btnContainer = document.createElement("div");
+          btnContainer.className = "more-btn-container";
+          if (isExpanded) {
+            btnContainer.innerHTML = `
+              <button class="collapse-btn" onclick="collapseSites('${category}')">
+                접기 ↑
+              </button>
+            `;
+          } else {
+            btnContainer.innerHTML = `
+              <button class="more-btn" onclick="expandSites('${category}')">
+                더보기 (+${remaining}개) ↓
+              </button>
+            `;
+          }
+          content.appendChild(btnContainer);
+        }
+      } else {
+        if (currentCategoryFilter === "all" || currentCategoryFilter === category) {
+          section.style.display = "block";
+          content.innerHTML = `
+            <div style="color:#666;text-align:center;padding:40px;">
+              <div style="font-size:48px;margin-bottom:16px;">🔍</div>
+              <p>해당 조건의 사이트가 없습니다.</p>
+              <p style="font-size:14px;margin-top:8px;">곧 더 많은 사이트가 추가될 예정입니다!</p>
+            </div>
           `;
         } else {
-          btnContainer.innerHTML = `
-            <button class="more-btn" onclick="expandSites('${category}')">
-              더보기 (+${remaining}개) ↓
-            </button>
-          `;
+          section.style.display = "none";
         }
-        content.appendChild(btnContainer);
       }
+    });
+    document.getElementById("noResults").style.display = hasResults ? "none" : "block";
+    updateStats();
+    if (currentSearchQuery && window.searchHighlighter) {
+      window.searchHighlighter.showSearchStats(currentSearchQuery, filtered.length);
+    }
+  }
+
+  // ==================== 카테고리 탭 함수 수정 ====================
+  function buildCategoryTabsFixed() {
+    const tabs = document.getElementById("filterTabs");
+    if (!tabs) return;
+    tabs.innerHTML = "";
+    const allCats = getAllCategories();
+    const keys = Object.keys(allCats);
+    const allBtn = document.createElement("button");
+    allBtn.className = "tab-btn active";
+    allBtn.dataset.cat = "all";
+    allBtn.textContent = "전체";
+    allBtn.addEventListener("click", () => {
+      updateActiveTab(allBtn);
+      currentCategoryFilter = "all";
+      expandedCategories = {};
+      renderSitesWithFeatures();
+    });
+    tabs.appendChild(allBtn);
+    keys.forEach(k => {
+      const btn = document.createElement("button");
+      btn.className = "tab-btn";
+      btn.dataset.cat = k;
+      btn.textContent = `${allCats[k].icon} ${allCats[k].name}`;
+      btn.addEventListener("click", () => {
+        updateActiveTab(btn);
+        currentCategoryFilter = k;
+        expandedCategories = {};
+        renderSitesWithFeatures();
+      });
+      tabs.appendChild(btn);
+    });
+  }
+
+  // ==================== 초기화 함수 ====================
+  function initEnhancedFeatures() {
+    window.searchHighlighter = new SearchHighlighter();
+    if (typeof window.renderSites === 'function') {
+      window.originalRenderSites = window.renderSites;
+    }
+    window.renderSites = renderSitesWithFeatures;
+    if (typeof window.createSiteCard === 'function') {
+      window.originalCreateSiteCard = window.createSiteCard;
+    }
+    window.createSiteCard = createSiteCardWithHighlight;
+    if (typeof window.buildCategoryTabs === 'function') {
+      window.originalBuildCategoryTabs = window.buildCategoryTabs;
+    }
+    window.buildCategoryTabs = buildCategoryTabsFixed;
+  }
+
+  setTimeout(() => {
+    if (document.readyState !== 'loading') {
+      initEnhancedFeatures();
     } else {
-      if (currentCategoryFilter === "all" || currentCategoryFilter === category) {
-        section.style.display = "block";
-        content.innerHTML = `
-          <div style="color:#666;text-align:center;padding:40px;">
-            <div style="font-size:48px;margin-bottom:16px;">🔍</div>
-            <p>해당 조건의 사이트가 없습니다.</p>
-            <p style="font-size:14px;margin-top:8px;">곧 더 많은 사이트가 추가될 예정입니다!</p>
-          </div>
-        `;
-      } else {
-        section.style.display = "none";
-      }
+      document.addEventListener('DOMContentLoaded', initEnhancedFeatures);
     }
-  });
-  document.getElementById("noResults").style.display = hasResults ? "none" : "block";
-  updateStats();
-  if (currentSearchQuery && window.searchHighlighter) {
-    window.searchHighlighter.showSearchStats(currentSearchQuery, filtered.length);
-  }
-}
-function addBookmarkManagement() {
-  const topControls = document.querySelector('.top-controls');
-  if (!topControls) return;
-  const bookmarkControls = document.createElement('div');
-  bookmarkControls.className = 'bookmark-controls';
-  bookmarkControls.style.cssText = 'display:flex;gap:8px;align-items:center;';
-  bookmarkControls.innerHTML = `
-    <button class="bookmark-export-btn" onclick="exportBookmarks()" title="북마크 내보내기" style="
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #e9ecef;
-      background: rgba(255,255,255,0.9);
-      cursor: pointer;
-      font-size: 12px;
-    ">📥북마크 내보내기</button>
-    <input type="file" id="bookmark-import" accept=".json" style="display: none;" />
-    <button class="bookmark-import-btn" onclick="document.getElementById('bookmark-import').click()" title="북마크 가져오기" style="
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #e9ecef;
-      background: rgba(255,255,255,0.9);
-      cursor: pointer;
-      font-size: 12px;
-    ">📤북마크 가져오기</button>
-  `;
-  const darkToggle = document.getElementById('darkToggle');
-  if (darkToggle) {
-    topControls.insertBefore(bookmarkControls, darkToggle);
-  } else {
-    topControls.appendChild(bookmarkControls);
-  }
-  const fileInput = document.getElementById('bookmark-import');
-  fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file && window.bookmarkManager) {
-      window.bookmarkManager.importBookmarks(file);
-    }
-    e.target.value = '';
-  });
-}
-}
-function buildCategoryTabsFixed() {
-  const tabs = document.getElementById("filterTabs");
-  if (!tabs) return;
-  tabs.innerHTML = "";
-  const allCats = getAllCategories();
-  const keys = Object.keys(allCats);
-  const allBtn = document.createElement("button");
-  allBtn.className = "tab-btn active";
-  allBtn.dataset.cat = "all";
-  allBtn.textContent = "전체";
-  allBtn.addEventListener("click", () => {
-    updateActiveTab(allBtn);
-    currentCategoryFilter = "all";
-    expandedCategories = {};
-    renderSitesWithFeatures();
-  });
-  tabs.appendChild(allBtn);
-  keys.forEach(k => {
-    const btn = document.createElement("button");
-    btn.className = "tab-btn";
-    btn.dataset.cat = k;
-    btn.textContent = `${allCats[k].icon} ${allCats[k].name}`;
+  }, 600);
     btn.addEventListener("click", () => {
       updateActiveTab(btn);
       currentCategoryFilter = k;
@@ -1928,17 +1609,16 @@ setTimeout(() => {
     </p>
   </div>
 </footer>
-<script>
-function toggleBookmark(){}
-function updateBookmarkCount(){}
-function exportBookmarks(){}
-function importBookmarks(){}
-</script>
+
 <script>
 window.shareSite = function(siteName, url) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url).then(() => {
-      if (typeof showToast === "function") showToast("링크 복사됨!");
+      if (typeof showToast === "function") {
+        showToast("링크가 복사되었습니다!");
+      } else {
+        alert("링크가 복사되었습니다!");
+      }
     });
   } else {
     const ta = document.createElement("textarea");
@@ -1947,7 +1627,11 @@ window.shareSite = function(siteName, url) {
     ta.select();
     document.execCommand("copy");
     document.body.removeChild(ta);
-    if (typeof showToast === "function") showToast("링크 복사됨!");
+    if (typeof showToast === "function") {
+      showToast("링크가 복사되었습니다!");
+    } else {
+      alert("링크가 복사되었습니다!");
+    }
   }
 };
 </script>

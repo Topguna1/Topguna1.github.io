@@ -11,6 +11,24 @@
 //  art {name:"창의/예술", icon:"🎨"},
 //  explore {name:"체험/탐구" icon:"🔬"
 
+//  <option value="korean">국어</option>
+//  <option value="math">수학</option>
+//  <option value="english">영어</option>
+//  <option value="science">과학</option>
+//  <option value="social">사회</option>
+//  <option value="history">역사</option>
+//  <option value="art">예술</option>
+//  <option value="music">음악</option>
+//  <option value="pe">체육</option>
+//  <option value="tech">기술</option>
+//  <option value="coding">코딩</option>
+//  <option value="language">외국어</option>
+//  <option value="general">종합</option>
+//  <option value="exam">시험대비</option>
+//  <option value="career">진로</option>
+
+// 초등 elem 중등 mid 고등 high 성인 adult
+
 
 
 const initialSites = [

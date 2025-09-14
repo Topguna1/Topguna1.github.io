@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -452,7 +453,37 @@ body.dark .link-card p {
 @media (max-width: 768px) {
   .categories-container { 
     grid-template-columns: 1fr; 
-    pa음</p>
+    padding: 20px; 
+  }
+  .top-controls {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .search-box {
+    min-width: 100%;
+  }
+  .filter-tabs {
+    width: 100%;
+    justify-content: center;
+  }
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .stats {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+</style>
+<script src="categories-data.js"></script>
+<script src="sites-data.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🌟 딱필모</h1>
+    <p>대한민국 학생들을 위한 엄선된 사이트 모음</p>
   </div>
   <div class="top-controls">
     <div class="search-box">
@@ -1267,6 +1298,12 @@ document.addEventListener("DOMContentLoaded", function() {
 <script>
     }
   }
+  /**
+   * 북마크 관련 기능 전체 삭제 및 오류 수정
+   * - 북마크 버튼, 내보내기/가져오기, 관련 함수/코드 제거
+   * - 검색 하이라이트, 검색 통계, 사이트 카드 하이라이트만 유지
+   */
+
   // ==================== 검색 하이라이트 클래스 ====================
   class SearchHighlighter {
     constructor() {
@@ -1344,7 +1381,8 @@ document.addEventListener("DOMContentLoaded", function() {
       return div.innerHTML;
     }
   }
-/*==================== 개선된 렌더링 함수들 ====================
+
+  // ==================== 개선된 렌더링 함수들 ====================
   function createSiteCardWithHighlight(site) {
     const card = document.createElement("div");
     card.className = "link-card";
@@ -1563,11 +1601,11 @@ setTimeout(() => {
       flex-wrap: wrap;
       margin-bottom: 20px;
     ">
-      <span>📊 총 <strong>90+</strong>개 사이트</span>
+      <span>📊 총 <strong>60+</strong>개 사이트</span>
       <span>🎯 <strong>12</strong>개 카테고리</span>
     </div>
     <p style="font-size: 12px; opacity: 0.7;">
-      © 2025 딱필모 | ver 82 | 
+      © 2025 딱필모 | 버전 2.0 | 
       <span style="color: #3498db;">문의사항은 GitHub Issues를 이용해주세요</span>
     </p>
   </div>
@@ -1600,4 +1638,3 @@ window.shareSite = function(siteName, url) {
 </script>
 </body>
 </html>
-

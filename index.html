@@ -576,6 +576,32 @@ body.dark .search-stats {
     justify-content: center;
   }
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+.page-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.page-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-color: #667eea;
+}
+.page-btn:hover:not(.active) {
+  background: #f1f3f5;
+}
+
 </style>
 
 <!-- 외부 데이터 파일들 (기존대로 유지) -->
@@ -640,26 +666,46 @@ body.dark .search-stats {
   </div>
   
   <div class="stats" id="statsBar">
-    <div class="stats-item">
-      <span>📊 총</span>
-      <strong id="totalCount">0</strong>
-      <span>개 사이트</span>
-    </div>
-    <div class="stats-item">
-      <span>🔎 검색 결과:</span>
-      <strong id="filteredCount">0</strong>
-      <span>개</span>
-    </div>
-    <button class="view-all-btn" id="viewAllBtn">📖 전체 사이트 보기</button>
+  <!-- 페이지당 보기 -->
+  <div class="stats-item">
+    <label for="itemsPerPage">📄 페이지당:</label>
+    <select id="itemsPerPage">
+      <option value="5">5개</option>
+      <option value="10" selected>10개</option>
+      <option value="20">20개</option>
+    </select>
   </div>
-  
-  <div class="categories-container" id="categoriesContainer"></div>
-  
-  <div id="noResults" class="no-results" style="display:none;">
-    <h3>🔍 조건에 맞는 사이트가 없습니다</h3>
-    <p>필터나 검색어를 변경해보세요.</p>
+
+  <!-- 페이지 정보 -->
+  <div class="stats-item" id="paginationInfo">📄 0개씩 보기 · 0/0 페이지</div>
+
+  <!-- 총 사이트 개수 -->
+  <div class="stats-item">
+    <span>📊 총</span>
+    <strong id="totalCount">0</strong>
+    <span>개 사이트</span>
   </div>
+
+  <!-- 검색 결과 개수 -->
+  <div class="stats-item">
+    <span>🔎 검색 결과:</span>
+    <strong id="filteredCount">0</strong>
+    <span>개</span>
+  </div>
+
+  <!-- 전체 사이트 보기 버튼 -->
+  <button class="view-all-btn" id="viewAllBtn">📖 전체 사이트 보기</button>
 </div>
+
+<!-- 사이트 출력 영역 -->
+<div class="categories-container" id="categoriesContainer"></div>
+
+<!-- 결과 없음 메시지 -->
+<div id="noResults" class="no-results" style="display:none;">
+  <h3>🔍 조건에 맞는 사이트가 없습니다</h3>
+  <p>필터나 검색어를 변경해보세요.</p>
+</div>
+
 
 <footer style="
   background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
@@ -687,12 +733,12 @@ body.dark .search-stats {
       flex-wrap: wrap;
       margin-bottom: 20px;
     ">
-      <span>📊 총 <strong>90+</strong>개 사이트</span>
+      <span>📊 총 <strong>150+</strong>개 사이트</span>
       <span>🎯 <strong>12</strong>개 카테고리</span>
     </div>
     <p style="font-size: 12px; opacity: 0.7;">
       © 2025 딱필모 | ver 85 | 
-      <span style="color: #3498db;">깔끔하게 정리된 코드</span>
+      <span style="color: #3498db;">문의는 디스코드에서 받습니다</span>
     </p>
   </div>
 </footer>
@@ -717,11 +763,11 @@ const subjectNames = {
 let state = {
   sites: [],
   currentAgeFilter: "all",
-  currentCategoryFilter: "all", 
+  currentCategoryFilter: "all",
   currentSubjectFilter: "all",
   currentSearchQuery: "",
-  expandedCategories: {},
-  DEFAULT_DISPLAY_LIMIT: 6
+  ITEMS_PER_PAGE: 5,
+  currentPageByCategory: {}
 };
 
 // ==================== 유틸리티 함수들 ====================
@@ -824,17 +870,25 @@ function getFilteredSites() {
 }
 
 // ==================== UI 업데이트 함수들 ====================
-function updateStats() {
+function updateStats(totalFiltered) {
   const total = state.sites.length;
-  const filtered = getFilteredSites().length;
+  const filtered = totalFiltered ?? getFilteredSites().length;
   document.getElementById("totalCount").textContent = total;
   document.getElementById("filteredCount").textContent = filtered;
-  
-  // 검색 통계 표시
-  if (state.currentSearchQuery) {
-    showSearchStats(state.currentSearchQuery, filtered);
+
+  const paginationInfo = document.getElementById("paginationInfo");
+  if (paginationInfo) {
+    const totalPages = Math.ceil(filtered / state.ITEMS_PER_PAGE) || 1;
+    paginationInfo.textContent = `📄 ${state.ITEMS_PER_PAGE}개씩 보기 · 1/${totalPages} 페이지`;
   }
 }
+
+document.getElementById("itemsPerPage").addEventListener("change", (e) => {
+  state.ITEMS_PER_PAGE = parseInt(e.target.value, 10);
+  state.currentPageByCategory = {}; // 모든 카테고리 페이지 초기화
+  renderSites();
+});
+
 
 function showSearchStats(query, totalResults) {
   const statsContainer = document.getElementById('statsBar');
@@ -881,8 +935,178 @@ function createCategorySection(categoryKey) {
       <div class="category-count" id="${categoryKey}-count">0</div>
     </div>
     <div class="category-content" id="${categoryKey}-content"></div>
+    <div class="pagination" id="${categoryKey}-pagination"></div> <!-- ✅ 페이지네이션 -->
   `;
   return section;
+}
+
+let scrollAnimationId = null;
+
+function smoothScrollToTop(duration = 800) {
+  if (scrollAnimationId) {
+    cancelAnimationFrame(scrollAnimationId);
+    scrollAnimationId = null;
+  }
+
+  const start = window.scrollY;
+  const startTime = performance.now();
+  let cancelled = false;
+
+  // ✅ 사용자 입력이 들어오면 취소
+  function cancelOnUserScroll() {
+    cancelled = true;
+    removeCancelListeners();
+  }
+
+  function addCancelListeners() {
+    window.addEventListener("wheel", cancelOnUserScroll, { passive: true });
+    window.addEventListener("touchstart", cancelOnUserScroll, { passive: true });
+    window.addEventListener("keydown", cancelOnUserScroll, { passive: true });
+  }
+
+  function removeCancelListeners() {
+    window.removeEventListener("wheel", cancelOnUserScroll);
+    window.removeEventListener("touchstart", cancelOnUserScroll);
+    window.removeEventListener("keydown", cancelOnUserScroll);
+  }
+
+  addCancelListeners();
+
+  function scroll() {
+    if (cancelled) return;
+
+    const now = performance.now();
+    const time = Math.min(1, (now - startTime) / duration);
+
+    // easeInOutCubic
+    const ease = time < 0.5
+      ? 4 * time * time * time
+      : 1 - Math.pow(-2 * time + 2, 3) / 2;
+
+    window.scrollTo(0, start * (1 - ease));
+
+    if (time < 1) {
+      scrollAnimationId = requestAnimationFrame(scroll);
+    } else {
+      scrollAnimationId = null;
+      removeCancelListeners();
+    }
+  }
+
+  scrollAnimationId = requestAnimationFrame(scroll);
+}
+
+function renderPagination(category, totalItems) {
+  const container = document.getElementById(`${category}-pagination`);
+  if (!container) return;
+  container.innerHTML = "";
+
+  const totalPages = Math.ceil(totalItems / state.ITEMS_PER_PAGE);
+  if (totalPages <= 1) return;
+
+  const currentPage = state.currentPageByCategory[category] || 1;
+
+  const createBtn = (label, page, disabled = false, active = false, isEllipsis = false) => {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.className = "page-btn";
+    if (active) btn.classList.add("active");
+    if (disabled) btn.disabled = true;
+
+    btn.addEventListener("click", () => {
+      if (isEllipsis) {
+        const input = prompt(`이동할 페이지 번호를 입력하세요 (1 ~ ${totalPages})`);
+        const targetPage = parseInt(input, 10);
+        if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= totalPages) {
+          state.currentPageByCategory[category] = targetPage;
+          renderSites();
+          smoothScrollToCategory(category, 800); // ✅ 카테고리 섹션까지 부드럽게 이동
+        }
+      } else {
+        state.currentPageByCategory[category] = page;
+        renderSites();
+        smoothScrollToCategory(category, 800); // ✅ 카테고리 섹션까지 부드럽게 이동
+      }
+    });
+
+    return btn;
+  };
+
+  // ◀ 버튼
+  container.appendChild(createBtn("◀", currentPage - 1, currentPage === 1));
+
+  let start = Math.max(1, currentPage - 2);
+  let end = Math.min(totalPages, currentPage + 2);
+
+  if (start > 1) {
+    container.appendChild(createBtn("1", 1, false, currentPage === 1));
+    if (start > 2) container.appendChild(createBtn("...", null, false, false, true));
+  }
+
+  for (let i = start; i <= end; i++) {
+    container.appendChild(createBtn(i, i, false, i === currentPage));
+  }
+
+  if (end < totalPages) {
+    if (end < totalPages - 1) container.appendChild(createBtn("...", null, false, false, true));
+    container.appendChild(createBtn(totalPages, totalPages, false, currentPage === totalPages));
+  }
+
+  // ▶ 버튼
+  container.appendChild(createBtn("▶", currentPage + 1, currentPage === totalPages));
+}
+
+
+function smoothScrollToCategory(category, duration = 800) {
+  const targetEl = document.getElementById(`${category}-section`);
+  if (!targetEl) return;
+
+  const targetY = targetEl.getBoundingClientRect().top + window.scrollY;
+  const startY = window.scrollY;
+  const distance = targetY - startY;
+  const startTime = performance.now();
+  let cancelled = false;
+
+  function cancelOnUserScroll() {
+    cancelled = true;
+    removeCancelListeners();
+  }
+
+  function addCancelListeners() {
+    window.addEventListener("wheel", cancelOnUserScroll, { passive: true });
+    window.addEventListener("touchstart", cancelOnUserScroll, { passive: true });
+    window.addEventListener("keydown", cancelOnUserScroll, { passive: true });
+  }
+
+  function removeCancelListeners() {
+    window.removeEventListener("wheel", cancelOnUserScroll);
+    window.removeEventListener("touchstart", cancelOnUserScroll);
+    window.removeEventListener("keydown", cancelOnUserScroll);
+  }
+
+  addCancelListeners();
+
+  function scroll() {
+    if (cancelled) return;
+
+    const now = performance.now();
+    const time = Math.min(1, (now - startTime) / duration);
+
+    // easeInOutCubic
+    const ease = time < 0.5
+      ? 4 * time * time * time
+      : 1 - Math.pow(-2 * time + 2, 3) / 2;
+
+    window.scrollTo(0, startY + distance * ease);
+
+    if (time < 1) {
+      requestAnimationFrame(scroll);
+    } else {
+      removeCancelListeners();
+    }
+  }
+
+  requestAnimationFrame(scroll);
 }
 
 function createSiteCard(site) {
@@ -956,58 +1180,25 @@ function renderSites() {
 
     if (sitesInCategory.length > 0) {
       section.style.display = "block";
-      
-      const limit = state.DEFAULT_DISPLAY_LIMIT;
-      const isExpanded = state.expandedCategories[category];
-      const toShow = isExpanded ? sitesInCategory : sitesInCategory.slice(0, limit);
-      const remaining = Math.max(0, sitesInCategory.length - limit);
 
-      // 사이트 카드들 추가
-      toShow.forEach(site => {
-        content.appendChild(createSiteCard(site));
-      });
+      const total = sitesInCategory.length;
+      const currentPage = state.currentPageByCategory[category] || 1;
+      const start = (currentPage - 1) * state.ITEMS_PER_PAGE;
+      const end = start + state.ITEMS_PER_PAGE;
+      const pagedSites = sitesInCategory.slice(start, end);
 
-      // 더보기/접기 버튼
-      if (sitesInCategory.length > limit) {
-        const btnContainer = document.createElement("div");
-        btnContainer.className = "more-btn-container";
-        
-        if (isExpanded) {
-          btnContainer.innerHTML = `
-            <button class="collapse-btn" onclick="collapseSites('${category}')">
-              접기 ↑
-            </button>
-          `;
-        } else {
-          btnContainer.innerHTML = `
-            <button class="more-btn" onclick="expandSites('${category}')">
-              더보기 (+${remaining}개) ↓
-            </button>
-          `;
-        }
-        content.appendChild(btnContainer);
-      }
+      pagedSites.forEach(site => content.appendChild(createSiteCard(site)));
+
+      renderPagination(category, total);
     } else {
-      // 빈 카테고리 처리
-      if (state.currentCategoryFilter === "all" || state.currentCategoryFilter === category) {
-        section.style.display = "block";
-        content.innerHTML = `
-          <div style="color:#666;text-align:center;padding:40px;">
-            <div style="font-size:48px;margin-bottom:16px;">🔍</div>
-            <p>해당 조건의 사이트가 없습니다.</p>
-            <p style="font-size:14px;margin-top:8px;">곧 더 많은 사이트가 추가될 예정입니다!</p>
-          </div>
-        `;
-      } else {
-        section.style.display = "none";
-      }
+      section.style.display = "none";
     }
   });
 
-  // 전체 결과 없음 표시
   document.getElementById("noResults").style.display = hasResults ? "none" : "block";
-  updateStats();
+  updateStats(filtered.length);
 }
+
 
 // ==================== 더보기/접기 함수들 ====================
 function expandSites(category) { 

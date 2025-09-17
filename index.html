@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -602,11 +603,53 @@ body.dark .search-stats {
   background: #f1f3f5;
 }
 
+.autocomplete-items {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  border: 1px solid #ccc;
+  border-top: none;
+  z-index: 999;
+  background: #fff;
+  max-height: 250px;
+  overflow-y: auto;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+body.dark .autocomplete-items {
+  background: #2c2c2c;
+  border-color: #444;
+}
+
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+.autocomplete-items div:last-child {
+  border-bottom: none;
+}
+.autocomplete-items div:hover,
+.autocomplete-items .active {
+  background-color: #f1f3f5;
+}
+body.dark .autocomplete-items div:hover,
+body.dark .autocomplete-items .active {
+  background-color: #444;
+}
+.autocomplete-desc {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
 </style>
 
 <!-- 외부 데이터 파일들 (기존대로 유지) -->
 <script src="categories-data.js"></script>
 <script src="sites-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 </head>
 <body>
 <div class="container">
@@ -623,6 +666,7 @@ body.dark .search-stats {
         autocomplete="off"
       />
       <span class="search-icon">🔍</span>
+      <div id="autocomplete-list" class="autocomplete-items"></div>
     </div>
     <div class="filter-tabs" id="filterTabs"></div>
     <button class="dark-toggle" id="darkToggle">🌙 다크 모드</button>
@@ -737,8 +781,8 @@ body.dark .search-stats {
       <span>🎯 <strong>12</strong>개 카테고리</span>
     </div>
     <p style="font-size: 12px; opacity: 0.7;">
-      © 2025 딱필모 | ver 88 | 
-      <span style="color: #3498db;"> 문의는 디스코드 에서 받습니다.</span>
+      © 2025 딱필모 | ver 89 | 
+      <span style="color: #3498db;"> 문의는 디스코드에서 받습니다.</span>
     </p>
   </div>
 </footer>
@@ -811,15 +855,29 @@ function showToast(message) {
 // ==================== 검색 하이라이트 기능 ====================
 function highlightSearchTerms(text, query) {
   if (!query || !text) return escapeHtml(text);
-  
-  const queries = query.trim().split(/\s+/).filter(q => q.length > 0);
+
+  const queries = query
+    .trim()
+    .split(/\s+/)
+    .filter(q => q.length > 0);
+
+  // ✅ 중복 검색어 제거
+  const uniqueQueries = [...new Set(queries)];
+
   let result = escapeHtml(text);
-  
-  queries.forEach(q => {
-    const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    result = result.replace(regex, '<span class="search-highlight">$1</span>');
+
+  uniqueQueries.forEach(q => {
+    try {
+      const regex = new RegExp(
+        `(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`,
+        'gi'
+      );
+      result = result.replace(regex, '<span class="search-highlight">$1</span>');
+    } catch (err) {
+      console.warn("Regex error:", err);
+    }
   });
-  
+
   return result;
 }
 
@@ -840,7 +898,9 @@ function getCategoryIcon(key) {
 
 // ==================== 필터링 함수 ====================
 function getFilteredSites() {
-  const q = state.currentSearchQuery.trim().toLowerCase();
+  const rawQ = state.currentSearchQuery || "";
+  const q = rawQ.trim().toLowerCase();
+
   return state.sites.filter(site => {
     // 연령대 필터
     if (state.currentAgeFilter !== "all" && !site.ages.includes(state.currentAgeFilter)) return false;
@@ -851,21 +911,40 @@ function getFilteredSites() {
     // 과목 필터
     if (state.currentSubjectFilter !== "all" && !site.subjects.includes(state.currentSubjectFilter)) return false;
     
-    // 검색어 필터
-    if (q) {
-      const searchTarget = (
-        site.name + " " + 
-        (site.desc || "") + " " + 
-        getCategoryName(site.category) + " " +
-        site.ages.map(a => ageNames[a]).join(" ") + " " +
-        site.subjects.map(sub => subjectNames[sub]).join(" ")
-      ).toLowerCase();
-      
-      const queries = q.split(/\s+/).filter(q => q.length > 0);
-      return queries.every(query => searchTarget.includes(query));
-    }
-    
-    return true;
+    // 검색어가 없으면 통과
+    if (!q) return true;
+
+    // 검색 대상 문자열 (초성 포함)
+    const searchTarget = (
+      site.name + " " + 
+      (site.desc || "") + " " + 
+      getCategoryName(site.category) + " " +
+      site.ages.map(a => ageNames[a]).join(" ") + " " +
+      site.subjects.map(sub => subjectNames[sub]).join(" ") + " " +
+      (site.chosung || "")
+    ).toLowerCase();
+
+    const tokens = q.split(/\s+/).filter(t => t.length > 0);
+
+    // 모든 토큰이 하나 이상의 방식으로 매칭되어야 함
+    return tokens.every(token => {
+      const tokenChosung = getChosung(token).toLowerCase();
+      const siteChosung = (site.chosung || "").toLowerCase();
+
+      // 1) 일반 문자열 포함 (이름, 설명, 카테고리 등)
+      if (searchTarget.includes(token)) return true;
+
+      // 2) site.chosung에 입력 토큰(직접)을 포함하는지 (사용자가 이미 초성 입력한 경우)
+      if (siteChosung.includes(token)) return true;
+
+      // 3) site.chosung에 토큰의 초성 형태(tokenChosung)를 포함하는지
+      if (siteChosung.includes(tokenChosung)) return true;
+
+      // 4) 이름의 초성만 따로 확인 (안전장치)
+      if (getChosung(site.name).toLowerCase().includes(tokenChosung)) return true;
+
+      return false;
+    });
   });
 }
 
@@ -1258,7 +1337,102 @@ function updateActiveTab(selectedTab) {
 
 // ==================== 이벤트 리스너 설정 ====================
 function setupEventListeners() {
-  // 연령대 필터
+  // ✅ 먼저 선언
+  const searchInput = document.getElementById("searchInput");
+  const autocompleteList = document.getElementById("autocomplete-list");
+  let currentFocus = -1;
+
+  // ==================== 자동완성 기능 ====================
+  searchInput.addEventListener("input", function() {
+    const query = this.value.trim();
+    autocompleteList.innerHTML = "";
+    currentFocus = -1;
+
+    if (!query) return;
+
+  // 1) Fuse 기반 추천 (있으면 가져오고)
+    let matches = [];
+    if (typeof fuse !== 'undefined' && fuse) {
+        try {
+            matches = fuse.search(query).map(r => r.item);
+        } catch (e) {
+        matches = [];
+        }
+    }
+
+  // 2) 사용자가 초성(ㄱ~ㅎ) 입력을 섞어 쓰는 경우, site.chosung에서 직접 검색
+    const jamoRegex = /[\u3131-\u318E]/; // 한글 자모(초성 포함) 체크
+    if (jamoRegex.test(query)) {
+        const jamoQuery = query.toLowerCase();
+        const jamoMatches = state.sites.filter(s => (s.chosung || "").toLowerCase().includes(jamoQuery));
+        // 중복 제거하여 합치기 (name 기준)
+        const map = {};
+        matches.concat(jamoMatches).forEach(m => { map[m.name] = m; });
+        matches = Object.values(map);
+    }
+
+    // 3) UI용으로 최대 8개만 표시
+    matches.slice(0, 8).forEach(site => {
+        const item = document.createElement("div");
+        item.innerHTML = `
+            <strong>${highlightSearchTerms(site.name, query)}</strong><br>
+            <span class="autocomplete-desc">${highlightSearchTerms(site.desc || "", query)}</span>
+        `;
+        item.addEventListener("click", () => {
+            searchInput.value = site.name;
+            state.currentSearchQuery = site.name;
+            autocompleteList.innerHTML = "";
+            renderSites();
+        });
+        autocompleteList.appendChild(item);
+    });
+});
+
+  // 키보드 ↑ ↓ Enter 탐색
+  searchInput.addEventListener("keydown", function(e) {
+    let items = autocompleteList.getElementsByTagName("div");
+    if (e.key === "ArrowDown") {
+      currentFocus++;
+      addActive(items);
+    } else if (e.key === "ArrowUp") {
+      currentFocus--;
+      addActive(items);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (currentFocus > -1 && items[currentFocus]) {
+        items[currentFocus].click();
+      }
+    }
+  });
+
+  function addActive(items) {
+    if (!items) return;
+    removeActive(items);
+    if (currentFocus >= items.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = items.length - 1;
+  
+    const activeItem = items[currentFocus];
+    activeItem.classList.add("active");
+
+  // ✅ 자동 스크롤 추가
+    activeItem.scrollIntoView({
+        block: "nearest",   // 리스트 안에서 최소한으로 움직임
+        inline: "nearest",
+        behavior: "smooth"  // 부드럽게 이동
+    });
+}
+  function removeActive(items) {
+    for (let item of items) item.classList.remove("active");
+  }
+
+  // 외부 클릭 시 자동완성 닫기
+  document.addEventListener("click", function(e) {
+    if (e.target !== searchInput) {
+      autocompleteList.innerHTML = "";
+    }
+  });
+
+  // ==================== 연령대 필터 ====================
   document.querySelectorAll("#ageFilter .filter-btn").forEach(btn => {
     btn.addEventListener("click", (e) => {
       document.querySelectorAll("#ageFilter .filter-btn").forEach(b => {
@@ -1270,24 +1444,22 @@ function setupEventListeners() {
     });
   });
 
-  // 과목 필터
+  // ==================== 과목 필터 ====================
   document.getElementById("subjectFilter").addEventListener("change", (e) => {
     state.currentSubjectFilter = e.target.value;
     renderSites();
   });
 
-  // 검색 (디바운스 적용)
-  const searchInput = document.getElementById("searchInput");
+  // ==================== 검색 (디바운스 적용) ====================
   const debouncedSearch = debounce((value) => {
     state.currentSearchQuery = value;
     renderSites();
   }, 300);
-  
   searchInput.addEventListener("input", (e) => {
     debouncedSearch(e.target.value);
   });
 
-  // 다크 모드 토글
+  // ==================== 다크 모드 토글 ====================
   const darkToggle = document.getElementById("darkToggle");
   darkToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark");
@@ -1295,18 +1467,18 @@ function setupEventListeners() {
     darkToggle.textContent = isDark ? "☀️ 라이트 모드" : "🌙 다크 모드";
   });
 
-  // 리셋 버튼들
+  // ==================== 리셋 버튼들 ====================
   document.getElementById("resetBtn").addEventListener("click", resetFilters);
   document.getElementById("viewAllBtn").addEventListener("click", resetFilters);
 
-  // 키보드 단축키
+  // ==================== 키보드 단축키 ====================
   document.addEventListener("keydown", (e) => {
     // Ctrl + K: 검색 포커스
     if (e.ctrlKey && e.key === 'k') {
       e.preventDefault();
       searchInput.focus();
     }
-    
+
     // Escape: 검색 초기화
     if (e.key === 'Escape' && document.activeElement === searchInput) {
       searchInput.value = '';
@@ -1387,6 +1559,33 @@ function initializeTheme() {
     });
   }
 }
+let fuse;
+
+function initFuse() {
+  fuse = new Fuse(state.sites, {
+    keys: ["name", "desc", "subjects", "category"],
+    threshold: 0.4,
+    minMatchCharLength: 1,
+    ignoreLocation: true,   // ✅ 단어 위치 상관없이 매칭
+    findAllMatches: true    // ✅ 여러 매칭 찾아줌
+  });
+}
+function getChosung(str) {
+  const CHOSUNG_LIST = [
+    "ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ",
+    "ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"
+  ];
+  let result = "";
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i) - 44032;
+    if (code >= 0 && code <= 11171) {
+      result += CHOSUNG_LIST[Math.floor(code / 588)];
+    } else {
+      result += str[i]; // 한글 아니면 그대로
+    }
+  }
+  return result;
+}
 
 // ==================== 초기화 함수 ====================
 function init() {
@@ -1395,10 +1594,12 @@ function init() {
   try {
     // 외부 데이터 확인 및 초기화
     if (typeof initialSites !== 'undefined') {
-      state.sites = [...initialSites];
+        state.sites = initialSites.map(site => ({
+            ...site,
+            chosung: getChosung(site.name) + " " + getChosung(site.desc || "")
+        }));
     } else {
-      console.warn("⚠️ initialSites가 로드되지 않았습니다. sites-data.js 파일을 확인하세요.");
-      state.sites = [];
+    state.sites = [];
     }
     
     // UI 초기화
@@ -1407,6 +1608,7 @@ function init() {
     buildCategoryTabs();
     setupEventListeners();
     renderSites();
+    initFuse();
     
     console.log("✅ 딱필모 초기화 완료!");
     

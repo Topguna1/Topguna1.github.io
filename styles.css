@@ -634,3 +634,92 @@ body.dark .autocomplete-items .active {
   font-size: 12px;
   opacity: 0.7;
 }
+
+.link-card {
+  display: flex;
+  align-items: flex-start;
+  background: var(--card-bg, #fff);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.link-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card-left {
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+
+.site-favicon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+}
+
+.card-right {
+  flex: 1;
+}
+
+.site-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--link-color, #2c3e50);
+  text-decoration: none;
+}
+
+.site-title:hover {
+  text-decoration: underline;
+}
+
+.site-desc {
+  margin: 8px 0;
+  font-size: 0.9rem;
+  color: var(--text-muted, #555);
+  line-height: 1.4;
+}
+
+.link-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #f0f0f0;
+}
+
+.age-tag { background: #ffeaa7; }
+.category-tag { background: #74b9ff; color: white; }
+.rating-tag { background: #fab1a0; }
+
+.site-favicon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.fallback-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #74b9ff; /* 기본 색상 */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 20px;
+  text-transform: uppercase;
+}

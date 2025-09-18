@@ -5,646 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🌟 딱필모 - 학생 필수 사이트 모음</title>
-<style>
-/* 기존 CSS는 그대로 유지하되 불필요한 부분만 정리 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', 'Malgun Gothic', Tahoma, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  color: #333;
-  transition: all 0.3s ease;
-}
-
-body.dark {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  color: #fff;
-}
-
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  background: rgba(255,255,255,0.95);
-  border-radius: 24px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  overflow: hidden;
-}
-
-body.dark .container {
-  background: rgba(26,26,46,0.95);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-
-.header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 40px 30px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.header h1 { 
-  margin: 0 0 12px 0; 
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 800; 
-}
-
-.header p { 
-  margin: 0; 
-  opacity: 0.95; 
-  font-size: 1.1rem;
-}
-
-.top-controls {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px;
-  background: rgba(248,249,250,0.8);
-  border-bottom: 1px solid #e9ecef;
-  flex-wrap: wrap;
-}
-
-body.dark .top-controls { 
-  background: rgba(40,40,60,0.8); 
-  border-bottom-color: #444; 
-}
-
-.search-box {
-  position: relative;
-  flex: 1;
-  min-width: 280px;
-}
-
-.search-box input {
-  width: 100%;
-  padding: 16px 50px 16px 20px;
-  border-radius: 16px;
-  border: 2px solid #e9ecef;
-  font-size: 16px;
-  transition: all 0.3s ease;
-}
-
-.search-box input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
-}
-
-.search-icon {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #666;
-  font-size: 18px;
-}
-
-.filter-tabs {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.tab-btn {
-  padding: 12px 18px;
-  border-radius: 20px;
-  border: 2px solid #e9ecef;
-  background: rgba(255,255,255,0.9);
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.tab-btn:hover,
-.tab-btn.active { 
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white; 
-  border-color: #667eea; 
-  transform: translateY(-2px);
-}
-
-.dark-toggle {
-  padding: 12px 18px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #343a40 0%, #212529 100%);
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.dark-toggle:hover {
-  transform: translateY(-2px);
-}
-
-.filters {
-  padding: 24px;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-  background: rgba(248,249,250,0.6);
-  border-bottom: 1px solid #e9ecef;
-}
-
-body.dark .filters { 
-  background: rgba(40,40,60,0.6); 
-  border-bottom-color: #444; 
-}
-
-.filter-group { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 12px; 
-  min-width: 140px; 
-}
-
-.filter-group label {
-  font-weight: 700;
-  color: #555;
-  font-size: 14px;
-}
-
-body.dark .filter-group label {
-  color: #ccc;
-}
-
-.filter-buttons { 
-  display: flex; 
-  gap: 8px; 
-  flex-wrap: wrap; 
-}
-
-.filter-btn { 
-  padding: 10px 16px; 
-  border-radius: 18px; 
-  border: 2px solid #e9ecef; 
-  background: rgba(255,255,255,0.9); 
-  cursor: pointer; 
-  font-weight: 600;
-  font-size: 13px;
-  transition: all 0.3s ease;
-}
-
-.filter-btn:hover,
-.filter-btn.active { 
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white; 
-  border-color: #667eea;
-}
-
-#subjectFilter {
-  padding: 12px 16px;
-  border-radius: 16px;
-  border: 2px solid #e9ecef;
-  background: rgba(255,255,255,0.9);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  min-width: 160px;
-}
-
-.reset-btn {
-  padding: 12px 18px;
-  border-radius: 16px;
-  border: none;
-  background: #6c757d;
-  color: white;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  margin-left: auto;
-}
-
-.reset-btn:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
-}
-
-.stats { 
-  display: flex; 
-  gap: 24px; 
-  align-items: center; 
-  padding: 16px 24px; 
-  color: #6c757d; 
-  background: rgba(248,249,250,0.4);
-  font-weight: 600;
-}
-
-body.dark .stats { 
-  color: #adb5bd; 
-  background: rgba(30,30,40,0.4); 
-}
-
-.stats-item { 
-  display: flex; 
-  gap: 8px; 
-  align-items: center; 
-  font-size: 14px;
-}
-
-.stats-item strong {
-  color: #667eea;
-  font-size: 18px;
-}
-
-.view-all-btn {
-  padding: 12px 24px;
-  border-radius: 16px;
-  border: 2px solid #e9ecef;
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-  color: white;
-  cursor: pointer;
-  font-weight: 700;
-  margin-left: auto;
-  transition: all 0.3s ease;
-}
-
-.view-all-btn:hover {
-  transform: translateY(-3px);
-}
-
-.categories-container { 
-  padding: 32px; 
-  display: grid; 
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
-  gap: 24px; 
-}
-
-.category-section { 
-  background: rgba(255,255,255,0.9); 
-  border-radius: 20px; 
-  overflow: hidden; 
-  border: 1px solid #e9ecef; 
-  transition: all 0.3s ease;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.category-section:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(102,126,234,0.2);
-}
-
-body.dark .category-section { 
-  background: rgba(45,45,45,0.9); 
-  border-color: #444; 
-}
-
-.category-header { 
-  padding: 20px 24px; 
-  font-weight: 700; 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  gap: 16px; 
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-  color: #fff;
-}
-
-.category-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.category-icon {
-  font-size: 24px;
-}
-
-.category-title {
-  font-weight: 800;
-  font-size: 18px;
-}
-
-.category-subtitle {
-  font-size: 12px;
-  opacity: 0.8;
-  font-weight: 400;
-}
-
-.category-count {
-  background: rgba(255,255,255,0.2);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 800;
-  font-size: 14px;
-}
-
-.category-content { 
-  padding: 24px; 
-}
-
-.link-card { 
-  border-radius: 16px; 
-  padding: 20px; 
-  margin: 16px 0; 
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); 
-  border: 2px solid #f1f3f5; 
-  transition: all 0.3s ease;
-}
-
-body.dark .link-card { 
-  background: linear-gradient(135deg, #343a40 0%, #495057 100%); 
-  border-color: #444; 
-}
-
-.link-card:hover { 
-  transform: translateY(-4px); 
-  box-shadow: 0 20px 40px rgba(102,126,234,0.2); 
-  border-color: #667eea; 
-}
-
-.link-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.link-card a { 
-  text-decoration: none; 
-  font-weight: 700; 
-  color: #2c3e50; 
-  font-size: 18px;
-  transition: all 0.3s ease;
-  flex: 1;
-}
-
-.link-card a:hover {
-  color: #667eea;
-}
-
-body.dark .link-card a { 
-  color: #f8f9fa; 
-}
-
-.link-card-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.share-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  color: #666;
-  font-size: 16px;
-}
-
-.share-btn:hover {
-  background: rgba(102,126,234,0.1);
-  color: #667eea;
-  transform: scale(1.1);
-}
-
-.link-card-tags {
-  margin: 12px 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.tag { 
-  padding: 6px 12px; 
-  border-radius: 16px; 
-  font-size: 12px; 
-  font-weight: 700; 
-  display: inline-block;
-}
-
-.age-tag { 
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); 
-  color: #155724; 
-}
-
-.category-tag { 
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); 
-  color: #856404; 
-}
-
-.rating-tag {
-  background: linear-gradient(135deg, #ffd6cc 0%, #ffb3ba 100%);
-  color: #721c24;
-}
-
-body.dark .age-tag { 
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
-  color: white; 
-}
-
-body.dark .category-tag { 
-  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); 
-  color: #212529; 
-}
-
-body.dark .rating-tag {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  color: white;
-}
-
-.link-card p { 
-  margin: 12px 0 0; 
-  color: #6c757d; 
-  line-height: 1.6;
-}
-
-body.dark .link-card p { 
-  color: #adb5bd; 
-}
-
-.more-btn-container { 
-  text-align: center; 
-  margin-top: 20px; 
-}
-
-.more-btn, .collapse-btn { 
-  padding: 12px 24px; 
-  border-radius: 24px; 
-  border: 2px solid #dee2e6; 
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); 
-  cursor: pointer; 
-  font-weight: 700;
-  transition: all 0.3s ease;
-}
-
-.more-btn:hover, .collapse-btn:hover { 
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white; 
-  border-color: #667eea;
-  transform: translateY(-2px);
-}
-
-.no-results { 
-  padding: 60px; 
-  text-align: center; 
-  color: #6c757d;
-  background: rgba(255,255,255,0.5);
-  border-radius: 16px;
-  margin: 20px;
-}
-
-.no-results h3 {
-  margin-bottom: 12px;
-  font-size: 24px;
-}
-
-.toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: rgba(102, 126, 234, 0.9);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  z-index: 10000;
-  backdrop-filter: blur(10px);
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
-}
-
-/* 검색 하이라이트 */
-.search-highlight {
-  background: linear-gradient(90deg, #fff3cd 0%, #ffeaa7 100%);
-  color: #856404;
-  border-radius: 4px;
-  padding: 0 2px;
-  animation: highlight-glow 1.2s ease-in-out;
-}
-
-@keyframes highlight-glow {
-  0% { background-color: transparent; }
-  50% { background-color: rgba(255, 195, 7, 0.8); }
-  100% { background-color: rgba(255, 195, 7, 0.3); }
-}
-
-.search-stats {
-  background: rgba(255, 195, 7, 0.1);
-  border: 1px solid rgba(255, 195, 7, 0.3);
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin: 8px 0;
-  font-size: 14px;
-  color: #856404;
-}
-
-body.dark .search-stats {
-  background: rgba(255, 193, 7, 0.2);
-  border-color: rgba(255, 193, 7, 0.4);
-  color: #ffc107;
-}
-
-@media (max-width: 768px) {
-  .categories-container { 
-    grid-template-columns: 1fr; 
-    padding: 20px; 
-  }
-  .top-controls {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .search-box {
-    min-width: 100%;
-  }
-  .filter-tabs {
-    width: 100%;
-    justify-content: center;
-  }
-  .filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .stats {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin: 16px 0;
-  flex-wrap: wrap;
-}
-.page-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-.page-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  border-color: #667eea;
-}
-.page-btn:hover:not(.active) {
-  background: #f1f3f5;
-}
-
-.autocomplete-items {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  border: 1px solid #ccc;
-  border-top: none;
-  z-index: 999;
-  background: #fff;
-  max-height: 250px;
-  overflow-y: auto;
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-}
-body.dark .autocomplete-items {
-  background: #2c2c2c;
-  border-color: #444;
-}
-
-.autocomplete-items div {
-  padding: 10px;
-  cursor: pointer;
-  font-size: 14px;
-  border-bottom: 1px solid #eee;
-}
-.autocomplete-items div:last-child {
-  border-bottom: none;
-}
-.autocomplete-items div:hover,
-.autocomplete-items .active {
-  background-color: #f1f3f5;
-}
-body.dark .autocomplete-items div:hover,
-body.dark .autocomplete-items .active {
-  background-color: #444;
-}
-.autocomplete-desc {
-  font-size: 12px;
-  opacity: 0.7;
-}
-
-</style>
+<link rel="stylesheet" href="styles.css">
 
 <!-- 외부 데이터 파일들 (기존대로 유지) -->
 <script src="categories-data.js"></script>
@@ -781,8 +142,8 @@ body.dark .autocomplete-items .active {
       <span>🎯 <strong>12</strong>개 카테고리</span>
     </div>
     <p style="font-size: 12px; opacity: 0.7;">
-      © 2025 딱필모 | ver 89 | 
-      <span style="color: #3498db;"> 문의는 디스코드에서 받습니다.</span>
+      © 2025 딱필모 | ver 88 | 
+      <span style="color: #3498db;"> 문의는 디스코드 에서 받습니다.</span>
     </p>
   </div>
 </footer>
@@ -1278,18 +639,6 @@ function renderSites() {
   updateStats(filtered.length);
 }
 
-
-// ==================== 더보기/접기 함수들 ====================
-function expandSites(category) { 
-  state.expandedCategories[category] = true; 
-  renderSites(); 
-}
-
-function collapseSites(category) { 
-  state.expandedCategories[category] = false; 
-  renderSites(); 
-}
-
 // ==================== 카테고리 탭 관리 ====================
 function buildCategoryTabs() {
   const tabs = document.getElementById("filterTabs");
@@ -1337,56 +686,62 @@ function updateActiveTab(selectedTab) {
 
 // ==================== 이벤트 리스너 설정 ====================
 function setupEventListeners() {
-  // ✅ 먼저 선언
   const searchInput = document.getElementById("searchInput");
   const autocompleteList = document.getElementById("autocomplete-list");
   let currentFocus = -1;
 
-  // ==================== 자동완성 기능 ====================
-  searchInput.addEventListener("input", function() {
+  // ✅ 검색 & 자동완성 통합
+  const debouncedSearch = debounce((value) => {
+    state.currentSearchQuery = value;
+    renderSites();
+  }, 300);
+
+  searchInput.addEventListener("input", function () {
     const query = this.value.trim();
     autocompleteList.innerHTML = "";
     currentFocus = -1;
 
+    // 디바운스 검색 실행
+    debouncedSearch(query);
+
     if (!query) return;
 
-  // 1) Fuse 기반 추천 (있으면 가져오고)
+    // Fuse.js 검색
     let matches = [];
-    if (typeof fuse !== 'undefined' && fuse) {
-        try {
-            matches = fuse.search(query).map(r => r.item);
-        } catch (e) {
-        matches = [];
-        }
+    if (typeof fuse !== "undefined" && fuse) {
+      try {
+        matches = fuse.search(query).map(r => r.item);
+      } catch (e) { matches = []; }
     }
 
-  // 2) 사용자가 초성(ㄱ~ㅎ) 입력을 섞어 쓰는 경우, site.chosung에서 직접 검색
-    const jamoRegex = /[\u3131-\u318E]/; // 한글 자모(초성 포함) 체크
+    // 초성 검색
+    const jamoRegex = /[\u3131-\u318E]/;
     if (jamoRegex.test(query)) {
-        const jamoQuery = query.toLowerCase();
-        const jamoMatches = state.sites.filter(s => (s.chosung || "").toLowerCase().includes(jamoQuery));
-        // 중복 제거하여 합치기 (name 기준)
-        const map = {};
-        matches.concat(jamoMatches).forEach(m => { map[m.name] = m; });
-        matches = Object.values(map);
+      const jamoQuery = query.toLowerCase();
+      const jamoMatches = state.sites.filter(s =>
+        (s.chosung || "").toLowerCase().includes(jamoQuery)
+      );
+      const map = {};
+      matches.concat(jamoMatches).forEach(m => { map[m.name] = m; });
+      matches = Object.values(map);
     }
 
-    // 3) UI용으로 최대 8개만 표시
+    // 자동완성 UI 표시
     matches.slice(0, 8).forEach(site => {
-        const item = document.createElement("div");
-        item.innerHTML = `
-            <strong>${highlightSearchTerms(site.name, query)}</strong><br>
-            <span class="autocomplete-desc">${highlightSearchTerms(site.desc || "", query)}</span>
-        `;
-        item.addEventListener("click", () => {
-            searchInput.value = site.name;
-            state.currentSearchQuery = site.name;
-            autocompleteList.innerHTML = "";
-            renderSites();
-        });
-        autocompleteList.appendChild(item);
+      const item = document.createElement("div");
+      item.innerHTML = `
+        <strong>${highlightSearchTerms(site.name, query)}</strong><br>
+        <span class="autocomplete-desc">${highlightSearchTerms(site.desc || "", query)}</span>
+      `;
+      item.addEventListener("click", () => {
+        searchInput.value = site.name;
+        state.currentSearchQuery = site.name;
+        autocompleteList.innerHTML = "";
+        renderSites();
+      });
+      autocompleteList.appendChild(item);
     });
-});
+  });
 
   // 키보드 ↑ ↓ Enter 탐색
   searchInput.addEventListener("keydown", function(e) {
@@ -1448,15 +803,6 @@ function setupEventListeners() {
   document.getElementById("subjectFilter").addEventListener("change", (e) => {
     state.currentSubjectFilter = e.target.value;
     renderSites();
-  });
-
-  // ==================== 검색 (디바운스 적용) ====================
-  const debouncedSearch = debounce((value) => {
-    state.currentSearchQuery = value;
-    renderSites();
-  }, 300);
-  searchInput.addEventListener("input", (e) => {
-    debouncedSearch(e.target.value);
   });
 
   // ==================== 다크 모드 토글 ====================
@@ -1640,8 +986,7 @@ function init() {
 }
 
 // ==================== 전역 함수 노출 ====================
-window.expandSites = expandSites;
-window.collapseSites = collapseSites;
+
 window.shareSite = shareSite;
 
 // ==================== 이벤트 리스너 등록 ====================

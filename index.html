@@ -138,11 +138,11 @@
       flex-wrap: wrap;
       margin-bottom: 20px;
     ">
-      <span>📊 총 <strong>150+</strong>개 사이트</span>
+      <span>📊 총 <strong>140+</strong>개 사이트</span>
       <span>🎯 <strong>12</strong>개 카테고리</span>
     </div>
     <p style="font-size: 12px; opacity: 0.7;">
-      © 2025 딱필모 | ver 88 | 
+      © 2025 딱필모 | ver 95 | 
       <span style="color: #3498db;"> 문의는 디스코드 에서 받습니다.</span>
     </p>
   </div>
@@ -552,40 +552,83 @@ function smoothScrollToCategory(category, duration = 800) {
 function createSiteCard(site) {
   const card = document.createElement("div");
   card.className = "link-card";
-  card.setAttribute("data-site", site.name);
+  card.setAttribute("data-site", site.name || "");
 
-  // 검색어 하이라이트 적용
-  const highlightedName = highlightSearchTerms(site.name, state.currentSearchQuery);
-  const highlightedDesc = highlightSearchTerms(site.desc || '설명이 없습니다.', state.currentSearchQuery);
+  // favicon
+  const faviconUrl = "https://www.google.com/s2/favicons?sz=64&domain_url=" + encodeURIComponent(site.url || "");
+  const left = document.createElement("div");
+  left.className = "card-left";
 
-  const ageTags = site.ages.map(a => 
-    `<span class="tag age-tag">${ageNames[a]}</span>`
-  ).join(" ");
-  
-  const categoryTag = `<span class="tag category-tag">${getCategoryName(site.category)}</span>`;
-  const ratingTag = site.rating ? `<span class="tag rating-tag">⭐ ${site.rating}</span>` : "";
+  const img = document.createElement("img");
+  img.src = faviconUrl;
+  img.alt = (site.name || "") + " favicon";
+  img.className = "site-favicon";
+  img.onerror = function () {
+    const fallback = document.createElement("div");
+    fallback.className = "fallback-icon";
+    fallback.textContent = site.name && site.name.length > 0 ? site.name.charAt(0).toUpperCase() : "?";
+    img.replaceWith(fallback);
+  };
+  left.appendChild(img);
 
-  card.innerHTML = `
-    <div class="link-card-header">
-      <a href="${site.url}" target="_blank" rel="noopener noreferrer" data-site="${escapeHtml(site.name)}">
-        ${highlightedName}
-      </a>
-      <div class="link-card-actions">
-        <button class="share-btn" 
-                onclick="shareSite('${escapeHtml(site.name)}', '${site.url}')"
-                title="링크 공유">
-          📤
-        </button>
-      </div>
-    </div>
-    <div class="link-card-tags">
-      ${categoryTag} ${ageTags} ${ratingTag}
-    </div>
-    <p>${highlightedDesc}</p>
-  `;
-  
+  // 오른쪽
+  const right = document.createElement("div");
+  right.className = "card-right";
+
+  // 헤더
+  const header = document.createElement("div");
+  header.className = "link-card-header";
+
+  const a = document.createElement("a");
+  a.href = site.url || "#";
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.className = "site-title";
+  a.innerHTML = highlightSearchTerms(site.name || "이름 없음", state.currentSearchQuery);
+
+  const shareBtn = document.createElement("button");
+  shareBtn.className = "share-btn";
+  shareBtn.textContent = "📤";
+  shareBtn.title = "링크 공유";
+  shareBtn.onclick = (e) => {
+    e.stopPropagation();
+    shareSite(site.name || "", site.url || "");
+  };
+
+  header.appendChild(a);
+  header.appendChild(shareBtn);
+
+  // 설명
+  const desc = document.createElement("p");
+  desc.className = "site-desc";
+  desc.innerHTML = highlightSearchTerms(site.desc || "설명이 없습니다.", state.currentSearchQuery);
+
+  // 태그들
+  const tags = document.createElement("div");
+  tags.className = "link-card-tags";
+
+  const catTag = document.createElement("span");
+  catTag.className = "tag category-tag";
+  catTag.textContent = getCategoryName(site.category);
+  tags.appendChild(catTag);
+
+  (site.ages || []).forEach(age => {
+    const t = document.createElement("span");
+    t.className = "tag age-tag";
+    t.textContent = ageNames[age] || age;
+    tags.appendChild(t);
+  });
+
+  right.appendChild(header);
+  right.appendChild(desc);
+  right.appendChild(tags);
+
+  card.appendChild(left);
+  card.appendChild(right);
+
   return card;
 }
+
 
 // ==================== 렌더링 함수들 ====================
 function renderCategorySections() {

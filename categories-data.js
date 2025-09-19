@@ -7,7 +7,7 @@ const defaultCategories = {
   coding: {name:"코딩/IT", icon:"💻"},
   career: {name:"진로/대학", icon:"🎓"},
   productivity: {name:"생산성/도구", icon:"🛠️"},
-  study: {name:"학습 전략/스터디", icon:"📌"},
+  highschool: {name:"고입/고교학점제", icon:"📓"},
   reading: {name:"독서/문해력", icon:"📖"},
   art: {name:"창의/예술", icon:"🎨"},
   explore: {name:"체험/탐구", icon:"🔬"}

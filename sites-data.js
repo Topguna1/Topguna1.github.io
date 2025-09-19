@@ -1,3 +1,5 @@
+
+
 //  info: {name:"참고자료", icon:"🔍"},
 //  exam: {name:"시험/기출", icon:"📝"},
 //  assignment: {name:"과제/리포트", icon:"📄"},
@@ -5,7 +7,7 @@
 //  coding: {name:"코딩/IT", icon:"💻"},
 //  career: {name:"취업/대학", icon:"🎓"},
 //  productivity: {name:"생산성/도구", icon:"🛠️"},
-//  highschool: {name:"고입/고교학점제/교육부", icon:"📓"},
+//  highschool: {name:"고입/고교학점제", icon:"📓"},
 //  reading: {name:"독서/문해력", icon:"📖"},
 //  art {name:"창의/예술", icon:"🎨"},
 //  explore {name:"체험/탐구" icon:"🔬"
@@ -104,6 +106,41 @@ const initialSites = [
   {name:"ScienceDirect", url:"https://www.sciencedirect.com/", desc:"과학 및 기술 논문 검색", category:"assignment", ages:["high","adult"], subjects:["science","tech"]},
   {name:"E나라지표", url:"https://www.index.go.kr/", desc:"국가 주요 지표 통계", category:"assignment", ages:["high","adult"], subjects:["social","math"]},
   {name:"에듀넷", url:"https://www.edunet.net/", desc:"학교 과제 자료 및 학습 자료", category:"assignment", ages:["elem","mid","high"], subjects:["general","korean","math"]},
+
+    /* ================== 취업/대학 🎓 ================== */
+  {name:"커리어넷", url:"https://www.career.go.kr/", desc:"진로 상담 및 직업 정보", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"대학알리미", url:"https://www.academyinfo.go.kr/", desc:"대학 입학 정보", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"에듀윌 진로", url:"https://www.eduwill.net/", desc:"진로·자격증 정보", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"진학사", url:"https://www.jinhak.com/", desc:"대입 정보 및 상담", category:"career", ages:["high"], subjects:["career"]},
+  {name:"유웨이", url:"https://www.uway.com/", desc:"대입 원서접수 및 진학 정보", category:"career", ages:["high"], subjects:["career"]},
+  {name:"종로학원", url:"https://www.jongro.co.kr/", desc:"입시 분석 및 진학 상담", category:"career", ages:["high"], subjects:["career"]},
+  {name:"한국장학재단", url:"https://www.kosaf.go.kr/", desc:"장학금 및 학자금 대출 정보", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"잡코리아", url:"https://www.jobkorea.co.kr/", desc:"취업 정보 및 채용 공고", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"사람인", url:"https://www.saramin.co.kr/", desc:"취업 정보 및 채용 공고", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"어디가", url:"https://www.adiga.kr/", desc:"대입 정보 포털(한국대학교육협의회)", category:"career", ages:["high"], subjects:["career"]},
+
+   /* ================== 고입/고교학점제 📌 ================== */
+  {name:"교육부", url:"https://www.moe.go.kr/", desc:"교육부 공식 사이트", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"고입정보포털", url:"https://www.hischool.go.kr", desc:"고등학교 유형벌 입학정보(대부분의 지역이 다 있음)", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"경기도교육청 고등학교 입학전학 포털", url:"https://satp.goe.go.kr/", desc:"경기도 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"서울특별시교육청", url:"https://www.sen.go.kr/", desc:"서울시 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"인천광역시교육청 고등학교 입학전학 포털", url:"https://isatp.ice.go.kr/", desc:"인천시 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"경상남도교육청 고입 포털", url:"https://highschool.gne.go.kr/", desc:"경상남도 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"경상북도교육청 온라인 고입전형포털", url:"https://hischoolgbe.kr/", desc:"경상북도 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"충청남도교육청 고등학교 입학전형 포털", url:"https://satp.cne.go.kr/", desc:"충남 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"충청북도교육청 고등학교입학전형포털", url:"https://hsap.cbe.go.kr/", desc:"충북 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"전북특별자치도교육청 고등학교 입학전형 포털",url:"https://satp.jbe.go.kr/", desc:"전북특별자치도 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"교육정보 Modoo", url:"https://www.jne.go.kr/modoo/main.do", desc:"전라남도교육청의 교육정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"부산광역시교육청 고입포털", url:"https://home.pen.go.kr/", desc:"부산광역시 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"강원특별자치도교육청 - 고입자료실", url:"https://hsap.cbe.go.kr/", desc:"강원특별자치도 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"대구광역시교육청", url:"https://www.dge.go.kr/", desc:"대구광역시 교육 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"대전광역시교육청", url:"https://www.dje.go.kr/", desc:"대전광역시 교육 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"울산광역시교육청 진로진학지원센터", url:"https://use.go.kr/jinhak/index.do", desc:"울산광역시 진로진학지원 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"세종특별자치시교육청", url:"https://www.sje.go.kr/", desc:"세종특별자치시 교육 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"제주특별자치도교육청", url:"https://www.jje.go.kr/", desc:"제주특별자치도 교육 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"광주광역시교육청", url:"https://www.gen.go.kr/", desc:"광주광역시 교육 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
+  {name:"학교알리미", url:"https://www.schoolinfo.go.kr", desc:"고등학교 학교정보 및 평가", category:"highschool", ages:["mid","high"], subjects:["general"]},
+
   /* ================== GPT 활용 🤖 ================== */
   {name:"ChatGPT", url:"https://chat.com/", desc:"아무튼 현존 최강", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
   {name:"Gemini", url:"https://gemini.google.com/", desc:"잼미니", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
@@ -131,17 +168,6 @@ const initialSites = [
   {name:"HackerRank", url:"https://www.hackerrank.com/", desc:"코딩 챌린지 및 연습", category:"coding", ages:["high","adult"], subjects:["coding"]},
   {name:"GitHub", url:"https://github.com/", desc:"코드 저장소 및 협업 플랫폼", category:"coding", ages:["high","adult"], subjects:["coding","tech"]},
   {name:"Stack Overflow", url:"https://stackoverflow.com/", desc:"개발자 Q&A 커뮤니티", category:"coding", ages:["high","adult"], subjects:["coding","tech"]},
-  /* ================== 취업/대학 🎓 ================== */
-  {name:"커리어넷", url:"https://www.career.go.kr/", desc:"진로 상담 및 직업 정보", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"대학알리미", url:"https://www.academyinfo.go.kr/", desc:"대학 입학 정보", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"에듀윌 진로", url:"https://www.eduwill.net/", desc:"진로·자격증 정보", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"진학사", url:"https://www.jinhak.com/", desc:"대입 정보 및 상담", category:"career", ages:["high"], subjects:["career"]},
-  {name:"유웨이", url:"https://www.uway.com/", desc:"대입 원서접수 및 진학 정보", category:"career", ages:["high"], subjects:["career"]},
-  {name:"종로학원", url:"https://www.jongro.co.kr/", desc:"입시 분석 및 진학 상담", category:"career", ages:["high"], subjects:["career"]},
-  {name:"한국장학재단", url:"https://www.kosaf.go.kr/", desc:"장학금 및 학자금 대출 정보", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"잡코리아", url:"https://www.jobkorea.co.kr/", desc:"취업 정보 및 채용 공고", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"사람인", url:"https://www.saramin.co.kr/", desc:"취업 정보 및 채용 공고", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"어디가", url:"https://www.adiga.kr/", desc:"대입 정보 포털(한국대학교육협의회)", category:"career", ages:["high"], subjects:["career"]},
   
   /* ================== 생산성/도구 🛠️ ================== */
   {name:"Notion", url:"https://www.notion.so/", desc:"노트, 학습 계획 및 자료 정리", category:"productivity", ages:["mid","high","adult"], subjects:["general"]},
@@ -153,28 +179,7 @@ const initialSites = [
   {name:"Trello", url:"https://trello.com/", desc:"칸반 방식 일정 관리", category:"productivity", ages:["high","adult"], subjects:["general"]},
   {name:"Microsoft OneNote", url:"https://www.onenote.com/", desc:"디지털 노트 작성 및 정리", category:"productivity", ages:["mid","high","adult"], subjects:["general"]},
   {name:"Grammarly", url:"https://www.grammarly.com/", desc:"영어 글쓰기 교정 도구", category:"productivity", ages:["mid","high","adult"], subjects:["english","language"]},
-  /* ================== 고입/고교학점제 📌 ================== */
-  {name:"교육부", url:"https://www.moe.go.kr/", desc:"교육부 공식 사이트", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"고입정보포털", url:"https://www.hischool.go.kr", desc:"고등학교 유형벌 입학정보(대부분의 지역이 다 있음)", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"경기도교육청 고등학교 입학전학 포털", url:"https://satp.goe.go.kr/", desc:"경기도 고입 및 전학 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"서울특별시교육청", url:"https://www.sen.go.kr/", desc:"서울시 고입 및 전학 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"인천광역시교육청 고등학교 입학전학 포털", url:"https://isatp.ice.go.kr/", desc:"인천시 고입 및 전학 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"경상남도교육청 고입 포털", url:"https://highschool.gne.go.kr/", desc:"경상남도 고입 및 전학 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"경상북도교육청 온라인 고입전형포털", url:"https://hischoolgbe.kr/", desc:"경상북도 고입 및 전학 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"충청남도교육청 고등학교 입학전형 포털", url:"https://satp.cne.go.kr/", desc:"충남 고입 및 전학 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"충청북도교육청 고등학교입학전형포털", url:"https://hsap.cbe.go.kr/", desc:"충북 고입 및 전학 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"전북특별자치도교육청 고등학교 입학전형 포털",url:"https://satp.jbe.go.kr/", desc:"전북특별자치도 고입 및 전학 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"교육정보 Modoo", url:"https://www.jne.go.kr/modoo/main.do", desc:"전라남도교육청의 교육정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"부산광역시교육청 고입포털", url:"https://home.pen.go.kr/", desc:"부산광역시 고입 및 전학 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"강원특별자치도교육청 - 고입자료실", url:"https://hsap.cbe.go.kr/", desc:"강원특별자치도 고입 및 전학 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"대구광역시교육청", url:"https://www.dge.go.kr/", desc:"대구광역시 교육 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"대전광역시교육청", url:"https://www.dje.go.kr/", desc:"대전광역시 교육 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"울산광역시교육청 진로진학지원센터", url:"https://use.go.kr/jinhak/index.do", desc:"울산광역시 진로진학지원 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"세종특별자치시교육청", url:"https://www.sje.go.kr/", desc:"세종특별자치시 교육 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"제주특별자치도교육청", url:"https://www.jje.go.kr/", desc:"제주특별자치도 교육 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"광주광역시교육청", url:"https://www.gen.go.kr/", desc:"광주광역시 교육 정보", category:"study", ages:["mid","high"], subjects:["general"]},
-  {name:"학교알리미", url:"https://www.schoolinfo.go.kr", desc:"고등학교 학교정보 및 평가", category:"study", ages:["mid","high"], subjects:["general"]},
-
+ 
   /* ================== 독서/문해력 📖 ================== */
   {name:"국립어린이청소년도서관", url:"https://www.nlcy.go.kr/", desc:"어린이·청소년 독서자료 제공", category:"reading", ages:["elem","mid"], subjects:["korean","general"]},
   {name:"리딩게이트", url:"https://www.readinggate.com/", desc:"온라인 영어 독서 프로그램", category:"reading", ages:["elem","mid"], subjects:["english","language"]},

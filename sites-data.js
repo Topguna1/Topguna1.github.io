@@ -1,5 +1,3 @@
-
-
 //  info: {name:"참고자료", icon:"🔍"},
 //  exam: {name:"시험/기출", icon:"📝"},
 //  assignment: {name:"과제/리포트", icon:"📄"},
@@ -11,6 +9,7 @@
 //  reading: {name:"독서/문해력", icon:"📖"},
 //  art {name:"창의/예술", icon:"🎨"},
 //  explore {name:"체험/탐구" icon:"🔬"
+//  ppt: {name:"PPT/프레젠테이션", icon:"📊"}
 
 //  <option value="korean">국어</option>
 //  <option value="math">수학</option>
@@ -29,8 +28,6 @@
 //  <option value="career">진로</option>
 
 // 초등 elem 중등 mid 고등 high 성인 adult
-
-
 
 const initialSites = [
   /* ================== 온라인강의 💻 ================== */
@@ -74,19 +71,7 @@ const initialSites = [
   {name:"오픈국회정보포털", url:"https://open.assembly.go.kr/", desc:"국회 자료·법안 검색", category:"assignment", ages:["high","adult"], subjects:["social","history"]},
   {name:"국가기록원", url:"https://www.archives.go.kr/", desc:"역사/행정 과제 자료 제공", category:"assignment", ages:["high","adult"], subjects:["history","social"]},
   {name:"E나라지표", url:"https://www.index.go.kr/", desc:"국가 주요 지표 통계", category:"assignment", ages:["high","adult"], subjects:["social","math"]},
-  /* ================== 시험/기출 📝 ================== */
-  {name:"토익 공식 사이트", url:"https://www.toeic.co.kr/", desc:"토익 시험 자료", category:"exam", ages:["high","adult"], subjects:["exam"]},
-  {name:"컴퓨터 활용능력 기출", url:"https://www.q-net.or.kr", desc:"컴퓨터 활용능력 시험 기출 문제", category:"exam", ages:["high","adult"], subjects:["exam"]},
-  {name:"한국사 능력검정시험", url:"https://www.historyexam.go.kr/", desc:"한국사 시험 대비 자료", category:"exam", ages:["mid","high"], subjects:["exam"]},
-  {name:"수능 모의고사 자료", url:"https://www.kice.re.kr/", desc:"수능 기출 및 모의고사 자료", category:"exam", ages:["high"], subjects:["exam"]},
-  {name:"SAT Practice", url:"https://collegereadiness.collegeboard.org/sat/practice", desc:"SAT 시험 연습 사이트", category:"exam", ages:["high","adult"], subjects:["exam","english"]},
-  {name:"EBS 수능특강", url:"https://www.ebs.co.kr/special/suneung", desc:"수능 대비 온라인 강의", category:"exam", ages:["high"], subjects:["exam","korean","math","english"]},
-  {name:"NEIS", url:"https://neis.go.kr/", desc:"학교 시험 관련 자료", category:"exam", ages:["mid","high"], subjects:["exam"]},
-  {name:"대성마이맥", url:"https://www.mimacstudy.com/", desc:"수능 기출 및 모의고사 자료", category:"exam", ages:["high"], subjects:["exam","korean","math","english"]},
-  {name:"EBSi 수능특강", url:"https://www.ebsi.co.kr/", desc:"수능 대비 강의 및 자료", category:"exam", ages:["high"], subjects:["exam","korean","math","english"]},
-  {name:"YBM 시사영어사", url:"https://www.ybmbooks.com/", desc:"영어 시험 대비 자료", category:"exam", ages:["high","adult"], subjects:["exam","english"]},
-  {name:"에듀넷 디지털교과서", url:"https://www.edunet.net/nedu/digitaltextbook/", desc:"교육부 디지털 교과서", category:"exam", ages:["elem","mid","high"], subjects:["general"]},
-  {name:"서울시 교육청 기출자료", url:"https://www.sen.go.kr/", desc:"중·고등학교 기출 문제 제공", category:"exam", ages:["mid","high"], subjects:["exam"]},
+
   
   /* ================== 과제/리포트 📄 ================== */
   {name:"네이버 학술정보", url:"https://academic.naver.com/", desc:"논문 및 연구자료 검색", category:"assignment", ages:["high","adult"], subjects:["general"]},
@@ -107,19 +92,7 @@ const initialSites = [
   {name:"E나라지표", url:"https://www.index.go.kr/", desc:"국가 주요 지표 통계", category:"assignment", ages:["high","adult"], subjects:["social","math"]},
   {name:"에듀넷", url:"https://www.edunet.net/", desc:"학교 과제 자료 및 학습 자료", category:"assignment", ages:["elem","mid","high"], subjects:["general","korean","math"]},
 
-    /* ================== 취업/대학 🎓 ================== */
-  {name:"커리어넷", url:"https://www.career.go.kr/", desc:"진로 상담 및 직업 정보", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"대학알리미", url:"https://www.academyinfo.go.kr/", desc:"대학 입학 정보", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"에듀윌 진로", url:"https://www.eduwill.net/", desc:"진로·자격증 정보", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"진학사", url:"https://www.jinhak.com/", desc:"대입 정보 및 상담", category:"career", ages:["high"], subjects:["career"]},
-  {name:"유웨이", url:"https://www.uway.com/", desc:"대입 원서접수 및 진학 정보", category:"career", ages:["high"], subjects:["career"]},
-  {name:"종로학원", url:"https://www.jongro.co.kr/", desc:"입시 분석 및 진학 상담", category:"career", ages:["high"], subjects:["career"]},
-  {name:"한국장학재단", url:"https://www.kosaf.go.kr/", desc:"장학금 및 학자금 대출 정보", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"잡코리아", url:"https://www.jobkorea.co.kr/", desc:"취업 정보 및 채용 공고", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"사람인", url:"https://www.saramin.co.kr/", desc:"취업 정보 및 채용 공고", category:"career", ages:["high","adult"], subjects:["career"]},
-  {name:"어디가", url:"https://www.adiga.kr/", desc:"대입 정보 포털(한국대학교육협의회)", category:"career", ages:["high"], subjects:["career"]},
-
-   /* ================== 고입/고교학점제 📌 ================== */
+/* ================== 고입/고교학점제 📌 ================== */
   {name:"교육부", url:"https://www.moe.go.kr/", desc:"교육부 공식 사이트", category:"highschool", ages:["mid","high"], subjects:["general"]},
   {name:"고입정보포털", url:"https://www.hischool.go.kr", desc:"고등학교 유형벌 입학정보(대부분의 지역이 다 있음)", category:"highschool", ages:["mid","high"], subjects:["general"]},
   {name:"경기도교육청 고등학교 입학전학 포털", url:"https://satp.goe.go.kr/", desc:"경기도 고입 및 전학 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
@@ -141,13 +114,25 @@ const initialSites = [
   {name:"광주광역시교육청", url:"https://www.gen.go.kr/", desc:"광주광역시 교육 정보", category:"highschool", ages:["mid","high"], subjects:["general"]},
   {name:"학교알리미", url:"https://www.schoolinfo.go.kr", desc:"고등학교 학교정보 및 평가", category:"highschool", ages:["mid","high"], subjects:["general"]},
 
+    /* ================== 취업/대학 🎓 ================== */
+  {name:"커리어넷", url:"https://www.career.go.kr/", desc:"진로 상담 및 직업 정보", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"대학알리미", url:"https://www.academyinfo.go.kr/", desc:"대학 입학 정보", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"에듀윌 진로", url:"https://www.eduwill.net/", desc:"진로·자격증 정보", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"진학사", url:"https://www.jinhak.com/", desc:"대입 정보 및 상담", category:"career", ages:["high"], subjects:["career"]},
+  {name:"유웨이", url:"https://www.uway.com/", desc:"대입 원서접수 및 진학 정보", category:"career", ages:["high"], subjects:["career"]},
+  {name:"종로학원", url:"https://www.jongro.co.kr/", desc:"입시 분석 및 진학 상담", category:"career", ages:["high"], subjects:["career"]},
+  {name:"한국장학재단", url:"https://www.kosaf.go.kr/", desc:"장학금 및 학자금 대출 정보", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"잡코리아", url:"https://www.jobkorea.co.kr/", desc:"취업 정보 및 채용 공고", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"사람인", url:"https://www.saramin.co.kr/", desc:"취업 정보 및 채용 공고", category:"career", ages:["high","adult"], subjects:["career"]},
+  {name:"어디가", url:"https://www.adiga.kr/", desc:"대입 정보 포털(한국대학교육협의회)", category:"career", ages:["high"], subjects:["career"]},
+
   /* ================== GPT 활용 🤖 ================== */
   {name:"ChatGPT", url:"https://chat.com/", desc:"아무튼 현존 최강", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
   {name:"Gemini", url:"https://gemini.google.com/", desc:"잼미니", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
   {name:"Claude", url:"https://claude.ai/", desc:"코딩 잘함", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
-  {name:"Grok", url:"https://grok.com/", desc:"요즘뜨고 있는거거", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"Grok", url:"https://grok.com/", desc:"요즘뜨고 있는거", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
   {name:"Gamma", url:"https://gamma.app/", desc:"PPT 제작 노예", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
-  {name:"Perplexity", url:"https://www.perplexity.ai/", desc:"정보 찾는 GPT(이거 쓸바엔 다른거 쓰긴함)", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"Perplexity", url:"https://www.perplexity.ai/", desc:"정보 찾는 GPT", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
   {name:"Notion AI", url:"https://www.notion.so/product/ai", desc:"노션 내장형 GPT", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
   {name:"Jasper", url:"https://www.jasper.ai/", desc:"마케팅에 특화된 GPT", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
   {name:"Writesonic", url:"https://writesonic.com/", desc:"글쓰기 도우미 GPT", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
@@ -155,6 +140,37 @@ const initialSites = [
   {name:"Grammarly", url:"https://www.grammarly.com/", desc:"영어 글쓰기 교정 도구", category:"gpt", ages:["mid","high","adult"], subjects:["english","language"]},
   {name:"Socratic by Google", url:"https://socratic.org/", desc:"학생용 학습 도우미 GPT", category:"gpt", ages:["mid","high"], subjects:["general"]},
   
+  /* ================== PPT/프레젠테이션 ================== */
+  {name:"Gamma", url:"https://gamma.app/", desc:"PPT 제작 노예", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"slidesgo", url:"https://slidesgo.com/", desc:"AI + 다양한 PPT 템플릿 제공", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"google slides", url:"https://www.google.com/slides/about/", desc:"구글의 프레젠테이션 도구", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"Powerpoint", url:"https://www.microsoft.com/ko-kr/microsoft-365/powerpoint", desc:"MS의 프레젠테이션 도구", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"Canva", url:"https://www.canva.com/", desc:"간편한 디자인 및 프레젠테이션 도구", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"미리캔버스", url:"https://www.miricanvas.com/ko", desc:"한국형 디자인 도구", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"망고보드", url:"https://www.mangoboard.net/", desc:"온라인 디자인 및 프레젠테이션", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"파랑펭귄", url:"https://paranpenguin.co.kr/", desc:"아이콘, 이미지 ,PNG 제공", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"pngimg", url:"https://pngimg.com/", desc:"무료 PNG 이미지 제공", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"manypixels", url:"https://www.manypixels.co/gallery", desc:"ppt 사용에 좋은 무료 일러스트 및 아이콘 제공", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"storyset", url:"https://storyset.com/", desc:"ppt 사용에 좋은 일러스트 제공", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"Visme", url:"https://www.visme.co/", desc:"시각적 콘텐츠 제작 도구", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"Prezi", url:"https://prezi.com/", desc:"동적 프레젠테이션 도구", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"allppt", url:"https://www.allppt.com/", desc:"무료 PPT 템플릿 제공", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+  {name:"slidescarnival", url:"https://www.slidescarnival.com/", desc:"무료 프레젠테이션 템플릿", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
+
+  /* ================== 시험/기출 📝 ================== */
+  {name:"토익 공식 사이트", url:"https://www.toeic.co.kr/", desc:"토익 시험 자료", category:"exam", ages:["high","adult"], subjects:["exam"]},
+  {name:"컴퓨터 활용능력 기출", url:"https://www.q-net.or.kr", desc:"컴퓨터 활용능력 시험 기출 문제", category:"exam", ages:["high","adult"], subjects:["exam"]},
+  {name:"한국사 능력검정시험", url:"https://www.historyexam.go.kr/", desc:"한국사 시험 대비 자료", category:"exam", ages:["mid","high"], subjects:["exam"]},
+  {name:"수능 모의고사 자료", url:"https://www.kice.re.kr/", desc:"수능 기출 및 모의고사 자료", category:"exam", ages:["high"], subjects:["exam"]},
+  {name:"SAT Practice", url:"https://collegereadiness.collegeboard.org/sat/practice", desc:"SAT 시험 연습 사이트", category:"exam", ages:["high","adult"], subjects:["exam","english"]},
+  {name:"EBS 수능특강", url:"https://www.ebs.co.kr/special/suneung", desc:"수능 대비 온라인 강의", category:"exam", ages:["high"], subjects:["exam","korean","math","english"]},
+  {name:"NEIS", url:"https://neis.go.kr/", desc:"학교 시험 관련 자료", category:"exam", ages:["mid","high"], subjects:["exam"]},
+  {name:"대성마이맥", url:"https://www.mimacstudy.com/", desc:"수능 기출 및 모의고사 자료", category:"exam", ages:["high"], subjects:["exam","korean","math","english"]},
+  {name:"EBSi 수능특강", url:"https://www.ebsi.co.kr/", desc:"수능 대비 강의 및 자료", category:"exam", ages:["high"], subjects:["exam","korean","math","english"]},
+  {name:"YBM 시사영어사", url:"https://www.ybmbooks.com/", desc:"영어 시험 대비 자료", category:"exam", ages:["high","adult"], subjects:["exam","english"]},
+  {name:"에듀넷 디지털교과서", url:"https://www.edunet.net/nedu/digitaltextbook/", desc:"교육부 디지털 교과서", category:"exam", ages:["elem","mid","high"], subjects:["general"]},
+  {name:"서울시 교육청 기출자료", url:"https://www.sen.go.kr/", desc:"중·고등학교 기출 문제 제공", category:"exam", ages:["mid","high"], subjects:["exam"]},
+
   /* ================== 코딩/IT 💻 ================== */
   {name:"Inflearn", url:"https://www.inflearn.com/", desc:"국내 온라인 IT/코딩 강의", category:"coding", ages:["mid","high","adult"], subjects:["coding","tech"]},
   {name:"CodeUp", url:"https://codeup.kr/", desc:"코딩 테스트 및 알고리즘 연습", category:"coding", ages:["mid","high","adult"], subjects:["coding"]},

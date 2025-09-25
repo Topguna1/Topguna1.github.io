@@ -141,7 +141,7 @@ const initialSites = [
   {name:"Socratic by Google", url:"https://socratic.org/", desc:"학생용 학습 도우미 GPT", category:"gpt", ages:["mid","high"], subjects:["general"]},
   
   /* ================== PPT/프레젠테이션 ================== */
-  {name:"Gamma", url:"https://gamma.app/", desc:"PPT 제작 노예", category:"gpt", ages:["mid","high","adult"], subjects:["general"]},
+  {name:"Gamma", url:"https://gamma.app/", desc:"PPT 제작 노예", category:"ppt", ages:["mid","high","adult"], subjects:["general"]},
   {name:"slidesgo", url:"https://slidesgo.com/", desc:"AI + 다양한 PPT 템플릿 제공", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
   {name:"google slides", url:"https://www.google.com/slides/about/", desc:"구글의 프레젠테이션 도구", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},
   {name:"Powerpoint", url:"https://www.microsoft.com/ko-kr/microsoft-365/powerpoint", desc:"MS의 프레젠테이션 도구", category:"ppt", ages:["mid","high","adult"], subjects:["general","art"]},

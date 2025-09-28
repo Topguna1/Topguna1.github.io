@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -10,6 +11,7 @@
 <script src="categories-data.js"></script>
 <script src="sites-data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+<script src="error-handling.js"></script>
 </head>
 <body>
 <div class="container">
@@ -196,20 +198,74 @@ function debounce(func, wait) {
   };
 }
 
-function showToast(message) {
-  const existingToast = document.querySelector('.toast');
-  if (existingToast) existingToast.remove();
-  
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  
-  setTimeout(() => toast.style.transform = 'translateX(0)', 100);
-  setTimeout(() => {
-    toast.style.transform = 'translateX(100%)';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+function showToast(message, type = 'info', duration = 3000) {
+  try {
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) existingToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    const styles = {
+      info: { bg: '#667eea', icon: 'ℹ️' },
+      success: { bg: '#2ed573', icon: '✅' },
+      warning: { bg: '#ffa502', icon: '⚠️' },
+      error: { bg: '#ff4757', icon: '❌' }
+    };
+    
+    const style = styles[type] || styles.info;
+    
+    toast.style.cssText = `
+      position: fixed; top: 20px; right: 20px; background: ${style.bg}; color: white;
+      padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 10000;
+      transform: translateX(100%); transition: all 0.3s ease; max-width: 350px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px;
+    `;
+    
+    toast.innerHTML = `<span>${style.icon}</span><span>${message}</span>`;
+    document.body.appendChild(toast);
+    
+    requestAnimationFrame(() => toast.style.transform = 'translateX(0)');
+    setTimeout(() => {
+      toast.style.transform = 'translateX(100%)';
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+    
+  } catch (error) {
+    console.error('Toast 오류:', error);
+    alert(message); // 폴백
+  }
+}
+
+function handleDataLoadFailure() {
+  const container = document.getElementById("categoriesContainer");
+  if (container) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:60px;color:#666;">
+        <h3>📦 데이터를 불러올 수 없습니다</h3>
+        <p>사이트 데이터 파일을 확인해주세요.</p>
+        <button onclick="location.reload()" style="padding:12px 24px;background:#667eea;color:white;border:none;border-radius:8px;cursor:pointer;margin-top:16px;">🔄 새로고침</button>
+      </div>
+    `;
+  }
+  showToast('⚠️ 사이트 데이터를 불러올 수 없습니다', 'error');
+}
+
+function handleInitializationFailure(error) {
+  const container = document.getElementById("categoriesContainer");
+  if (container) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:60px;color:#666;">
+        <h3>💥 초기화 실패</h3>
+        <p>브라우저를 새로고침하거나 캐시를 초기화해보세요.</p>
+        <div style="margin:20px 0;padding:16px;background:#f8f9fa;border-radius:8px;font-family:monospace;font-size:12px;color:#e74c3c;">
+          ${error.message || error}
+        </div>
+        <button onclick="location.reload()" style="padding:12px 24px;background:#e74c3c;color:white;border:none;border-radius:8px;cursor:pointer;margin:8px;">🔄 새로고침</button>
+        <button onclick="localStorage.clear();location.reload()" style="padding:12px 24px;background:#f39c12;color:white;border:none;border-radius:8px;cursor:pointer;margin:8px;">🗑️ 캐시 초기화</button>
+      </div>
+    `;
+  }
 }
 
 // ==================== 검색 하이라이트 기능 ====================
@@ -644,41 +700,67 @@ function renderCategorySections() {
 }
 
 function renderSites() {
-  const allKeys = Object.keys(getAllCategories());
-  const filtered = getFilteredSites();
-  const hasResults = filtered.length > 0;
+  try {
+    const allKeys = Object.keys(getAllCategories());
+    const filtered = getFilteredSites();
+    const hasResults = filtered.length > 0;
 
-  allKeys.forEach(category => {
-    const content = document.getElementById(`${category}-content`);
-    const section = document.getElementById(`${category}-section`);
-    const countEl = document.getElementById(`${category}-count`);
+    allKeys.forEach(category => {
+      try {
+        const content = document.getElementById(`${category}-content`);
+        const section = document.getElementById(`${category}-section`);
+        const countEl = document.getElementById(`${category}-count`);
+        
+        if (!content || !section) return;
+
+        const sitesInCategory = filtered.filter(s => s.category === category);
+        content.innerHTML = "";
+        
+        if (countEl) countEl.textContent = sitesInCategory.length;
+
+        if (sitesInCategory.length > 0) {
+          section.style.display = "block";
+          const total = sitesInCategory.length;
+          const currentPage = state.currentPageByCategory[category] || 1;
+          const start = (currentPage - 1) * state.ITEMS_PER_PAGE;
+          const end = start + state.ITEMS_PER_PAGE;
+          const pagedSites = sitesInCategory.slice(start, end);
+
+          // 🛡️ 안전한 카드 생성 사용
+          pagedSites.forEach(site => {
+            try {
+              let card;
+              if (window.ddakpilmo && window.ddakpilmo.createSiteCardSafe) {
+                card = window.ddakpilmo.createSiteCardSafe(site);
+              } else {
+                card = createSiteCard(site); // 기존 함수 폴백
+              }
+              content.appendChild(card);
+            } catch (cardError) {
+              console.warn('카드 생성 오류:', cardError, site);
+            }
+          });
+
+          renderPagination(category, total);
+        } else {
+          section.style.display = "none";
+        }
+      } catch (categoryError) {
+        console.warn(`카테고리 ${category} 렌더링 오류:`, categoryError);
+      }
+    });
+
+    document.getElementById("noResults").style.display = hasResults ? "none" : "block";
+    updateStats(filtered.length);
     
-    if (!content || !section) return;
-
-    const sitesInCategory = filtered.filter(s => s.category === category);
-    content.innerHTML = "";
-    
-    if (countEl) countEl.textContent = sitesInCategory.length;
-
-    if (sitesInCategory.length > 0) {
-      section.style.display = "block";
-
-      const total = sitesInCategory.length;
-      const currentPage = state.currentPageByCategory[category] || 1;
-      const start = (currentPage - 1) * state.ITEMS_PER_PAGE;
-      const end = start + state.ITEMS_PER_PAGE;
-      const pagedSites = sitesInCategory.slice(start, end);
-
-      pagedSites.forEach(site => content.appendChild(createSiteCard(site)));
-
-      renderPagination(category, total);
-    } else {
-      section.style.display = "none";
+  } catch (error) {
+    console.error('사이트 렌더링 전체 오류:', error);
+    // 기존 함수로 폴백 시도
+    if (window.originalRenderSites) {
+      console.log('기존 renderSites로 폴백 시도');
+      window.originalRenderSites();
     }
-  });
-
-  document.getElementById("noResults").style.display = hasResults ? "none" : "block";
-  updateStats(filtered.length);
+  }
 }
 
 // ==================== 카테고리 탭 관리 ====================
@@ -977,53 +1059,78 @@ function getChosung(str) {
 
 // ==================== 초기화 함수 ====================
 function init() {
-  console.log("🌟 딱필모 초기화 시작...");
+  console.log("🌟 딱필모 안전 초기화 시작...");
   
   try {
-    // 외부 데이터 확인 및 초기화
-    if (typeof initialSites !== 'undefined') {
-        state.sites = initialSites.map(site => ({
+    // 오류 처리 시스템 확인
+    if (!window.ddakpilmo || !window.ddakpilmo.errorManager) {
+      console.warn("⚠️ 오류 처리 시스템이 로드되지 않았습니다");
+      window.addEventListener('error', (e) => console.error('Fallback:', e.error));
+    }
+
+    // 외부 데이터 확인 및 안전한 초기화
+    if (typeof initialSites !== 'undefined' && Array.isArray(initialSites)) {
+      state.sites = initialSites.map(site => {
+        try {
+          return {
             ...site,
             chosung: getChosung(site.name) + " " + getChosung(site.desc || "")
-        }));
+          };
+        } catch (error) {
+          console.warn('사이트 데이터 처리 오류:', site, error);
+          return {
+            name: site.name || "알 수 없는 사이트",
+            url: site.url || "#",
+            desc: site.desc || "설명 없음",
+            category: site.category || "general",
+            ages: Array.isArray(site.ages) ? site.ages : ["adult"],
+            subjects: Array.isArray(site.subjects) ? site.subjects : ["general"],
+            chosung: getChosung(site.name || "") + " " + getChosung(site.desc || "")
+          };
+        }
+      });
+      console.log(`✅ ${state.sites.length}개 사이트 안전 로드 완료`);
     } else {
-    state.sites = [];
+      console.error("❌ initialSites 데이터를 찾을 수 없습니다");
+      handleDataLoadFailure();
+      return;
     }
     
-    // UI 초기화
-    initializeTheme();
-    renderCategorySections();
-    buildCategoryTabs();
-    setupEventListeners();
-    renderSites();
-    initFuse();
+    // UI 초기화 (단계별 안전 처리)
+    const initSteps = [
+      { name: '테마 초기화', func: initializeTheme },
+      { name: '카테고리 섹션', func: renderCategorySections },
+      { name: '카테고리 탭', func: buildCategoryTabs },
+      { name: '이벤트 리스너', func: setupEventListeners },
+      { name: '사이트 렌더링', func: renderSites },
+      { name: '검색 엔진', func: initFuse }
+    ];
+
+    let successCount = 0;
+    initSteps.forEach(step => {
+      try {
+        step.func();
+        console.log(`✅ ${step.name} 완료`);
+        successCount++;
+      } catch (error) {
+        console.error(`❌ ${step.name} 실패:`, error);
+        if (typeof showToast === 'function') {
+          showToast(`⚠️ ${step.name}에 문제가 발생했습니다`, 'warning');
+        }
+      }
+    });
+
+    console.log(`🎯 초기화 완료: ${successCount}/${initSteps.length} 성공`);
     
-    console.log("✅ 딱필모 초기화 완료!");
-    
-    // 웰컴 메시지
-    setTimeout(() => {
-      showToast("🌟 딱필모에 오신 것을 환영합니다!");
-    }, 1000);
+    if (successCount >= 4 && state.sites.length > 0) {
+      setTimeout(() => {
+        showToast("🌟 딱필모에 오신 것을 환영합니다!", 'success');
+      }, 1000);
+    }
     
   } catch (error) {
-    console.error("❌ 초기화 중 오류 발생:", error);
-    
-    // 에러 발생시 기본 UI
-    document.getElementById("categoriesContainer").innerHTML = `
-      <div style="text-align:center;padding:60px;color:#666;">
-        <h3>⚠️ 초기화 중 문제가 발생했습니다</h3>
-        <p>외부 데이터 파일(categories-data.js, sites-data.js)을 확인해주세요.</p>
-        <button onclick="location.reload()" style="
-          padding:12px 24px;
-          background:#667eea;
-          color:white;
-          border:none;
-          border-radius:8px;
-          cursor:pointer;
-          margin-top:16px;
-        ">새로고침</button>
-      </div>
-    `;
+    console.error("❌ 초기화 중 심각한 오류:", error);
+    handleInitializationFailure(error);
   }
 }
 
@@ -1058,4 +1165,3 @@ console.log("🎉 딱필모 스크립트 로드 완료!");
 </script>
 </body>
 </html>
-

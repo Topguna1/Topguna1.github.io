@@ -1,8 +1,23 @@
-
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>
+(function () {
+  var saved = localStorage.getItem('siteTheme'); // 'light' | 'dark' | null
+  if (saved === 'light' || saved === 'dark') {
+    // ✅ 저장된 테마 우선 적용 + "내가 지정함" 플래그
+    document.documentElement.setAttribute('data-theme', saved);
+    document.documentElement.dataset.userTheme = '1'; // 잠금 플래그
+
+    // body.dark 동기화는 DOM 생성 후
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.classList.toggle('dark', saved === 'dark');
+      var btn = document.getElementById('darkToggle');
+      if (btn) btn.textContent = saved === 'dark' ? '☀️ 라이트 모드' : '🌙 다크 모드';
+    });
+  }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🌟 딱필모 - 학생 필수 사이트 모음</title>
@@ -12,6 +27,7 @@
 <script src="sites-data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 <script src="error-handling.js"></script>
+<script src="memory-manager.js"></script>
 </head>
 <body>
 <div class="container">
@@ -143,13 +159,15 @@
       <span>🎯 <strong>13</strong>개 카테고리</span>
     </div>
     <p style="font-size: 12px; opacity: 0.7;">
-      © 2025 딱필모 | ver 101 | 
+      © 2025 딱필모 | In dev | 
       <span style="color: #3498db;"> 문의는 디스코드 에서 받습니다.</span>
     </p>
   </div>
 </footer>
 
 <script>
+const GOV_ICON_DATA_URL =
+  "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Emblem_of_the_Government_of_the_Republic_of_Korea.svg/250px-Emblem_of_the_Government_of_the_Republic_of_Korea.svg.png";
 // ==================== 핵심 변수 및 상태 관리 ====================
 const ageNames = {
   elem: "초등학생", 
@@ -187,15 +205,91 @@ function escapeHtml(str) {
 }
 
 function debounce(func, wait) {
-  let timeout;
+  let timeoutId;
+  const timerManager = window.memoryManager?.timerManager;
+  
   return function executedFunction(...args) {
     const later = () => {
-      clearTimeout(timeout);
+      // 🧹 메모리 관리자를 통한 타이머 정리
+      if (timerManager && timeoutId) {
+        timerManager.clearTimeout(timeoutId);
+      }
       func(...args);
     };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
+    
+    // 🧹 기존 타이머 정리
+    if (timerManager && timeoutId) {
+      timerManager.clearTimeout(timeoutId);
+    } else if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    
+    // 🧹 메모리 관리자를 통한 새 타이머 설정
+    if (timerManager) {
+      timeoutId = timerManager.setTimeout(later, wait);
+    } else {
+      timeoutId = setTimeout(later, wait);
+    }
   };
+}
+
+// 🔧 3. 검색 결과 캐싱 활용
+function getFilteredSitesWithCache() {
+  const cacheManager = window.memoryManager?.cacheManager;
+  
+  // 캐시 키 생성
+  const cacheKey = `filtered_${state.currentSearchQuery}_${state.currentAgeFilter}_${state.currentCategoryFilter}_${state.currentSubjectFilter}`;
+  
+  // 🧹 캐시에서 먼저 확인
+  if (cacheManager) {
+    const cached = cacheManager.get(cacheKey);
+    if (cached) {
+      console.log(`💾 캐시 사용: ${cacheKey}`);
+      return cached;
+    }
+  }
+  
+  // 캐시 미스, 실제 필터링 수행
+  const rawQ = state.currentSearchQuery || "";
+  const q = rawQ.trim().toLowerCase();
+
+  let filtered = state.sites.filter(site => {
+    if (state.currentAgeFilter !== "all" && !site.ages.includes(state.currentAgeFilter)) return false;
+    if (state.currentCategoryFilter !== "all" && site.category !== state.currentCategoryFilter) return false;
+    if (state.currentSubjectFilter !== "all" && !site.subjects.includes(state.currentSubjectFilter)) return false;
+    
+    if (!q) return true;
+
+    const searchTarget = (
+      site.name + " " + 
+      (site.desc || "") + " " + 
+      getCategoryName(site.category) + " " +
+      site.ages.map(a => ageNames[a]).join(" ") + " " +
+      site.subjects.map(sub => subjectNames[sub]).join(" ") + " " +
+      (site.chosung || "")
+    ).toLowerCase();
+
+    const tokens = q.split(/\s+/).filter(t => t.length > 0);
+
+    return tokens.every(token => {
+      const tokenChosung = getChosung(token).toLowerCase();
+      const siteChosung = (site.chosung || "").toLowerCase();
+
+      if (searchTarget.includes(token)) return true;
+      if (siteChosung.includes(token)) return true;
+      if (siteChosung.includes(tokenChosung)) return true;
+      if (getChosung(site.name).toLowerCase().includes(tokenChosung)) return true;
+
+      return false;
+    });
+  });
+  
+  // 🧹 결과를 캐시에 저장
+  if (cacheManager) {
+    cacheManager.set(cacheKey, filtered);
+  }
+  
+  return filtered;
 }
 
 function showToast(message, type = 'info', duration = 3000) {
@@ -272,29 +366,21 @@ function handleInitializationFailure(error) {
 function highlightSearchTerms(text, query) {
   if (!query || !text) return escapeHtml(text);
 
-  const queries = query
-    .trim()
-    .split(/\s+/)
-    .filter(q => q.length > 0);
+  const parts = String(query).trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return escapeHtml(text);
 
-  // ✅ 중복 검색어 제거
-  const uniqueQueries = [...new Set(queries)];
+  // 글자 사이 공백 검색(예: "e b s")이면 e\s*b\s*s 패턴으로 생성(공백 0개 이상 허용)
+  const isSpacedSingles = parts.length > 1 && parts.every(p => p.length === 1);
+  const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  let result = escapeHtml(text);
+  const pattern = isSpacedSingles
+    ? parts.map(esc).join('\\s*')      // "e b s" -> /e\s*b\s*s/i  (EBS, E  B   S 모두 매칭)
+    : parts.map(esc).join('|');        // 다중 단어 -> OR 매칭
 
-  uniqueQueries.forEach(q => {
-    try {
-      const regex = new RegExp(
-        `(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`,
-        'gi'
-      );
-      result = result.replace(regex, '<span class="search-highlight">$1</span>');
-    } catch (err) {
-      console.warn("Regex error:", err);
-    }
-  });
+  // 🔑 핵심: "단 한 번"의 치환으로 끝낸다. (여러 번 replace 금지)
+  const re = new RegExp('(' + pattern + ')', 'gi');
 
-  return result;
+  return escapeHtml(text).replace(re, '<span class="search-highlight">$1</span>');
 }
 
 // ==================== 데이터 접근 함수들 ====================
@@ -438,8 +524,15 @@ function createCategorySection(categoryKey) {
 let scrollAnimationId = null;
 
 function smoothScrollToTop(duration = 800) {
+  const timerManager = window.memoryManager?.timerManager;
+  
+  // 🧹 기존 애니메이션 취소
   if (scrollAnimationId) {
-    cancelAnimationFrame(scrollAnimationId);
+    if (timerManager) {
+      timerManager.cancelAnimationFrame(scrollAnimationId);
+    } else {
+      cancelAnimationFrame(scrollAnimationId);
+    }
     scrollAnimationId = null;
   }
 
@@ -454,15 +547,27 @@ function smoothScrollToTop(duration = 800) {
   }
 
   function addCancelListeners() {
-    window.addEventListener("wheel", cancelOnUserScroll, { passive: true });
-    window.addEventListener("touchstart", cancelOnUserScroll, { passive: true });
-    window.addEventListener("keydown", cancelOnUserScroll, { passive: true });
+    const manager = window.memoryManager?.eventManager;
+    if (manager) {
+      manager.add(window, "wheel", cancelOnUserScroll, { passive: true });
+      manager.add(window, "touchstart", cancelOnUserScroll, { passive: true });
+      manager.add(window, "keydown", cancelOnUserScroll, { passive: true });
+    } else {
+      window.addEventListener("wheel", cancelOnUserScroll, { passive: true });
+      window.addEventListener("touchstart", cancelOnUserScroll, { passive: true });
+      window.addEventListener("keydown", cancelOnUserScroll, { passive: true });
+    }
   }
 
   function removeCancelListeners() {
-    window.removeEventListener("wheel", cancelOnUserScroll);
-    window.removeEventListener("touchstart", cancelOnUserScroll);
-    window.removeEventListener("keydown", cancelOnUserScroll);
+    const manager = window.memoryManager?.eventManager;
+    if (manager) {
+      manager.removeAll(window);
+    } else {
+      window.removeEventListener("wheel", cancelOnUserScroll);
+      window.removeEventListener("touchstart", cancelOnUserScroll);
+      window.removeEventListener("keydown", cancelOnUserScroll);
+    }
   }
 
   addCancelListeners();
@@ -481,14 +586,101 @@ function smoothScrollToTop(duration = 800) {
     window.scrollTo(0, start * (1 - ease));
 
     if (time < 1) {
-      scrollAnimationId = requestAnimationFrame(scroll);
+      // 🧹 메모리 관리자를 통한 애니메이션 프레임 요청
+      if (timerManager) {
+        scrollAnimationId = timerManager.requestAnimationFrame(scroll);
+      } else {
+        scrollAnimationId = requestAnimationFrame(scroll);
+      }
     } else {
       scrollAnimationId = null;
       removeCancelListeners();
     }
   }
 
-  scrollAnimationId = requestAnimationFrame(scroll);
+  // 🧹 초기 애니메이션 프레임 요청
+  if (timerManager) {
+    scrollAnimationId = timerManager.requestAnimationFrame(scroll);
+  } else {
+    scrollAnimationId = requestAnimationFrame(scroll);
+  }
+}
+
+// 🔧 5. 페이지 가시성 변경 시 자동 정리
+function setupVisibilityHandling() {
+  const manager = window.memoryManager?.eventManager;
+  
+  if (manager) {
+    manager.add(document, 'visibilitychange', () => {
+      if (document.hidden) {
+        console.log('👁️ 페이지 숨김 감지, 부분 정리 수행');
+        
+        // 캐시 정리
+        if (window.memoryManager?.cacheManager) {
+          const cleaned = window.memoryManager.cacheManager.cleanExpired();
+          console.log(`🧹 만료된 캐시 ${cleaned}개 정리`);
+        }
+      } else {
+        console.log('👁️ 페이지 표시, 정상 작동');
+      }
+    });
+  }
+}
+
+if (window.ddakpilmo && window.ddakpilmo.faviconLoader) {
+  const originalLoadFavicon = window.ddakpilmo.faviconLoader.loadFavicon.bind(window.ddakpilmo.faviconLoader);
+  
+  window.ddakpilmo.faviconLoader.loadFavicon = async function(domain, fallbackText) {
+    const cacheManager = window.memoryManager?.cacheManager;
+    const cacheKey = `favicon_${domain}`;
+    
+    // 🧹 캐시 확인
+    if (cacheManager) {
+      const cached = cacheManager.get(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    }
+    
+    // 원본 함수 호출
+    const result = await originalLoadFavicon(domain, fallbackText);
+    
+    // 🧹 결과 캐싱
+    if (cacheManager && result) {
+      cacheManager.set(cacheKey, result);
+    }
+    
+    return result;
+  };
+}
+
+function initWithMemoryManagement() {
+  console.log("🌟 메모리 관리 포함 초기화 시작...");
+  
+  try {
+    // 기존 init 로직 실행
+    if (typeof init === 'function') {
+      init();
+    }
+    
+    // 추가 메모리 관리 설정
+    setupVisibilityHandling();
+    
+    // 정기적인 캐시 정리 (5분마다)
+    if (window.memoryManager?.timerManager) {
+      window.memoryManager.timerManager.setInterval(() => {
+        const cleaned = window.memoryManager.cacheManager.cleanExpired();
+        if (cleaned > 0) {
+          console.log(`🧹 정기 캐시 정리: ${cleaned}개 삭제`);
+        }
+      }, 300000); // 5분
+    }
+    
+    console.log("✅ 메모리 관리 포함 초기화 완료");
+    
+  } catch (error) {
+    console.error("❌ 초기화 실패:", error);
+  }
 }
 
 function renderPagination(category, totalItems) {
@@ -634,6 +826,7 @@ function createSiteCard(site) {
   const header = document.createElement("div");
   header.className = "link-card-header";
 
+  // 사이트 제목
   const a = document.createElement("a");
   a.href = site.url || "#";
   a.target = "_blank";
@@ -641,17 +834,26 @@ function createSiteCard(site) {
   a.className = "site-title";
   a.innerHTML = highlightSearchTerms(site.name || "이름 없음", state.currentSearchQuery);
 
+  // (정부 배지)
+  if (site.isGov === true) {
+    const govIcon = document.createElement("img");
+    govIcon.className = "gov-flag korea-gov";
+    govIcon.src = GOV_ICON_DATA_URL;          // ← 업로드 PNG를 data:URL로
+    govIcon.alt = "대한민국정부 로고";
+    govIcon.title = "대한민국 정부 운영";
+    a.appendChild(govIcon);
+  }
+
+  // (공유 버튼)
   const shareBtn = document.createElement("button");
   shareBtn.className = "share-btn";
   shareBtn.textContent = "📤";
   shareBtn.title = "링크 공유";
-  shareBtn.onclick = (e) => {
-    e.stopPropagation();
-    shareSite(site.name || "", site.url || "");
-  };
+  shareBtn.onclick = (e) => { e.stopPropagation(); shareSite(site.name || "", site.url || ""); };
+  card.appendChild(shareBtn);
 
+  // 헤더 조립
   header.appendChild(a);
-  header.appendChild(shareBtn);
 
   // 설명
   const desc = document.createElement("p");
@@ -684,6 +886,55 @@ function createSiteCard(site) {
   return card;
 }
 
+function ensureGovMarkers(card, site) {
+  try {
+    const header = card.querySelector('.link-card-header');
+    if (!header) return;
+
+    // (공유 버튼은 그대로)
+    let shareBtn = card.querySelector('.share-btn');
+    if (!shareBtn) {
+      shareBtn = document.createElement('button');
+      shareBtn.className = 'share-btn';
+      shareBtn.textContent = '📤';
+      shareBtn.title = '링크 공유';
+      shareBtn.onclick = (e) => { e.stopPropagation(); shareSite(site?.name || '', site?.url || ''); };
+      card.appendChild(shareBtn);
+    }
+
+    // 예전 정부 표시 제거(텍스트/태그/SVG 등)
+    card.querySelectorAll('.gov-badge, .gov-tag, .gov-flag').forEach(el => el.remove());
+
+    // 정부 아님 → 종료
+    if (!site || site.isGov !== true) return;
+
+    const title = header.querySelector('.site-title');
+    if (!title) return;
+
+    // 제목 옆에 업로드 PNG 아이콘 부착
+    const govIcon = document.createElement('img');
+    govIcon.className = 'gov-flag korea-gov';
+    govIcon.src = GOV_ICON_DATA_URL;
+    govIcon.alt = '대한민국정부 로고';
+    govIcon.title = '대한민국 정부 운영';
+    title.appendChild(govIcon);
+  } catch (e) {
+    console.warn('ensureGovMarkers failed', e);
+  }
+}
+
+function buildCardsFragment(sitesSlice) {
+  const frag = document.createDocumentFragment();
+  for (const site of sitesSlice) {
+    const make = (window.ddakpilmo?.createSiteCardSafe || window.createSiteCard);
+    const card = make(site);
+    try { if (typeof ensureGovMarkers === 'function') ensureGovMarkers(card, site); } catch {}
+    const img = card.querySelector?.('img');
+    if (img && !img.loading) img.loading = 'lazy';
+    frag.appendChild(card);
+  }
+  return frag;
+}
 
 // ==================== 렌더링 함수들 ====================
 function renderCategorySections() {
@@ -710,12 +961,9 @@ function renderSites() {
         const content = document.getElementById(`${category}-content`);
         const section = document.getElementById(`${category}-section`);
         const countEl = document.getElementById(`${category}-count`);
-        
         if (!content || !section) return;
 
         const sitesInCategory = filtered.filter(s => s.category === category);
-        content.innerHTML = "";
-        
         if (countEl) countEl.textContent = sitesInCategory.length;
 
         if (sitesInCategory.length > 0) {
@@ -726,24 +974,14 @@ function renderSites() {
           const end = start + state.ITEMS_PER_PAGE;
           const pagedSites = sitesInCategory.slice(start, end);
 
-          // 🛡️ 안전한 카드 생성 사용
-          pagedSites.forEach(site => {
-            try {
-              let card;
-              if (window.ddakpilmo && window.ddakpilmo.createSiteCardSafe) {
-                card = window.ddakpilmo.createSiteCardSafe(site);
-              } else {
-                card = createSiteCard(site); // 기존 함수 폴백
-              }
-              content.appendChild(card);
-            } catch (cardError) {
-              console.warn('카드 생성 오류:', cardError, site);
-            }
-          });
+          // ✅ DocumentFragment 1회 교체
+          const frag = buildCardsFragment(pagedSites);
+          content.replaceChildren(frag);
 
           renderPagination(category, total);
         } else {
           section.style.display = "none";
+          content.replaceChildren(); // 깔끔하게 비우기
         }
       } catch (categoryError) {
         console.warn(`카테고리 ${category} 렌더링 오류:`, categoryError);
@@ -810,153 +1048,235 @@ function updateActiveTab(selectedTab) {
 
 // ==================== 이벤트 리스너 설정 ====================
 function setupEventListeners() {
-  const searchInput = document.getElementById("searchInput");
-  const autocompleteList = document.getElementById("autocomplete-list");
-  let currentFocus = -1;
+  console.log("🔧 메모리 안전 이벤트 리스너 설정 시작...");
+  
+  const manager = window.memoryManager?.eventManager;
+  
+  if (!manager) {
+    console.warn("⚠️ 메모리 관리자가 없습니다. 기본 방식 사용");
+    // 기존 방식으로 폴백
+    setupEventListenersOriginal();
+    return;
+  }
+  
+  try {
+    const searchInput = document.getElementById("searchInput");
+    const autocompleteList = document.getElementById("autocomplete-list");
+    
+    if (!searchInput || !autocompleteList) {
+      throw new Error("필수 검색 요소를 찾을 수 없습니다");
+    }
+    
+    let currentFocus = -1;
 
-  // ✅ 검색 & 자동완성 통합
-  const debouncedSearch = debounce((value) => {
-    state.currentSearchQuery = value;
-    renderSites();
-  }, 300);
-
-  searchInput.addEventListener("input", function () {
-    const query = this.value.trim();
-    autocompleteList.innerHTML = "";
-    currentFocus = -1;
-
-    // 디바운스 검색 실행
-    debouncedSearch(query);
-
-    if (!query) return;
-
-    // Fuse.js 검색
-    let matches = [];
-    if (typeof fuse !== "undefined" && fuse) {
+    // 🧹 디바운스 함수도 메모리 안전하게
+    const debouncedSearch = debounce((value) => {
       try {
-        matches = fuse.search(query).map(r => r.item);
-      } catch (e) { matches = []; }
-    }
-
-    // 초성 검색
-    const jamoRegex = /[\u3131-\u318E]/;
-    if (jamoRegex.test(query)) {
-      const jamoQuery = query.toLowerCase();
-      const jamoMatches = state.sites.filter(s =>
-        (s.chosung || "").toLowerCase().includes(jamoQuery)
-      );
-      const map = {};
-      matches.concat(jamoMatches).forEach(m => { map[m.name] = m; });
-      matches = Object.values(map);
-    }
-
-    // 자동완성 UI 표시
-    matches.slice(0, 8).forEach(site => {
-      const item = document.createElement("div");
-      item.innerHTML = `
-        <strong>${highlightSearchTerms(site.name, query)}</strong><br>
-        <span class="autocomplete-desc">${highlightSearchTerms(site.desc || "", query)}</span>
-      `;
-      item.addEventListener("click", () => {
-        searchInput.value = site.name;
-        state.currentSearchQuery = site.name;
-        autocompleteList.innerHTML = "";
+        state.currentSearchQuery = value;
         renderSites();
-      });
-      autocompleteList.appendChild(item);
-    });
-  });
+      } catch (error) {
+        console.error('검색 처리 오류:', error);
+      }
+    }, 300);
 
-  // 키보드 ↑ ↓ Enter 탐색
-  searchInput.addEventListener("keydown", function(e) {
-    let items = autocompleteList.getElementsByTagName("div");
-    if (e.key === "ArrowDown") {
-      currentFocus++;
-      addActive(items);
-    } else if (e.key === "ArrowUp") {
-      currentFocus--;
-      addActive(items);
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      if (currentFocus > -1 && items[currentFocus]) {
-        items[currentFocus].click();
+    // 🧹 메모리 관리자를 통한 이벤트 리스너 등록
+    manager.add(searchInput, "input", function() {
+      const query = this.value.trim();
+      autocompleteList.innerHTML = "";
+      currentFocus = -1;
+
+      debouncedSearch(query);
+
+      if (!query) return;
+
+      // 자동완성 로직...
+      try {
+        let matches = [];
+        
+        if (typeof fuse !== "undefined" && fuse) {
+          matches = fuse.search(query).map(r => r.item);
+        }
+
+        const jamoRegex = /[\u3131-\u318E]/;
+        if (jamoRegex.test(query)) {
+          const jamoQuery = query.toLowerCase();
+          const jamoMatches = state.sites.filter(s =>
+            (s.chosung || "").toLowerCase().includes(jamoQuery)
+          );
+          const map = {};
+          matches.concat(jamoMatches).forEach(m => { 
+            if (m && m.name) map[m.name] = m; 
+          });
+          matches = Object.values(map);
+        }
+
+        matches.slice(0, 8).forEach(site => {
+          if (!site || !site.name) return;
+          
+          const item = document.createElement("div");
+          item.className = "autocomplete-item";
+          
+          const siteName = typeof highlightSearchTerms === 'function' 
+            ? highlightSearchTerms(site.name, query) 
+            : escapeHtml(site.name);
+
+          const siteDesc = typeof highlightSearchTerms === 'function' 
+            ? highlightSearchTerms(site.desc || "", query) 
+            : escapeHtml(site.desc || "");
+
+          item.innerHTML = `
+            <strong>${siteName}</strong><br>
+            <span class="autocomplete-desc">${siteDesc}</span>
+          `;
+  
+          // 🧹 자동완성 항목 클릭도 메모리 관리
+          manager.add(item, "click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+    
+            searchInput.value = site.name;
+            state.currentSearchQuery = site.name;
+            autocompleteList.innerHTML = "";
+            currentFocus = -1;
+            renderSites();
+          });
+  
+          autocompleteList.appendChild(item);
+        });
+        
+      } catch (error) {
+        console.error('자동완성 처리 오류:', error);
+      }
+    });
+
+    // 키보드 네비게이션
+    manager.add(searchInput, "keydown", function(e) {
+      let items = autocompleteList.getElementsByTagName("div");
+      
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        currentFocus++;
+        addActive(items);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        currentFocus--;
+        addActive(items);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (currentFocus > -1 && items[currentFocus]) {
+          items[currentFocus].click();
+        }
+      } else if (e.key === "Escape") {
+        autocompleteList.innerHTML = "";
+        currentFocus = -1;
+        this.blur();
+      }
+    });
+
+    function addActive(items) {
+      if (!items || items.length === 0) return;
+  
+      removeActive(items);
+
+      if (currentFocus >= items.length) currentFocus = 0;
+      if (currentFocus < 0) currentFocus = items.length - 1;
+  
+      const activeItem = items[currentFocus];
+      if (activeItem) {
+        activeItem.classList.add("active");  // 현재 선택된 것만 색상 유지
+        activeItem.scrollIntoView({
+          block: "nearest",
+          inline: "nearest",
+          behavior: "smooth"
+        });
       }
     }
-  });
 
-  function addActive(items) {
-    if (!items) return;
-    removeActive(items);
-    if (currentFocus >= items.length) currentFocus = 0;
-    if (currentFocus < 0) currentFocus = items.length - 1;
-  
-    const activeItem = items[currentFocus];
-    activeItem.classList.add("active");
-
-  // ✅ 자동 스크롤 추가
-    activeItem.scrollIntoView({
-        block: "nearest",   // 리스트 안에서 최소한으로 움직임
-        inline: "nearest",
-        behavior: "smooth"  // 부드럽게 이동
-    });
-}
-  function removeActive(items) {
-    for (let item of items) item.classList.remove("active");
-  }
-
-  // 외부 클릭 시 자동완성 닫기
-  document.addEventListener("click", function(e) {
-    if (e.target !== searchInput) {
-      autocompleteList.innerHTML = "";
+    function removeActive(items) {
+      // ✅ 반복문으로 모든 active 제거
+      for (let i = 0; i < items.length; i++) {
+        items[i].classList.remove("active");
+      }
     }
-  });
 
-  // ==================== 연령대 필터 ====================
-  document.querySelectorAll("#ageFilter .filter-btn").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      document.querySelectorAll("#ageFilter .filter-btn").forEach(b => {
-        b.classList.remove("active");
+    // 외부 클릭 시 자동완성 닫기
+    manager.add(document, "click", function(e) {
+      if (e.target !== searchInput && !autocompleteList.contains(e.target)) {
+        autocompleteList.innerHTML = "";
+        currentFocus = -1;
+      }
+    });
+
+    // 🧹 연령대 필터 버튼들
+    document.querySelectorAll("#ageFilter .filter-btn").forEach(btn => {
+      manager.add(btn, "click", (e) => {
+        document.querySelectorAll("#ageFilter .filter-btn").forEach(b => {
+          b.classList.remove("active");
+        });
+        e.currentTarget.classList.add("active");
+        state.currentAgeFilter = e.currentTarget.dataset.age;
+        renderSites();
       });
-      e.currentTarget.classList.add("active");
-      state.currentAgeFilter = e.currentTarget.dataset.age;
-      renderSites();
     });
-  });
 
-  // ==================== 과목 필터 ====================
-  document.getElementById("subjectFilter").addEventListener("change", (e) => {
-    state.currentSubjectFilter = e.target.value;
-    renderSites();
-  });
-
-  // ==================== 다크 모드 토글 ====================
-  const darkToggle = document.getElementById("darkToggle");
-  darkToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-    const isDark = document.body.classList.contains("dark");
-    darkToggle.textContent = isDark ? "☀️ 라이트 모드" : "🌙 다크 모드";
-  });
-
-  // ==================== 리셋 버튼들 ====================
-  document.getElementById("resetBtn").addEventListener("click", resetFilters);
-  document.getElementById("viewAllBtn").addEventListener("click", resetFilters);
-
-  // ==================== 키보드 단축키 ====================
-  document.addEventListener("keydown", (e) => {
-    // Ctrl + K: 검색 포커스
-    if (e.ctrlKey && e.key === 'k') {
-      e.preventDefault();
-      searchInput.focus();
+    // 🧹 과목 필터
+    const subjectFilter = document.getElementById("subjectFilter");
+    if (subjectFilter) {
+      manager.add(subjectFilter, "change", (e) => {
+        state.currentSubjectFilter = e.target.value;
+        renderSites();
+      });
     }
 
-    // Escape: 검색 초기화
-    if (e.key === 'Escape' && document.activeElement === searchInput) {
-      searchInput.value = '';
-      state.currentSearchQuery = '';
-      renderSites();
-      searchInput.blur();
+    // 🧹 다크 모드 토글
+    const darkToggle = document.getElementById("darkToggle");
+      if (darkToggle) {
+        manager.add(darkToggle, "click", () => {
+          const willDark = !document.body.classList.contains("dark");
+          document.body.classList.toggle("dark", willDark);
+          document.documentElement.setAttribute("data-theme", willDark ? "dark" : "light");
+          document.documentElement.dataset.userTheme = "1";
+          localStorage.setItem("siteTheme", willDark ? "dark" : "light");
+          darkToggle.textContent = willDark ? "☀️ 라이트 모드" : "🌙 다크 모드";
+        });
+      }
+
+    // 🧹 리셋 버튼들
+    const resetBtn = document.getElementById("resetBtn");
+    const viewAllBtn = document.getElementById("viewAllBtn");
+    
+    if (resetBtn) {
+      manager.add(resetBtn, "click", resetFilters);
     }
-  });
+    if (viewAllBtn) {
+      manager.add(viewAllBtn, "click", resetFilters);
+    }
+
+    // 🧹 페이지당 개수 변경
+    const itemsPerPage = document.getElementById("itemsPerPage");
+    if (itemsPerPage) {
+      manager.add(itemsPerPage, "change", (e) => {
+        state.ITEMS_PER_PAGE = parseInt(e.target.value, 10);
+        state.currentPageByCategory = {};
+        renderSites();
+      });
+    }
+
+    // 🧹 Ctrl+K 단축키
+    manager.add(document, "keydown", (e) => {
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+    });
+
+    console.log("✅ 메모리 안전 이벤트 리스너 설정 완료");
+    
+  } catch (error) {
+    console.error("❌ 이벤트 리스너 설정 실패:", error);
+    throw error;
+  }
 }
 
 function resetFilters() {
@@ -1006,7 +1326,7 @@ function shareSite(siteName, url) {
 
 // ==================== 다크 모드 자동 감지 ====================
 function initializeTheme() {
-  if (window.matchMedia) {
+  if (!document.documentElement.dataset.userTheme) {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     // 초기 설정
@@ -1072,8 +1392,21 @@ function init() {
     if (typeof initialSites !== 'undefined' && Array.isArray(initialSites)) {
       state.sites = initialSites.map(site => {
         try {
+          const url = site.url || "";
+          // 🔎 정부 도메인 자동 감지 (.go.kr, gov.kr)
+          let isGovAuto = false;
+          try {
+            const host = new URL(url).hostname || "";
+            isGovAuto = /(^|\.)gov\.kr$/i.test(host) || /(^|\.)[a-z0-9-]+\.go\.kr$/i.test(host);
+          } catch (e) {
+            // URL 파싱이 안 되면 단순 패턴으로 백업
+            isGovAuto = /(\.go\.kr|gov\.kr)(\/|$)/i.test(url);
+          }
+
+
           return {
             ...site,
+            isGov: typeof site.isGov === "boolean" ? site.isGov : isGovAuto,
             chosung: getChosung(site.name) + " " + getChosung(site.desc || "")
           };
         } catch (error) {
@@ -1085,6 +1418,7 @@ function init() {
             category: site.category || "general",
             ages: Array.isArray(site.ages) ? site.ages : ["adult"],
             subjects: Array.isArray(site.subjects) ? site.subjects : ["general"],
+            isGov: false,
             chosung: getChosung(site.name || "") + " " + getChosung(site.desc || "")
           };
         }
@@ -1162,6 +1496,239 @@ window.addEventListener('error', (e) => {
 });
 
 console.log("🎉 딱필모 스크립트 로드 완료!");
+
+// 페이지 로드 완료 후 자동으로 WARN 레벨 설정
+document.addEventListener('DOMContentLoaded', function() {
+  // 메모리 관리자가 초기화된 후 실행
+  setTimeout(() => {
+    if (window.memoryManager) {
+      window.memoryManager.setLogLevel(LogLevel.WARN);
+      console.log('✅ 로그 레벨이 WARN으로 설정되었습니다');
+    }
+  }, 1000);
+});
+
+</script>
+<script>
+(function () {
+  const RAF = window.requestAnimationFrame || function (cb){ return setTimeout(cb,16); };
+
+  const renderState = {
+    scheduled: false,
+    prevKeysByCategory: Object.create(null),
+    prevCountByCategory: Object.create(null),
+    cardCache: new Map(),
+    prevStats: { total: -1, filtered: -1, perPage: -1, totalPages: -1 }
+  };
+
+  function siteKeyOf(site) { return site?.url || site?.name || ''; }
+  function shallowEqualArray(a, b) {
+    if (a === b) return true;
+    if (!a || !b || a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+    return true;
+  }
+
+  const _createSiteCard = (window.ddakpilmo && window.ddakpilmo.createSiteCardSafe) || createSiteCard;
+  const _ensureGov = typeof ensureGovMarkers === 'function' ? ensureGovMarkers : function(){};
+
+  function renderSitesOptimizedCore() {
+    try {
+      const filtered = (typeof getFilteredSitesWithCache === 'function')
+        ? getFilteredSitesWithCache()
+        : getFilteredSites();
+
+      const categories = Object.keys(getAllCategories?.() || {}).length
+        ? Object.keys(getAllCategories())
+        : Array.from(new Set(filtered.map(s => s.category)));
+
+      const hasResults = filtered.length > 0;
+
+      for (const category of categories) {
+        const section = document.getElementById(`${category}-section`);
+        const content = document.getElementById(`${category}-content`);
+        const countEl = document.getElementById(`${category}-count`);
+        if (!section || !content) continue;
+
+        const list = filtered.filter(s => s.category === category);
+        const totalCount = list.length;
+
+        if (countEl && renderState.prevCountByCategory[category] !== totalCount) {
+          countEl.textContent = totalCount;
+          renderState.prevCountByCategory[category] = totalCount;
+        }
+
+        if (totalCount === 0) {
+          section.style.display = "none";
+          renderState.prevKeysByCategory[category] = [];
+          const pager = document.getElementById(`${category}-pagination`);
+          if (pager) pager.innerHTML = "";
+          continue;
+        }
+
+        section.style.display = "block";
+
+        const currentPage = (state?.currentPageByCategory?.[category]) || 1;
+        const perPage = state?.ITEMS_PER_PAGE || 20;
+        const start = (currentPage - 1) * perPage;
+        const end = start + perPage;
+        const slice = list.slice(start, end);
+
+        const visibleKeys = slice.map(siteKeyOf);
+        const prevKeys = renderState.prevKeysByCategory[category] || [];
+
+        if (!shallowEqualArray(prevKeys, visibleKeys)) {
+          const frag = buildCardsFragment(slice);
+          content.replaceChildren(frag);
+          renderPagination(category, totalCount);
+          renderState.prevKeysByCategory[category] = visibleKeys;
+        }
+      }
+
+      const noResults = document.getElementById("noResults");
+      if (noResults) noResults.style.display = hasResults ? "none" : "block";
+
+      const total = state?.sites?.length ?? 0;
+      const filteredLen = filtered.length;
+      const perPage = state?.ITEMS_PER_PAGE || 20;
+      const totalPages = Math.ceil(filteredLen / perPage) || 1;
+
+      const statsChanged =
+        renderState.prevStats.total !== total ||
+        renderState.prevStats.filtered !== filteredLen ||
+        renderState.prevStats.perPage !== perPage ||
+        renderState.prevStats.totalPages !== totalPages;
+
+      if (statsChanged) {
+        const totalCountEl = document.getElementById("totalCount");
+        const filteredCountEl = document.getElementById("filteredCount");
+        const paginationInfo = document.getElementById("paginationInfo");
+        if (totalCountEl) totalCountEl.textContent = total;
+        if (filteredCountEl) filteredCountEl.textContent = filteredLen;
+        if (paginationInfo) paginationInfo.textContent = `📄 ${perPage}개씩 보기 · 1/${totalPages} 페이지`;
+        renderState.prevStats = { total, filtered: filteredLen, perPage, totalPages };
+      }
+
+      try {
+        const q = (state?.searchQuery || document.getElementById('searchInput')?.value || '').trim();
+        ddakHighlight.apply(q, document.getElementById('main') || document);
+      } catch(e) {
+        console.warn('highlight error', e);
+      }
+    } catch (err) {
+      console.error('renderSitesOptimizedCore 오류:', err);
+      if (window.originalRenderSites) window.originalRenderSites();
+    } finally {
+      renderState.scheduled = false;
+    }
+  }
+
+  function requestRenderSites() {
+    if (renderState.scheduled) return;
+    renderState.scheduled = true;
+    RAF(renderSitesOptimizedCore);
+  }
+
+  if (!window.originalRenderSites) {
+    window.originalRenderSites = typeof renderSites === 'function' ? renderSites : null;
+  }
+  window.renderSites = requestRenderSites;
+  window.requestRenderSites = requestRenderSites;
+})();
+</script>
+
+<script>
+(function(){
+  const HL_TAG = 'span';
+  const HL_CLASS = 'search-highlight';
+
+  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  // "e b s" → /e\s*b\s*s/i  (글자 사이 임의 공백 허용)
+  function buildPattern(query){
+    const q = (query || '').trim();
+    if (!q) return null;
+
+    // 1) 글자 사이 공백 패턴 (모두 한 글자씩 공백으로 나뉘어 있을 때)
+    const letters = q.split(/\s+/);
+    const allSingle = letters.length > 1 && letters.every(x => x.length === 1);
+    if (allSingle) {
+      return new RegExp(letters.map(ch => escapeRegExp(ch)).join('\\s*'), 'gi');
+    }
+
+    // 2) 일반 단어(다중어 포함) → 각 토큰 OR 매칭
+    const tokens = q.split(/\s+/).map(escapeRegExp).filter(Boolean);
+    if (!tokens.length) return null;
+    return new RegExp('(' + tokens.join('|') + ')', 'gi');
+  }
+
+  function clearHighlights(root){
+    const marks = root.querySelectorAll(`${HL_TAG}.${HL_CLASS}`);
+    marks.forEach(mark => {
+      const parent = mark.parentNode;
+      while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+      parent.removeChild(mark);
+      parent.normalize();
+    });
+  }
+
+  function highlightInTextNode(node, regex){
+    const text = node.nodeValue;
+    regex.lastIndex = 0;
+    const match = regex.exec(text);
+    if (!match) return;
+
+    const frag = document.createDocumentFragment();
+    let lastIndex = 0;
+    regex.lastIndex = 0;
+
+    let m;
+    while ((m = regex.exec(text)) !== null) {
+      const start = m.index;
+      const end = start + m[0].length;
+      if (start > lastIndex) frag.appendChild(document.createTextNode(text.slice(lastIndex, start)));
+
+      const mark = document.createElement(HL_TAG);
+      mark.className = HL_CLASS;
+      mark.textContent = text.slice(start, end);
+      frag.appendChild(mark);
+
+      lastIndex = end;
+      // 무한 루프 방지
+      if (regex.lastIndex === start) regex.lastIndex++;
+    }
+    if (lastIndex < text.length) frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+
+    node.parentNode.replaceChild(frag, node);
+  }
+
+  function highlightInNode(root, query){
+    const regex = buildPattern(query);
+    if (!regex) { clearHighlights(root); return; }
+
+    // 기존 하이라이트 제거 후 다시 적용
+    clearHighlights(root);
+
+    // HTML을 건드리지 않기 위해 TEXT_NODE만 순회
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        // 너무 짧은 공백/개행, 또는 숨김 텍스트는 스킵
+        if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        // aria-hidden 등 특별 케이스 필요하면 여기서 필터
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(tn => highlightInTextNode(tn, regex));
+  }
+
+  // 전역 노출
+  window.ddakHighlight = {
+    apply(query, scope=document) { highlightInNode(scope, query || ''); },
+    clear(scope=document) { clearHighlights(scope); }
+  };
+})();
 </script>
 </body>
 </html>

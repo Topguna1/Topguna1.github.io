@@ -1,33 +1,106 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <script>
 (function () {
-  var saved = localStorage.getItem('siteTheme'); // 'light' | 'dark' | null
-  if (saved === 'light' || saved === 'dark') {
-    // ✅ 저장된 테마 우선 적용 + "내가 지정함" 플래그
-    document.documentElement.setAttribute('data-theme', saved);
-    document.documentElement.dataset.userTheme = '1'; // 잠금 플래그
-
-    // body.dark 동기화는 DOM 생성 후
-    document.addEventListener('DOMContentLoaded', function () {
-      document.body.classList.toggle('dark', saved === 'dark');
-      var btn = document.getElementById('darkToggle');
-      if (btn) btn.textContent = saved === 'dark' ? '☀️ 라이트 모드' : '🌙 다크 모드';
-    });
+  try {
+    var saved = localStorage.getItem('siteTheme');
+    if (saved === 'light' || saved === 'dark') {
+      document.documentElement.setAttribute('data-theme', saved);
+      document.documentElement.dataset.userTheme = '1';
+      
+      document.addEventListener('DOMContentLoaded', function () {
+        document.body.classList.toggle('dark', saved === 'dark');
+        var btn = document.getElementById('darkToggle');
+        if (btn) btn.textContent = saved === 'dark' ? '☀️ 라이트 모드' : '🌙 다크 모드';
+      });
+    }
+  } catch (e) {
+    console.warn('테마 로드 실패:', e);
   }
 })();
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌟 딱필모 - 학생 필수 사이트 모음</title>
+<title>🌟 딱필모 indev </title>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 
 <script src="categories-data.js"></script>
 <script src="sites-data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 <script src="error-handling.js"></script>
 <script src="memory-manager.js"></script>
+<script>
+(function () {
+  const rIC = window.requestIdleCallback || (cb => setTimeout(() => cb({ timeRemaining: () => 0 }), 1));
+  const REGISTRY = new Map();   // name -> step { name, fn, opts }
+  const RESULT   = new Map();   // name -> { ok, error, tries, startedAt, endedAt }
+  const DEP      = new Map();   // name -> { after:Set, before:Set }
+  const CONFIG   = { maxPasses: 20, maxRetries: 1, stepTimeoutMs: 8000 };
+
+  function add(name, fn, opts = {}) {
+    if (!name || typeof fn !== 'function') throw new Error('addInitStep invalid');
+    if (REGISTRY.has(name)) throw new Error('duplicate init step: ' + name);
+    REGISTRY.set(name, { name, fn, opts });
+    DEP.set(name, { after: new Set([].concat(opts.after || [])), before: new Set([].concat(opts.before || [])) });
+  }
+
+  function depsOK(name) {
+    const d = DEP.get(name);
+    if (!d) return true;
+    for (const a of d.after) { const r = RESULT.get(a); if (REGISTRY.has(a) && (!r || r.ok !== true)) return false; }
+    for (const b of d.before){ const r = RESULT.get(b); if (r && r.ok === true) return false; }
+    return true;
+  }
+
+  async function runStep(step){
+    const { name, fn, opts } = step;
+    const res = RESULT.get(name) || { ok:null, tries:0 };
+    res.startedAt = performance.now(); res.tries += 1; RESULT.set(name, res);
+    const timeout = opts.timeoutMs ?? CONFIG.stepTimeoutMs;
+    let to;
+    try {
+      const p = Promise.resolve().then(() => fn());
+      const t = new Promise((_, rej) => to = setTimeout(() => rej(new Error('timeout')), timeout));
+      await Promise.race([p, t]);
+      res.ok = true; res.error = null;
+    } catch(e){ res.ok = false; res.error = e; }
+    finally { clearTimeout(to); res.endedAt = performance.now(); RESULT.set(name, res); }
+    return res.ok;
+  }
+
+  async function run() {
+    const pending = new Set(REGISTRY.keys());
+    let pass = 0;
+    while (pending.size && pass < CONFIG.maxPasses) {
+      pass++;
+      const runnable = [];
+      pending.forEach(n => { if (depsOK(n)) runnable.push(n); });
+      if (!runnable.length) break;
+      for (const n of runnable) {
+        const s = REGISTRY.get(n), r = RESULT.get(n) || { tries:0 };
+        const left = (s.opts.maxRetries ?? CONFIG.maxRetries) - r.tries;
+        const ok = await runStep(s);
+        if (ok || left <= 0) pending.delete(n);
+        await new Promise(res => rIC(res));
+      }
+    }
+    const done=[], failed=[], skipped=[];
+    REGISTRY.forEach((_, n) => { const r = RESULT.get(n); if (!r) skipped.push(n); else (r.ok?done:failed).push(n); });
+    window.__initReport = { done, failed, skipped, passes: pass, total: REGISTRY.size };
+    return window.__initReport;
+  }
+
+  function status(){
+    const o={}; RESULT.forEach((r,k)=>o[k]={ok:r.ok, tries:r.tries, ms:r.endedAt&&r.startedAt?+(r.endedAt-r.startedAt).toFixed(1):null, error:r.error?String(r.error):null}); 
+    return o;
+  }
+
+  window.initRunner = { add, run, status, config: CONFIG };
+})();
+</script>
 </head>
 <body>
 <div class="container">
@@ -159,7 +232,7 @@
       <span>🎯 <strong>13</strong>개 카테고리</span>
     </div>
     <p style="font-size: 12px; opacity: 0.7;">
-      © 2025 딱필모 | In dev | 
+      © 2025 딱필모 | ver 101 | 
       <span style="color: #3498db;"> 문의는 디스코드 에서 받습니다.</span>
     </p>
   </div>
@@ -463,13 +536,6 @@ function updateStats(totalFiltered) {
     paginationInfo.textContent = `📄 ${state.ITEMS_PER_PAGE}개씩 보기 · 1/${totalPages} 페이지`;
   }
 }
-
-document.getElementById("itemsPerPage").addEventListener("change", (e) => {
-  state.ITEMS_PER_PAGE = parseInt(e.target.value, 10);
-  state.currentPageByCategory = {}; // 모든 카테고리 페이지 초기화
-  renderSites();
-});
-
 
 function showSearchStats(query, totalResults) {
   const statsContainer = document.getElementById('statsBar');
@@ -847,9 +913,21 @@ function createSiteCard(site) {
   // (공유 버튼)
   const shareBtn = document.createElement("button");
   shareBtn.className = "share-btn";
+  shareBtn.setAttribute("type", "button");
+  // 화면에는 이모지만 노출
   shareBtn.textContent = "📤";
-  shareBtn.title = "링크 공유";
-  shareBtn.onclick = (e) => { e.stopPropagation(); shareSite(site.name || "", site.url || ""); };
+  // 접근성 라벨만 제공(“공유”라는 가시 텍스트는 DOM에 두지 않음)
+  shareBtn.setAttribute("aria-label", "공유");
+  // title 제거(외부 CSS가 content:attr(title)로 붙이는 상황 차단)
+  shareBtn.removeAttribute("title");
+  // 하이라이트 등 개입 방지
+  shareBtn.setAttribute("data-nohighlight", "1");
+
+  shareBtn.onclick = (e) => {
+    e.stopPropagation();
+    shareSite(site.name || "", site.url || "");
+  };
+
   card.appendChild(shareBtn);
 
   // 헤더 조립
@@ -897,8 +975,8 @@ function ensureGovMarkers(card, site) {
       shareBtn = document.createElement('button');
       shareBtn.className = 'share-btn';
       shareBtn.textContent = '📤';
-      shareBtn.title = '링크 공유';
-      shareBtn.onclick = (e) => { e.stopPropagation(); shareSite(site?.name || '', site?.url || ''); };
+      shareBtn.title = "링크 공유";
+      shareBtn.onclick = (e) => {e.stopPropagation(); shareSite(site?.name || '', site?.url || '');};
       card.appendChild(shareBtn);
     }
 
@@ -968,20 +1046,29 @@ function renderSites() {
 
         if (sitesInCategory.length > 0) {
           section.style.display = "block";
+          
+          // 🔥 현재 페이지가 유효하지 않으면 1페이지로 리셋
           const total = sitesInCategory.length;
-          const currentPage = state.currentPageByCategory[category] || 1;
+          const totalPages = Math.ceil(total / state.ITEMS_PER_PAGE);
+          let currentPage = state.currentPageByCategory[category] || 1;
+          
+          if (currentPage > totalPages) {
+            currentPage = 1;
+            state.currentPageByCategory[category] = 1;
+          }
+          
           const start = (currentPage - 1) * state.ITEMS_PER_PAGE;
           const end = start + state.ITEMS_PER_PAGE;
           const pagedSites = sitesInCategory.slice(start, end);
 
-          // ✅ DocumentFragment 1회 교체
           const frag = buildCardsFragment(pagedSites);
           content.replaceChildren(frag);
 
           renderPagination(category, total);
         } else {
+          // 🔥 결과가 없으면 섹션 완전히 숨기기
           section.style.display = "none";
-          content.replaceChildren(); // 깔끔하게 비우기
+          content.replaceChildren();
         }
       } catch (categoryError) {
         console.warn(`카테고리 ${category} 렌더링 오류:`, categoryError);
@@ -993,12 +1080,35 @@ function renderSites() {
     
   } catch (error) {
     console.error('사이트 렌더링 전체 오류:', error);
-    // 기존 함수로 폴백 시도
     if (window.originalRenderSites) {
       console.log('기존 renderSites로 폴백 시도');
       window.originalRenderSites();
     }
   }
+}
+
+// 카테고리별로 렌더링할 때 사용할 공통 슬라이스 유틸 (있으면 사용, 없으면 아래 로직 그대로 in-line)
+function getVisibleRangeForCategory(list, catKey) {
+  const cur = (window.state?.currentCategoryFilter ?? 'all');
+  const isAll = (cur === 'all' || cur === '전체');
+
+  if (!isAll && cur === catKey) {
+    // ✅ 카테고리 선택 상태: 이 카테고리는 '모두 보기'
+    return list; // 슬라이스 없이 전부 반환
+  }
+
+  // 기존 페이징 유지
+  const perPage = window.state?.ITEMS_PER_PAGE ?? 10;
+  const page = (window.state?.currentPageByCategory?.[catKey] ?? 1);
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+  return list.slice(start, end);
+}
+
+function updateCategoryPagingMode() {
+  const cur = (window.state?.currentCategoryFilter ?? 'all');
+  const isAll = (cur === 'all' || cur === '전체');
+  document.body.classList.toggle('category-nopaging', !isAll);
 }
 
 // ==================== 카테고리 탭 관리 ====================
@@ -1018,8 +1128,14 @@ function buildCategoryTabs() {
   allBtn.addEventListener("click", () => {
     updateActiveTab(allBtn);
     state.currentCategoryFilter = "all";
-    state.expandedCategories = {};
+    state.currentPageByCategory = {}; // 🔥 페이지 초기화
     renderSites();
+    updateCategoryPagingMode();
+    requestAnimationFrame(() => {
+      document.querySelectorAll(".category-section").forEach(sec => {
+        sec.classList.remove("expanded-category");
+      });
+    });
   });
   tabs.appendChild(allBtn);
 
@@ -1032,11 +1148,26 @@ function buildCategoryTabs() {
     btn.addEventListener("click", () => {
       updateActiveTab(btn);
       state.currentCategoryFilter = key;
-      state.expandedCategories = {};
+      state.currentPageByCategory = {}; // 🔥 페이지 초기화
       renderSites();
+      updateCategoryPagingMode();
+      requestAnimationFrame(() => {
+        document.querySelectorAll(".category-section").forEach(sec => {
+          sec.classList.remove("expanded-category");
+        });
+        const selected = document.querySelector(`.category-section#${key}-section`);
+        if (selected) selected.classList.add("expanded-category");
+      });
     });
     tabs.appendChild(btn);
   });
+}
+
+function updateActiveTab(selectedTab) {
+  document.querySelectorAll("#filterTabs .tab-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+  selectedTab.classList.add("active");
 }
 
 function updateActiveTab(selectedTab) {
@@ -1054,8 +1185,20 @@ function setupEventListeners() {
   
   if (!manager) {
     console.warn("⚠️ 메모리 관리자가 없습니다. 기본 방식 사용");
-    // 기존 방식으로 폴백
-    setupEventListenersOriginal();
+    if (typeof setupEventListenersOriginal === 'function') {
+      setupEventListenersOriginal();
+    } else {
+      const ipt = document.getElementById("searchInput");
+      if (ipt && !ipt.__bound) {
+        ipt.addEventListener("input", () => { 
+          state.currentSearchQuery = ipt.value;
+          state.currentPageByCategory = {}; // 🔥 검색 시 페이지 초기화
+          renderSites(); 
+          
+        });
+        ipt.__bound = true;
+      }
+    }
     return;
   }
   
@@ -1069,17 +1212,16 @@ function setupEventListeners() {
     
     let currentFocus = -1;
 
-    // 🧹 디바운스 함수도 메모리 안전하게
     const debouncedSearch = debounce((value) => {
       try {
         state.currentSearchQuery = value;
+        state.currentPageByCategory = {}; // 🔥 검색 시 페이지 초기화
         renderSites();
       } catch (error) {
         console.error('검색 처리 오류:', error);
       }
     }, 300);
 
-    // 🧹 메모리 관리자를 통한 이벤트 리스너 등록
     manager.add(searchInput, "input", function() {
       const query = this.value.trim();
       autocompleteList.innerHTML = "";
@@ -1089,7 +1231,6 @@ function setupEventListeners() {
 
       if (!query) return;
 
-      // 자동완성 로직...
       try {
         let matches = [];
         
@@ -1129,13 +1270,13 @@ function setupEventListeners() {
             <span class="autocomplete-desc">${siteDesc}</span>
           `;
   
-          // 🧹 자동완성 항목 클릭도 메모리 관리
           manager.add(item, "click", function(e) {
             e.preventDefault();
             e.stopPropagation();
     
             searchInput.value = site.name;
             state.currentSearchQuery = site.name;
+            state.currentPageByCategory = {}; // 🔥 자동완성 선택 시 페이지 초기화
             autocompleteList.innerHTML = "";
             currentFocus = -1;
             renderSites();
@@ -1149,22 +1290,38 @@ function setupEventListeners() {
       }
     });
 
-    // 키보드 네비게이션
     manager.add(searchInput, "keydown", function(e) {
-      let items = autocompleteList.getElementsByTagName("div");
-      
-      if (e.key === "ArrowDown") {
+      // 리스트에서 "항목"만 정확히 가져오기
+      const items = autocompleteList.querySelectorAll(".autocomplete-item, .item, .ac-item, .suggestion");
+      const hasItems = items && items.length > 0;
+
+      if ((e.key === "ArrowDown" || e.key === "ArrowUp") && hasItems) {
         e.preventDefault();
-        currentFocus++;
-        addActive(items);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        currentFocus--;
-        addActive(items);
+        if (e.key === "ArrowDown") {
+          currentFocus = (typeof currentFocus === "number" ? currentFocus : -1) + 1;
+        } else {
+        currentFocus = (typeof currentFocus === "number" ? currentFocus : items.length) - 1;
+        }
+        currentFocus = (currentFocus + items.length) % items.length;
+
+        // 활성 표시
+        removeActive(items);
+        items[currentFocus].classList.add("active");
+        items[currentFocus].scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+
+        // ✅ 제목만 입력창에 즉시 반영 + 검색 실행
+        const val = getAutocompleteTitle(items[currentFocus]);
+        this.value = val;
+        if (typeof debouncedSearch === "function") debouncedSearch(val);
+
       } else if (e.key === "Enter") {
-        e.preventDefault();
-        if (currentFocus > -1 && items[currentFocus]) {
-          items[currentFocus].click();
+        if (hasItems && currentFocus > -1 && items[currentFocus]) {
+          e.preventDefault();
+          const val = getAutocompleteTitle(items[currentFocus]);
+          this.value = val;
+          if (typeof debouncedSearch === "function") debouncedSearch(val);
+          autocompleteList.innerHTML = "";
+          currentFocus = -1;
         }
       } else if (e.key === "Escape") {
         autocompleteList.innerHTML = "";
@@ -1173,33 +1330,46 @@ function setupEventListeners() {
       }
     });
 
+    // ✅ 자동완성 항목에서 "제목만" 뽑아내는 유틸
+    function getAutocompleteTitle(el) {
+      if (!el) return '';
+      // 우선순위: data-value > data-title > 명시적 타이틀 셀렉터 > 설명 제거 후 텍스트
+      const byData = el.getAttribute('data-value') || el.getAttribute('data-title');
+      if (byData) return byData.trim();
+
+      const titleEl =
+        el.querySelector('[data-role="title"]') ||
+        el.querySelector('.title') ||
+        el.querySelector('.item-title') ||
+        el.querySelector('.name') ||
+        el.firstElementChild; // 보통 첫 요소가 제목일 확률 높음
+
+      if (titleEl) return titleEl.textContent.trim();
+
+      // 마지막 수단: 복제해서 설명/부가정보 제거 후 텍스트만
+      const clone = el.cloneNode(true);
+      clone.querySelectorAll('.desc, .description, .meta, .subtitle, .extra, small').forEach(n => n.remove());
+      return clone.textContent.trim();
+    }
+
     function addActive(items) {
       if (!items || items.length === 0) return;
-  
       removeActive(items);
-
       if (currentFocus >= items.length) currentFocus = 0;
       if (currentFocus < 0) currentFocus = items.length - 1;
-  
       const activeItem = items[currentFocus];
       if (activeItem) {
-        activeItem.classList.add("active");  // 현재 선택된 것만 색상 유지
-        activeItem.scrollIntoView({
-          block: "nearest",
-          inline: "nearest",
-          behavior: "smooth"
-        });
+        activeItem.classList.add("active");
+        activeItem.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
       }
     }
 
     function removeActive(items) {
-      // ✅ 반복문으로 모든 active 제거
       for (let i = 0; i < items.length; i++) {
         items[i].classList.remove("active");
       }
     }
 
-    // 외부 클릭 시 자동완성 닫기
     manager.add(document, "click", function(e) {
       if (e.target !== searchInput && !autocompleteList.contains(e.target)) {
         autocompleteList.innerHTML = "";
@@ -1207,7 +1377,7 @@ function setupEventListeners() {
       }
     });
 
-    // 🧹 연령대 필터 버튼들
+    // 🔥 연령대 필터 - 페이지 초기화 추가
     document.querySelectorAll("#ageFilter .filter-btn").forEach(btn => {
       manager.add(btn, "click", (e) => {
         document.querySelectorAll("#ageFilter .filter-btn").forEach(b => {
@@ -1215,33 +1385,33 @@ function setupEventListeners() {
         });
         e.currentTarget.classList.add("active");
         state.currentAgeFilter = e.currentTarget.dataset.age;
+        state.currentPageByCategory = {}; // 🔥 페이지 초기화
         renderSites();
       });
     });
 
-    // 🧹 과목 필터
+    // 🔥 과목 필터 - 페이지 초기화 추가
     const subjectFilter = document.getElementById("subjectFilter");
     if (subjectFilter) {
       manager.add(subjectFilter, "change", (e) => {
         state.currentSubjectFilter = e.target.value;
+        state.currentPageByCategory = {}; // 🔥 페이지 초기화
         renderSites();
       });
     }
 
-    // 🧹 다크 모드 토글
     const darkToggle = document.getElementById("darkToggle");
-      if (darkToggle) {
-        manager.add(darkToggle, "click", () => {
-          const willDark = !document.body.classList.contains("dark");
-          document.body.classList.toggle("dark", willDark);
-          document.documentElement.setAttribute("data-theme", willDark ? "dark" : "light");
-          document.documentElement.dataset.userTheme = "1";
-          localStorage.setItem("siteTheme", willDark ? "dark" : "light");
-          darkToggle.textContent = willDark ? "☀️ 라이트 모드" : "🌙 다크 모드";
-        });
-      }
+    if (darkToggle) {
+      manager.add(darkToggle, "click", () => {
+        const willDark = !document.body.classList.contains("dark");
+        document.body.classList.toggle("dark", willDark);
+        document.documentElement.setAttribute("data-theme", willDark ? "dark" : "light");
+        document.documentElement.dataset.userTheme = "1";
+        localStorage.setItem("siteTheme", willDark ? "dark" : "light");
+        darkToggle.textContent = willDark ? "☀️ 라이트 모드" : "🌙 다크 모드";
+      });
+    }
 
-    // 🧹 리셋 버튼들
     const resetBtn = document.getElementById("resetBtn");
     const viewAllBtn = document.getElementById("viewAllBtn");
     
@@ -1252,17 +1422,15 @@ function setupEventListeners() {
       manager.add(viewAllBtn, "click", resetFilters);
     }
 
-    // 🧹 페이지당 개수 변경
     const itemsPerPage = document.getElementById("itemsPerPage");
     if (itemsPerPage) {
       manager.add(itemsPerPage, "change", (e) => {
         state.ITEMS_PER_PAGE = parseInt(e.target.value, 10);
-        state.currentPageByCategory = {};
+        state.currentPageByCategory = {}; // 🔥 페이지당 개수 변경 시 초기화
         renderSites();
       });
     }
 
-    // 🧹 Ctrl+K 단축키
     manager.add(document, "keydown", (e) => {
       if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
@@ -1472,8 +1640,36 @@ function init() {
 
 window.shareSite = shareSite;
 
-// ==================== 이벤트 리스너 등록 ====================
-document.addEventListener("DOMContentLoaded", init);
+// 🔁 DOMContentLoaded 시, 단계적 러너로 실행
+document.addEventListener('DOMContentLoaded', () => {
+
+  // 1) 레거시 init을 한 스텝으로 감싼다 (기존 로직 최대한 재활용)
+  initRunner.add('legacy:init', () => {
+    try { if (typeof init === 'function') init(); }
+    catch(e){ console.warn('[init] legacy/init error:', e); }
+  });
+
+  // 2) 하이라이트는 렌더가 끝난 뒤에만 적용 (있으면)
+  initRunner.add('ui:highlight', () => {
+    try {
+      const q = (window.state?.searchQuery || document.getElementById('searchInput')?.value || '').trim();
+      if (q && window.ddakHighlight) {
+        const scope = document.getElementById('categoriesContainer') || document;
+        window.ddakHighlight.apply(q, scope);
+      }
+    } catch(e){ console.debug('highlight skipped', e); }
+  }, { after: ['legacy:init'] });
+
+  // 3) 통계/페이지네이션 추가 동기화가 필요하면 (있을 때만)
+  initRunner.add('ui:sync-stats', () => {
+    if (typeof updateGlobalStats === 'function') updateGlobalStats();
+  }, { after: ['legacy:init'] });
+
+  // 4) 실행 + 리포트(콘솔에서 상태 보려면)
+  initRunner.run().then(rep => {
+    console.log('[init] report:', rep, initRunner.status());
+  });
+});
 
 // 윈도우 리사이즈 처리
 window.addEventListener('resize', debounce(() => {
@@ -1501,7 +1697,7 @@ console.log("🎉 딱필모 스크립트 로드 완료!");
 document.addEventListener('DOMContentLoaded', function() {
   // 메모리 관리자가 초기화된 후 실행
   setTimeout(() => {
-    if (window.memoryManager) {
+    if (window.memoryManager && window.memoryManager.setLogLevel && window.LogLevel) {
       window.memoryManager.setLogLevel(LogLevel.WARN);
       console.log('✅ 로그 레벨이 WARN으로 설정되었습니다');
     }
@@ -1531,6 +1727,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const _createSiteCard = (window.ddakpilmo && window.ddakpilmo.createSiteCardSafe) || createSiteCard;
   const _ensureGov = typeof ensureGovMarkers === 'function' ? ensureGovMarkers : function(){};
+
+  // ✅ 보이는 카테고리 섹션 개수로 .categories-container 컬럼 수를 동적으로 설정
+  function updateResultColumnsByVisibleCategories() {
+    const container = document.querySelector('.categories-container');
+    if (!container) return;
+
+    // 보이는 섹션만 집계 (display: none 제외)
+    const visibleSections = [...container.querySelectorAll('.category-section')].filter(sec => {
+      const ds = sec.style.display || getComputedStyle(sec).display;
+      return ds !== 'none';
+    });
+
+    let n = visibleSections.length;
+    // 열 수 제한 (원하면 4 대신 3으로 제한해도 됨)
+    if (n <= 0) n = 0;
+    else if (n === 1) n = 1;
+    else if (n === 2) n = 2;
+    else n = 3;
+
+    container.classList.remove('results-cols-0','results-cols-1','results-cols-2','results-cols-3','results-cols-4');
+    container.classList.add(`results-cols-${n}`);
+  }
 
   function renderSitesOptimizedCore() {
     try {
@@ -1568,11 +1786,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         section.style.display = "block";
 
-        const currentPage = (state?.currentPageByCategory?.[category]) || 1;
-        const perPage = state?.ITEMS_PER_PAGE || 20;
-        const start = (currentPage - 1) * perPage;
-        const end = start + perPage;
-        const slice = list.slice(start, end);
+        // ✅ 카테고리 선택 시에는 해당 카테고리 전체 노출(무페이징)
+        const cur = (state?.currentCategoryFilter ?? 'all');
+        const isAllView = (cur === 'all' || cur === '전체');
+        const isSelectedCategory = (!isAllView && cur === category);
+
+        let slice;
+        if (isSelectedCategory) {
+           // 선택된 카테고리: 전부 보여줌
+          slice = list;
+        } else {
+         // 전체 보기나 다른 카테고리: 기존 페이징 유지
+          const currentPage = (state?.currentPageByCategory?.[category]) || 1;
+          const perPage = state?.ITEMS_PER_PAGE || 20;
+          const start = (currentPage - 1) * perPage;
+          const end = start + perPage;
+          slice = list.slice(start, end);
+        }
 
         const visibleKeys = slice.map(siteKeyOf);
         const prevKeys = renderState.prevKeysByCategory[category] || [];
@@ -1580,13 +1810,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!shallowEqualArray(prevKeys, visibleKeys)) {
           const frag = buildCardsFragment(slice);
           content.replaceChildren(frag);
-          renderPagination(category, totalCount);
+          const pager = document.getElementById(`${category}-pagination`);
+          if (pager) {
+            if (isSelectedCategory) {
+              pager.innerHTML = '';
+              pager.style.display = 'none';
+            } else {
+              pager.style.display = '';
+              renderPagination(category, totalCount);
+            }
+          }
           renderState.prevKeysByCategory[category] = visibleKeys;
         }
       }
 
       const noResults = document.getElementById("noResults");
       if (noResults) noResults.style.display = hasResults ? "none" : "block";
+      updateResultColumnsByVisibleCategories();
 
       const total = state?.sites?.length ?? 0;
       const filteredLen = filtered.length;
@@ -1610,10 +1850,25 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       try {
-        const q = (state?.searchQuery || document.getElementById('searchInput')?.value || '').trim();
-        ddakHighlight.apply(q, document.getElementById('main') || document);
-      } catch(e) {
-        console.warn('highlight error', e);
+        const q =
+          (state?.currentSearchQuery ?? state?.searchQuery ??
+            document.getElementById('searchInput')?.value ?? ''
+          ).trim();
+
+        const scope = document.getElementById('main') || document;
+
+        if (q && window.ddakHighlight?.apply) {
+          // 검색어가 있을 때만 한 번 적용
+          window.ddakHighlight.apply(q, scope);
+        } else if (window.ddakHighlight?.clear) {
+          // 검색어가 없으면 하이라이트 제거
+          window.ddakHighlight.clear(scope);
+        } else if (window.ddakHighlight?.apply) {
+          // clear가 없다면 빈 문자열로 초기화(대안)
+          window.ddakHighlight.apply('', scope);
+        }
+      } catch (e) {
+        console.warn('highlight skipped', e);
       }
     } catch (err) {
       console.error('renderSitesOptimizedCore 오류:', err);
@@ -1642,21 +1897,18 @@ document.addEventListener('DOMContentLoaded', function() {
   const HL_TAG = 'span';
   const HL_CLASS = 'search-highlight';
 
-  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\'); }
 
-  // "e b s" → /e\s*b\s*s/i  (글자 사이 임의 공백 허용)
   function buildPattern(query){
     const q = (query || '').trim();
     if (!q) return null;
 
-    // 1) 글자 사이 공백 패턴 (모두 한 글자씩 공백으로 나뉘어 있을 때)
     const letters = q.split(/\s+/);
     const allSingle = letters.length > 1 && letters.every(x => x.length === 1);
     if (allSingle) {
       return new RegExp(letters.map(ch => escapeRegExp(ch)).join('\\s*'), 'gi');
     }
 
-    // 2) 일반 단어(다중어 포함) → 각 토큰 OR 매칭
     const tokens = q.split(/\s+/).map(escapeRegExp).filter(Boolean);
     if (!tokens.length) return null;
     return new RegExp('(' + tokens.join('|') + ')', 'gi');
@@ -1694,7 +1946,6 @@ document.addEventListener('DOMContentLoaded', function() {
       frag.appendChild(mark);
 
       lastIndex = end;
-      // 무한 루프 방지
       if (regex.lastIndex === start) regex.lastIndex++;
     }
     if (lastIndex < text.length) frag.appendChild(document.createTextNode(text.slice(lastIndex)));
@@ -1706,15 +1957,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const regex = buildPattern(query);
     if (!regex) { clearHighlights(root); return; }
 
-    // 기존 하이라이트 제거 후 다시 적용
     clearHighlights(root);
 
-    // HTML을 건드리지 않기 위해 TEXT_NODE만 순회
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode(n){
-        // 너무 짧은 공백/개행, 또는 숨김 텍스트는 스킵
         if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-        // aria-hidden 등 특별 케이스 필요하면 여기서 필터
+        
+        // 🔥 버그 수정: 공유 버튼 내부 텍스트 제외
+        let parent = n.parentNode;
+        while (parent && parent !== root) {
+          if (parent.classList && parent.classList.contains('share-btn')) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          parent = parent.parentNode;
+        }
+        
         return NodeFilter.FILTER_ACCEPT;
       }
     });
@@ -1723,7 +1980,6 @@ document.addEventListener('DOMContentLoaded', function() {
     targets.forEach(tn => highlightInTextNode(tn, regex));
   }
 
-  // 전역 노출
   window.ddakHighlight = {
     apply(query, scope=document) { highlightInNode(scope, query || ''); },
     clear(scope=document) { clearHighlights(scope); }

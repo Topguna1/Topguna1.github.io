@@ -15,13 +15,13 @@
   }
 
   // 1) localStorage에서 설정 읽기
-  let theme = 'system';
+  let theme = 'dark';
   let font  = 'normal';
   let anim  = 'on';
   let radius = 'round';
 
   try {
-    theme  = normalize(localStorage.getItem('siteTheme'),    ['light','dark','system'], 'system');
+    theme  = normalize(localStorage.getItem('siteTheme'),    ['light','dark','system'], 'dark');
     font   = normalize(localStorage.getItem('siteFontSize'), ['small','normal','large'], 'normal');
     anim   = normalize(localStorage.getItem('siteAnim'),     ['on','off'], 'on');
     radius = normalize(localStorage.getItem('siteRadius'),   ['square','round'], 'round');
@@ -77,17 +77,11 @@
     requestAnimationFrame(waitBody);
   })();
 
-  // system 테마일 때, 기기 설정 변화도 반영 (초기 진입 깜빡임 최소화)
-  try {
-    if (theme === 'system' && window.matchMedia) {
-      const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      mq.addEventListener?.('change', () => syncBodyOnce());
-    }
-  } catch {}
+  // Runtime listener is managed by js/ui/theme.js to avoid duplicate bindings.
 })();
 </script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>🌟 딱필모 indev </title>
 <link rel="stylesheet" href="styles/styles.css">
 <link rel="stylesheet" href="about/about.css">
@@ -96,21 +90,32 @@
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 <script src="js/error-handling.js"></script>
-<script src="js/memory-manager.js"></script>  
+  <script src="js/memory-manager.js"></script>  
   <script src="js/utils.js" defer></script>
+  <script src="js/app/store.js" defer></script>
+  <script src="js/data/site-normalize.js" defer></script>
+  <script src="js/data/site-data.js" defer></script>
+  <script src="js/search/filter-engine.js" defer></script>
+  <script src="js/search/recommend.js" defer></script>
+  <script src="js/search/highlight.js" defer></script>
   <script src="js/ui/scroll.js" defer></script>
   <script src="js/ui/toast.js" defer></script>
   <script src="js/ui/theme.js" defer></script>
   <script src="js/ui/settings.js" defer></script>  
   <script src="js/ui/menu.js" defer></script>
   <script src="js/render.js" defer></script>
+  <script src="js/render/pagination.js" defer></script>
+  <script src="js/render/cards.js" defer></script>
+  <script src="js/render/sections.js" defer></script>
   <script src="js/ui/ui-transition.js" defer></script>
   <script src="js/tabs.js" defer></script>
   <script src="about/about.view.js" defer></script>
   <script src="about/about.reveal.js" defer></script>
   <script src="tips/tips.view.js" defer></script>
+  <script src="js/ui/list-events.js" defer></script>
+  <script src="js/routing/hash-routing.js" defer></script>
   <script src="js/main.js" defer></script>
-  <script src="tips/tips-routing-patch.js" defer></script>
+  <script src="js/bootstrap/init-bootstrap.js" defer></script>
 
 
   <style>
@@ -235,6 +240,8 @@
       
       <button class="reset-btn" id="resetBtn">🔄 필터 초기화</button>
     </div>
+
+    <div class="active-filter-summary" id="activeFilterSummary" aria-live="polite"></div>
     
     <div class="stats" id="statsBar">
     <!-- 페이지당 보기 -->

@@ -13,6 +13,9 @@
     constructor() {
       this.errorLog = [];
       this.maxErrors = 50;
+      this.bootAt = Date.now();
+      this.maxRetryWindowMs = 15000;
+      this.resourceRetryOnce = new Set();
       this.setupGlobalErrorHandlers();
     }
 
@@ -166,30 +169,34 @@
     }
 
     retryResourceLoad(errorInfo) {
-      const src = errorInfo?.src;
+      const src = String(errorInfo?.src || "").trim();
       if (!src) return;
 
-      // ✅ 특정 핵심 리소스만 재시도
       const isCritical =
-        src.includes('fuse.js') ||
-        src.includes('categories-data.js') ||
-        src.includes('sites-data.js');
-
+        src.includes("fuse.js") ||
+        src.includes("categories-data.js") ||
+        src.includes("sites-data.js");
       if (!isCritical) return;
 
-      // ✅ 앱이 한참 지난 뒤에 "재주입"은 오히려 상태 꼬임 가능 → 시간창 제한
-      if (Date.now() - this.bootAt > this.maxRetryWindowMs) return;
+      const bootAt = Number.isFinite(this.bootAt) ? this.bootAt : Date.now();
+      const retryWindow = Number.isFinite(this.maxRetryWindowMs)
+        ? this.maxRetryWindowMs
+        : 15000;
+      if (Date.now() - bootAt > retryWindow) return;
 
-      // ✅ src별 1회만
+      if (!(this.resourceRetryOnce instanceof Set)) {
+        this.resourceRetryOnce = new Set();
+      }
       if (this.resourceRetryOnce.has(src)) return;
       this.resourceRetryOnce.add(src);
 
-      // ✅ 이미 동일 src 스크립트가 DOM에 있으면 재주입 금지
-      const already = Array.from(document.scripts).some(s => s?.src && s.src.includes(src));
+      const already = Array.from(document.scripts || []).some(
+        (script) => script?.src && script.src.includes(src)
+      );
       if (already) return;
 
       setTimeout(() => {
-        console.log(`🔄 Retrying to load (once): ${src}`);
+        console.log("retrying critical resource:", src);
         this.reloadScript(src);
       }, 2000);
     }
@@ -336,238 +343,17 @@
   // ==================== 3. 안전한 유틸리티 함수들 ====================
   
   // HTML 이스케이프 함수
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
+  const escapeHtml =
+    window.ddakpilmo?.utils?.escapeHtml ||
+    window.escapeHtml ||
+    ((value) => String(value ?? ""));
 
-  // 향상된 초성 추출 함수
-  function getChosungSafe(str) {
-    if (!str || typeof str !== "string") return "";
-    const CHO = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
-    let result = "";
-    try {
-      for (let i = 0; i < str.length; i++) {
-        const code = str.charCodeAt(i) - 44032;
-        if (code >= 0 && code <= 11171) {
-          result += CHO[Math.floor(code / 588)] || "";
-        } else {
-          result += str[i];
-        }
-      }
-    } catch (error) {
-      console.warn("getChosungSafe 오류:", error);
-      return String(str);
-    }
-    return result;
-  }
+  const getChosungSafe =
+    window.ddakpilmo?.utils?.getChosungSafe ||
+    window.getChosungSafe ||
+    ((value) => String(value ?? ""));
 
 // ==================== 4. 강화된 사이트 카드 생성 함수 ====================
-  function createSiteCardWithErrorHandling(site) {
-    try {
-      const card = document.createElement("div");
-      card.className = "link-card";
-      card.setAttribute("data-site", site.name || "");
-
-      // 왼쪽 영역
-      const left = document.createElement("div");
-      left.className = "card-left";
-      
-      const iconContainer = document.createElement("div");
-      iconContainer.className = "icon-container";
-      iconContainer.style.cssText = `
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #f8f9fa;
-        position: relative;
-      `;
-
-      // 로딩 인디케이터
-      const loadingIndicator = document.createElement("div");
-      loadingIndicator.style.cssText = `
-        width: 20px;
-        height: 20px;
-        border: 2px solid #e9ecef;
-        border-top: 2px solid #667eea;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      `;
-      iconContainer.appendChild(loadingIndicator);
-
-      // Favicon 비동기 로딩
-      if (window.ddakpilmo && window.ddakpilmo.faviconLoader) {
-        window.ddakpilmo.faviconLoader.loadFavicon(site.url || '', site.name)
-          .then(iconData => {
-            iconContainer.innerHTML = '';
-            
-            if (iconData.type === 'image') {
-              const img = document.createElement('img');
-              img.src = iconData.src;
-              img.alt = `${site.name} favicon`;
-              img.className = 'site-favicon';
-              img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
-              iconContainer.appendChild(img);
-            } else {
-              const fallback = document.createElement('div');
-              fallback.className = 'fallback-icon';
-              fallback.textContent = site.name ? site.name.charAt(0).toUpperCase() : '?';
-              fallback.style.cssText = `
-                width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-                font-weight: bold; font-size: 18px; color: white;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              `;
-              iconContainer.appendChild(fallback);
-            }
-          })
-          .catch(error => {
-            console.warn('Favicon loading error:', error);
-            iconContainer.innerHTML = `
-              <div style="width: 100%; height: 100%; display: flex; align-items: center; 
-                          justify-content: center; font-size: 16px; color: #6c757d;">📄</div>
-            `;
-          });
-      }
-
-      left.appendChild(iconContainer);
-
-      // 오른쪽 영역
-      const right = document.createElement("div");
-      right.className = "card-right";
-
-      // 헤더
-      const header = document.createElement("div");
-      header.className = "link-card-header";
-
-      // 사이트 링크
-      const link = document.createElement("a");
-      link.href = site.url || "#";
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.className = "site-title";
-      
-      try {
-        const siteName = site.name || "이름 없음";
-        const searchQuery = (typeof state !== 'undefined' && state.currentSearchQuery) ? state.currentSearchQuery : "";
-        
-        if (typeof highlightSearchTerms === 'function') {
-          link.innerHTML = highlightSearchTerms(siteName, searchQuery);
-        } else {
-          link.textContent = siteName;
-        }
-      } catch (error) {
-        console.warn('Error setting site title:', error);
-        link.textContent = site.name || "이름 없음";
-      }
-
-      // 공유 버튼
-      const shareBtn = document.createElement("button");
-      shareBtn.className = "share-btn";
-      shareBtn.innerHTML = '📤 <span class="sr-only">공유</span>';
-      shareBtn.title = "링크 공유";
-      shareBtn.setAttribute('aria-label', '링크 공유하기');
-      
-      shareBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        try {
-          if (typeof window.ddakpilmo.fallbackShare === 'function') {
-            window.ddakpilmo.fallbackShare(site);
-          }
-        } catch (error) {
-          console.error('Share error:', error);
-        }
-      });
-
-      header.appendChild(link);
-      header.appendChild(shareBtn);
-
-      // 설명
-      const desc = document.createElement("p");
-      desc.className = "site-desc";
-      
-      try {
-        const siteDesc = site.desc || "설명이 없습니다.";
-        const searchQuery = (typeof state !== 'undefined' && state.currentSearchQuery) ? state.currentSearchQuery : "";
-        
-        if (typeof highlightSearchTerms === 'function') {
-          desc.innerHTML = highlightSearchTerms(siteDesc, searchQuery);
-        } else {
-          desc.textContent = siteDesc;
-        }
-      } catch (error) {
-        console.warn('Error setting site description:', error);
-        desc.textContent = site.desc || "설명이 없습니다.";
-      }
-
-      // 태그들
-      const tags = document.createElement("div");
-      tags.className = "link-card-tags";
-
-      try {
-        const catTag = document.createElement("span");
-        catTag.className = "tag category-tag";
-        
-        if (typeof getCategoryName === 'function') {
-          catTag.textContent = getCategoryName(site.category);
-        } else {
-          catTag.textContent = site.category || '기타';
-        }
-        tags.appendChild(catTag);
-
-        if (Array.isArray(site.ages)) {
-          site.ages.forEach(age => {
-            try {
-              const ageTag = document.createElement("span");
-              ageTag.className = "tag age-tag";
-              
-              if (typeof ageNames !== 'undefined' && ageNames[age]) {
-                ageTag.textContent = ageNames[age];
-              } else {
-                ageTag.textContent = age;
-              }
-              tags.appendChild(ageTag);
-            } catch (ageError) {
-              console.warn('Error creating age tag:', ageError);
-            }
-          });
-        }
-      } catch (tagError) {
-        console.warn('Error creating tags:', tagError);
-      }
-
-      right.appendChild(header);
-      right.appendChild(desc);
-      right.appendChild(tags);
-
-      card.appendChild(left);
-      card.appendChild(right);
-
-      return card;
-
-    } catch (error) {
-      console.error('Error creating site card:', error);
-      
-      const errorCard = document.createElement('div');
-      errorCard.className = 'link-card error-card';
-      errorCard.innerHTML = `
-        <div style="padding: 16px; text-align: center; color: #6c757d;">
-          <div style="font-size: 24px; margin-bottom: 8px;">⚠️</div>
-          <div style="font-size: 14px;">카드를 불러올 수 없습니다</div>
-          <div style="font-size: 12px; margin-top: 4px;">${site.name || '알 수 없는 사이트'}</div>
-        </div>
-      `;
-      return errorCard;
-    }
-  }
 
   // ==================== 5. 공유 기능 ====================
   function fallbackShare(site) {
@@ -673,10 +459,6 @@
       window.ddakpilmo.fallbackCopyToClipboard = fallbackCopyToClipboard;
       
       // 기존 함수 백업 및 대체 (안전하게)
-      if (typeof window.createSiteCard === 'function') {
-        window.ddakpilmo.originalCreateSiteCard = window.createSiteCard;
-      }
-      window.ddakpilmo.createSiteCardSafe = createSiteCardWithErrorHandling;
       
       console.log('✅ 오류 처리 시스템 초기화 완료!');
       

@@ -1,31 +1,67 @@
 // Data loading extracted from main.js
 (function () {
   const DETAILS_API_URL =
-    "https://script.google.com/macros/s/AKfycbxn5IBkNF6mloJZ3WkbY4jzdggOrPnWo9RW7zVLrO6Gawasv2J77x18F-XDB5_plTbfig/exec/s/AKfycbwR4uC3aEqcznGJ7_U9KayDn6TufxJ1-3xGNp5bVYK_ts7qrNB1iy_MqZ8YIKW6HY7_gg/exec";
+    "https://script.google.com/macros/s/AKfycbxu0QNxzD11mmExZ89ItV9TIvKz9Dd1EYxAiQbL56SyGQU2yzZNyT0qzB6dpwwbslzJeA/exec";
+
+  function normalizeDetailsPayload(data) {
+    const source =
+      data?.items ||
+      data?.details ||
+      data?.data ||
+      data?.rows ||
+      data?.results ||
+      {};
+
+    if (Array.isArray(source)) {
+      return source.reduce((acc, item) => {
+        if (!item || typeof item !== "object") return acc;
+        const key = item.key || item.id || item.slug || item.name || item.title;
+        if (key) acc[String(key).trim()] = item;
+        return acc;
+      }, {});
+    }
+
+    if (source && typeof source === "object") {
+      return source;
+    }
+
+    return {};
+  }
+
+  function applyDetailsPayload(data) {
+    const items = normalizeDetailsPayload(data);
+    window.siteDetailMap = window.siteDetailMap || {};
+    Object.assign(window.siteDetailMap, items);
+    return items;
+  }
 
   async function loadDetailsFromSheet({ cacheMinutes = 60 } = {}) {
-    const cacheKey = "detailsSheetCache:v1";
+    const cacheKey = "detailsSheetCache:v2";
     const now = Date.now();
 
     try {
       const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
-      if (cached?.ts && now - cached.ts < cacheMinutes * 60 * 1000 && cached?.data?.items) {
-        window.siteDetailMap = window.siteDetailMap || {};
-        Object.assign(window.siteDetailMap, cached.data.items);
+      if (cached?.ts && now - cached.ts < cacheMinutes * 60 * 1000 && cached?.data) {
+        applyDetailsPayload(cached.data);
         return;
       }
     } catch {}
 
-    const res = await fetch(DETAILS_API_URL, { cache: "no-store" });
-    if (!res.ok) throw new Error("details sheet load failed: " + res.status);
-
-    const data = await res.json();
-    window.siteDetailMap = window.siteDetailMap || {};
-    Object.assign(window.siteDetailMap, data.items || {});
-
     try {
-      localStorage.setItem(cacheKey, JSON.stringify({ ts: now, data }));
-    } catch {}
+      const res = await fetch(DETAILS_API_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error("details sheet load failed: " + res.status);
+
+      const data = await res.json();
+      applyDetailsPayload(data);
+
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({ ts: now, data }));
+      } catch {}
+    } catch (err) {
+      window.__detailsLoadError = err;
+      console.warn("[data] details sheet load skipped:", err);
+      window.siteDetailMap = window.siteDetailMap || {};
+    }
   }
 
   async function loadJSONData() {
